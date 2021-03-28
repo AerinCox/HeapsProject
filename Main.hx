@@ -1,3 +1,4 @@
+import hxd.Event;
 import hxd.fmt.fbx.Geometry;
 import hxd.fmt.hmd.Data.Model;
 import h3d.scene.World.WorldModel;
@@ -10,6 +11,7 @@ import h3d.scene.*;
 
 class WASDCameraController extends h3d.scene.CameraController {
 	override function onEvent(e:hxd.Event) {
+		e.propagate = true;
 		switch (e.kind) {
 			case EWheel:
 				zoom(e.wheelDelta);
@@ -23,11 +25,10 @@ class WASDCameraController extends h3d.scene.CameraController {
 }
 
 class WorldMesh extends h3d.scene.World {
-	public var soilInteract:List<h3d.scene.Interactive>;
+	public var interactFunction:(e:Event) -> Void;
 
 	override public function new(chunkSize:Int, parent, ?autoCollect = true) {
 		super(chunkSize, parent, autoCollect);
-		this.soilInteract = new List<h3d.scene.Interactive>();
 	}
 
 	override function initChunkSoil(c:h3d.scene.World.WorldChunk) {
@@ -40,15 +41,19 @@ class WorldMesh extends h3d.scene.World {
 		soil.material.texture = h3d.mat.Texture.fromColor(0x408020);
 		soil.material.shadows = true;
 
-		this.soilInteract.add(new h3d.scene.Interactive(soil.getCollider(), c.root));
+		var interactive = new h3d.scene.Interactive(soil.getCollider(), c.root);
+		interactive.propagateEvents = true;
+		interactive.onClick = function(e:hxd.Event) {
+			interactFunction(e);
+		}
 	}
 }
 
 class Main extends hxd.App {
 	var cube1:Mesh;
 	var world:WorldMesh;
-	var camera:WASDCameraController;
 
+	var camera:WASDCameraController;
 	var line:h2d.Graphics;
 
 	override function init() {
@@ -63,9 +68,8 @@ class Main extends hxd.App {
 
 		world.done();
 
-		// Init cube
+		// Player
 		var cubeShape = new h3d.prim.Cube();
-		// cubeShape.translate(-0.5, -0.5, -0.5);
 		cubeShape.unindex();
 		cubeShape.addNormals();
 		cubeShape.addUVs();
@@ -74,7 +78,7 @@ class Main extends hxd.App {
 		cube1.material.shadows = false;
 
 		// Light
-		// var light = new h3d.scene.fwd.DirLight(new h3d.Vector(0.3, -0.4, -0.9), s3d);
+		var light = new h3d.scene.fwd.DirLight(new h3d.Vector(0.3, -0.4, -0.9), s3d);
 		s3d.lightSystem.ambientLight.setColor(0x909090);
 
 		var shadow = s3d.renderer.getPass(h3d.pass.DefaultShadowMap);
@@ -93,6 +97,7 @@ class Main extends hxd.App {
 		g.emitMode = CameraBounds;
 		parts.volumeBounds = h3d.col.Bounds.fromValues(-20, -20, 15, 40, 40, 40);
 
+		// Camera
 		s3d.camera.target.set(72, 72, 0);
 		s3d.camera.pos.set(120, 120, 40);
 		s3d.camera.zNear = 1;
@@ -107,42 +112,15 @@ class Main extends hxd.App {
 		line.endFill();
 
 		// Interactions
-		// var cubeEvent = new h3d.scene.Interactive(cube1.getCollider(), s3d);
-		// cubeEvent.onOver = function(e:hxd.Event) {
-		// 	cube1.material.color.set(1, 1, 0);
-		// }
+		var something = function(e:hxd.Event) cube1.setPosition(e.relX, e.relY, e.relZ);
+		world.interactFunction = something;
 
-		//broken
-		for (interact in world.soilInteract) {
-			interact.onClick = function(e:hxd.Event) {
-				cube1.setPosition(e.relX, e.relY, e.relZ);
-				trace("Setting position to " + e.relX + " " + e.relY + " " + e.relZ);
-			}
-		}
-
-		// Keyboard Input
-		hxd.Window.getInstance().addEventTarget(onEvent);
+		// A General World Event
+		//hxd.Window.getInstance().addEventTarget(onEvent);
 	}
 
 	// Don't forget to remove the event using removeEventTarget when disposing your objects.
-	function onEvent(event:hxd.Event) {
-		// // W
-		// if (event.kind == EKeyDown && event.keyCode == 87) {
-		// 	cube1.setPosition(cube1.x, cube1.y, cube1.z + 0.1);
-		// }
-		// // S
-		// if (event.kind == EKeyDown && event.keyCode == 87) {
-		// 	cube1.setPosition(cube1.x, cube1.y, cube1.z - 0.1);
-		// }
-		// // A
-		// if (event.kind == EKeyDown && event.keyCode == 65) {
-		// 	cube1.setPosition(cube1.x - 0.1, cube1.y, cube1.z);
-		// }
-		// // D
-		// if (event.kind == EKeyDown && event.keyCode == 68) {
-		// 	cube1.setPosition(cube1.x + 0.1, cube1.y, cube1.z);
-		// }
-	}
+	function onEvent(event:hxd.Event) { /* Not used currently */ }
 
 	override function update(dt:Float) {
 		// Cursor

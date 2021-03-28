@@ -3731,11 +3731,11 @@ h3d_scene_CameraController.prototype = $extend(h3d_scene_Object.prototype,{
 				if(e.kind == hxd_EventKind.ERelease && HxOverrides.now() / 1000 - this.pushTime < 0.2) {
 					var dx = e.relX - this.pushStartX;
 					var dy = e.relY - this.pushStartY;
-					var dz = 0.;
-					if(dz == null) {
-						dz = 0.;
+					var dz1 = 0.;
+					if(dz1 == null) {
+						dz1 = 0.;
 					}
-					tmp = Math.sqrt(dx * dx + dy * dy + dz * dz) < 5;
+					tmp = Math.sqrt(dx * dx + dy * dy + dz1 * dz1) < 5;
 				} else {
 					tmp = false;
 				}
@@ -3889,6 +3889,7 @@ WASDCameraController.__name__ = "WASDCameraController";
 WASDCameraController.__super__ = h3d_scene_CameraController;
 WASDCameraController.prototype = $extend(h3d_scene_CameraController.prototype,{
 	onEvent: function(e) {
+		e.propagate = true;
 		if(e.kind._hx_index == 5) {
 			this.zoom(e.wheelDelta);
 		}
@@ -4751,15 +4752,14 @@ var WorldMesh = function(chunkSize,parent,autoCollect) {
 		autoCollect = true;
 	}
 	h3d_scene_World.call(this,chunkSize,parent,autoCollect);
-	this.soilInteract = new haxe_ds_List();
-	haxe_Log.trace("1",{ fileName : "Main.hx", lineNumber : 31, className : "WorldMesh", methodName : "new"});
 };
 $hxClasses["WorldMesh"] = WorldMesh;
 WorldMesh.__name__ = "WorldMesh";
 WorldMesh.__super__ = h3d_scene_World;
 WorldMesh.prototype = $extend(h3d_scene_World.prototype,{
-	soilInteract: null
+	interactFunction: null
 	,initChunkSoil: function(c) {
+		var _gthis = this;
 		var cube = new h3d_prim_Cube(this.chunkSize,this.chunkSize,0);
 		cube.addNormals();
 		cube.addUVs();
@@ -4786,7 +4786,11 @@ WorldMesh.prototype = $extend(h3d_scene_World.prototype,{
 		var _this = soil.material;
 		_this.set_castShadows(true);
 		_this.set_receiveShadows(true);
-		this.soilInteract.add(new h3d_scene_Interactive(soil.getCollider(),c.root));
+		var interactive = new h3d_scene_Interactive(soil.getCollider(),c.root);
+		interactive.propagateEvents = true;
+		interactive.onClick = function(e) {
+			_gthis.interactFunction(e);
+		};
 	}
 	,__class__: WorldMesh
 });
@@ -4999,8 +5003,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		cubeShape.addUVs();
 		this.cube1 = new h3d_scene_Mesh(cubeShape,null,this.s3d);
 		var _this = this.cube1;
-		var v = _this.scaleX * 0.2;
-		_this.scaleX = v;
+		var v1 = _this.scaleX * 0.2;
+		_this.scaleX = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -5008,8 +5012,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var v = _this.scaleY * 0.2;
-		_this.scaleY = v;
+		var v1 = _this.scaleY * 0.2;
+		_this.scaleY = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -5017,8 +5021,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var v = _this.scaleZ * 0.2;
-		_this.scaleZ = v;
+		var v1 = _this.scaleZ * 0.2;
+		_this.scaleZ = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -5036,6 +5040,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 		var _this = this.cube1.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
+		var light = new h3d_scene_fwd_DirLight(new h3d_Vector(0.3,-0.4,-0.9),this.s3d);
 		var _this = this.s3d.lightSystem.ambientLight;
 		_this.x = 0.56470588235294117;
 		_this.y = 0.56470588235294117;
@@ -5127,52 +5132,45 @@ Main.prototype = $extend(hxd_App.prototype,{
 		this.line.beginFill(-1);
 		this.line.drawRect(0,-0.5,100,1);
 		this.line.endFill();
-		var _g1_head = this.world.soilInteract.h;
-		while(_g1_head != null) {
-			var val = _g1_head.item;
-			_g1_head = _g1_head.next;
-			var interact = val;
-			interact.onClick = function(e) {
-				var _this = _gthis.cube1;
-				var x = e.relX;
-				var y = e.relY;
-				var z = e.relZ;
-				_this.x = x;
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				_this.y = y;
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				_this.z = z;
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				haxe_Log.trace("Setting position to " + e.relX + " " + e.relY + " " + e.relZ,{ fileName : "Main.hx", lineNumber : 119, className : "Main", methodName : "init"});
-			};
-		}
+		var something = function(e) {
+			var _this = _gthis.cube1;
+			var x = e.relX;
+			var y = e.relY;
+			var z = e.relZ;
+			_this.x = x;
+			var f = 1;
+			var b = true;
+			if(b) {
+				_this.flags |= f;
+			} else {
+				_this.flags &= ~f;
+			}
+			_this.y = y;
+			var f = 1;
+			var b = true;
+			if(b) {
+				_this.flags |= f;
+			} else {
+				_this.flags &= ~f;
+			}
+			_this.z = z;
+			var f = 1;
+			var b = true;
+			if(b) {
+				_this.flags |= f;
+			} else {
+				_this.flags &= ~f;
+			}
+			var f = 1;
+			var b = true;
+			if(b) {
+				_this.flags |= f;
+			} else {
+				_this.flags &= ~f;
+			}
+		};
+		this.world.interactFunction = something;
 		hxd_Window.getInstance().addEventTarget($bind(this,this.onEvent));
-		haxe_Log.trace("3",{ fileName : "Main.hx", lineNumber : 126, className : "Main", methodName : "init"});
 	}
 	,onEvent: function(event) {
 	}
@@ -42684,6 +42682,93 @@ h3d_scene_WorldModel.prototype = {
 	}
 	,__class__: h3d_scene_WorldModel
 };
+var h3d_scene_fwd_DirLight = function(dir,parent) {
+	this.dshader = new h3d_shader_DirLight();
+	h3d_scene_Light.call(this,this.dshader,parent);
+	this.priority = 100;
+	if(dir != null) {
+		this.setDirection(dir);
+	}
+};
+$hxClasses["h3d.scene.fwd.DirLight"] = h3d_scene_fwd_DirLight;
+h3d_scene_fwd_DirLight.__name__ = "h3d.scene.fwd.DirLight";
+h3d_scene_fwd_DirLight.__super__ = h3d_scene_Light;
+h3d_scene_fwd_DirLight.prototype = $extend(h3d_scene_Light.prototype,{
+	dshader: null
+	,get_color: function() {
+		return this.dshader.color__;
+	}
+	,set_color: function(v) {
+		return this.dshader.color__ = v;
+	}
+	,get_enableSpecular: function() {
+		return this.dshader.enableSpecular__;
+	}
+	,set_enableSpecular: function(b) {
+		var _this = this.dshader;
+		_this.constModified = true;
+		return _this.enableSpecular__ = b;
+	}
+	,getShadowDirection: function() {
+		var _this = this.absPos;
+		var v = new h3d_Vector(_this._11,_this._12,_this._13);
+		var k = v.x * v.x + v.y * v.y + v.z * v.z;
+		if(k < 1e-10) {
+			k = 0;
+		} else {
+			k = 1. / Math.sqrt(k);
+		}
+		v.x *= k;
+		v.y *= k;
+		v.z *= k;
+		return v;
+	}
+	,emit: function(ctx) {
+		var _this = this.dshader.direction__;
+		var _this1 = this.absPos;
+		var x = _this1._11;
+		var y = _this1._12;
+		var z = _this1._13;
+		if(z == null) {
+			z = 0.;
+		}
+		if(y == null) {
+			y = 0.;
+		}
+		if(x == null) {
+			x = 0.;
+		}
+		var v_x = x;
+		var v_y = y;
+		var v_z = z;
+		var v_w = 1.;
+		var k = v_x * v_x + v_y * v_y + v_z * v_z;
+		if(k < 1e-10) {
+			k = 0;
+		} else {
+			k = 1. / Math.sqrt(k);
+		}
+		v_x *= k;
+		v_y *= k;
+		v_z *= k;
+		_this.x = v_x;
+		_this.y = v_y;
+		_this.z = v_z;
+		_this.w = v_w;
+		var _this = this.dshader.direction__;
+		var k = _this.x * _this.x + _this.y * _this.y + _this.z * _this.z;
+		if(k < 1e-10) {
+			k = 0;
+		} else {
+			k = 1. / Math.sqrt(k);
+		}
+		_this.x *= k;
+		_this.y *= k;
+		_this.z *= k;
+		h3d_scene_Light.prototype.emit.call(this,ctx);
+	}
+	,__class__: h3d_scene_fwd_DirLight
+});
 var h3d_scene_fwd_LightSystem = function() {
 	this.perPixelLighting = true;
 	this.maxLightsPerObject = 6;
@@ -43791,6 +43876,86 @@ h3d_shader_ColorMatrix.prototype = $extend(hxsl_Shader.prototype,{
 		return s;
 	}
 	,__class__: h3d_shader_ColorMatrix
+});
+var h3d_shader_DirLight = function() {
+	this.direction__ = new h3d_Vector();
+	this.color__ = new h3d_Vector();
+	hxsl_Shader.call(this);
+	var _this = this.color__;
+	var x = 1;
+	var y = 1;
+	var z = 1;
+	if(z == null) {
+		z = 0.;
+	}
+	if(y == null) {
+		y = 0.;
+	}
+	if(x == null) {
+		x = 0.;
+	}
+	_this.x = x;
+	_this.y = y;
+	_this.z = z;
+	_this.w = 1.;
+};
+$hxClasses["h3d.shader.DirLight"] = h3d_shader_DirLight;
+h3d_shader_DirLight.__name__ = "h3d.shader.DirLight";
+h3d_shader_DirLight.__super__ = hxsl_Shader;
+h3d_shader_DirLight.prototype = $extend(hxsl_Shader.prototype,{
+	color__: null
+	,get_color: function() {
+		return this.color__;
+	}
+	,set_color: function(_v) {
+		return this.color__ = _v;
+	}
+	,direction__: null
+	,get_direction: function() {
+		return this.direction__;
+	}
+	,set_direction: function(_v) {
+		return this.direction__ = _v;
+	}
+	,enableSpecular__: null
+	,get_enableSpecular: function() {
+		return this.enableSpecular__;
+	}
+	,set_enableSpecular: function(_v) {
+		this.constModified = true;
+		return this.enableSpecular__ = _v;
+	}
+	,updateConstants: function(globals) {
+		this.constBits = 0;
+		if(this.enableSpecular__) {
+			this.constBits |= 1;
+		}
+		this.updateConstantsFinal(globals);
+	}
+	,getParamValue: function(index) {
+		switch(index) {
+		case 0:
+			return this.color__;
+		case 1:
+			return this.direction__;
+		case 2:
+			return this.enableSpecular__;
+		default:
+		}
+		return null;
+	}
+	,getParamFloatValue: function(index) {
+		return 0.;
+	}
+	,clone: function() {
+		var s = Object.create(h3d_shader_DirLight.prototype);
+		s.shader = this.shader;
+		s.color__ = this.color__;
+		s.direction__ = this.direction__;
+		s.enableSpecular__ = this.enableSpecular__;
+		return s;
+	}
+	,__class__: h3d_shader_DirLight
 });
 var h3d_shader_DirShadow = function() {
 	this.poissonDiskVeryHigh__ = [];
@@ -79978,6 +80143,7 @@ h3d_shader_Blur.SRC = "HXSLD2gzZC5zaGFkZXIuQmx1choBBWlucHV0DQECAghwb3NpdGlvbgUKA
 h3d_shader_ColorAdd.SRC = "HXSLE2gzZC5zaGFkZXIuQ29sb3JBZGQDAQpwaXhlbENvbG9yBQwEAAACBWNvbG9yBQsCAAADCGZyYWdtZW50DgYAAAEBAwAABQEGgAoCAQUMkgAFCwICBQsFCwA";
 h3d_shader_ColorKey.SRC = "HXSLE2gzZC5zaGFkZXIuQ29sb3JLZXkDAQhjb2xvcktleQUMAgAAAgx0ZXh0dXJlQ29sb3IFDAQAAAMIZnJhZ21lbnQOBgAAAQEDAAAFAggEBWNkaWZmBQwEAAAGAwICBQwCAQUMBQwACwYJCQMdDgICBAUMAgQFDAMBA/Fo44i1+OQ+AwIMAAAAAA";
 h3d_shader_ColorMatrix.SRC = "HXSLFmgzZC5zaGFkZXIuQ29sb3JNYXRyaXgDAQpwaXhlbENvbG9yBQwEAAACBm1hdHJpeAcCAAADCGZyYWdtZW50DgYAAAEBAwAABQEGBAIBBQwJAyoOAgoEBgEJAyoOAgoCAQUMkgAFCwEDAAAAAAAA8D8DBQwCAgcFDAUMkgAFCwoEBgECAQUMAgIHBQwFDAwAAwUMBQwA";
+h3d_shader_DirLight.SRC = "HXSLE2gzZC5zaGFkZXIuRGlyTGlnaHQNAQVjb2xvcgULAgAAAglkaXJlY3Rpb24FCwIAAAMOZW5hYmxlU3BlY3VsYXICAgABAAAAAAAEBmNhbWVyYQ0BAQUIcG9zaXRpb24FCwAEAAAAAAYKbGlnaHRDb2xvcgULBAAABw9saWdodFBpeGVsQ29sb3IFCwQAAAgRdHJhbnNmb3JtZWROb3JtYWwFCwQAAAkTdHJhbnNmb3JtZWRQb3NpdGlvbgULBAAACglzcGVjUG93ZXIDBAAACwlzcGVjQ29sb3IFCwQAAAwMY2FsY0xpZ2h0aW5nDgYAAA0GdmVydGV4DgYAAA4IZnJhZ21lbnQOBgAAAwMMAAULBQUIDwRkaWZmAwQAAAkDFg4CCQMdDgICCAULBwMCAgULBQsDAQMAAAAAAAAAAAMDAAsHAgIDAgINBgECAQULAg8DBQsAAAAIEAFyBQsEAAAJAx8OAQkDIA4CAgIFCwIIBQsFCwULAAgRCXNwZWNWYWx1ZQMEAAAJAxYOAgkDHQ4CAhAFCwkDHw4BBAYDAgUFCwIJBQsFCwULBQsDAQMAAAAAAAAAAAMDAA0GAQIBBQsEBgACDwMGAQILBQsJAwgOAgIRAwIKAwMFCwULBQsFCwAAAA0AAAUBBoAKAgYFC5IABQsJAgwOAAULBQsAAQ4AAAUBBoAKAgcFC5IABQsJAgwOAAULBQsA";
 h3d_shader_DirShadow.SRC = "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";
 h3d_shader_GenTexture.SRC = "HXSLFWgzZC5zaGFkZXIuR2VuVGV4dHVyZQoBBWlucHV0DQECAghwb3NpdGlvbgUKAQEAAwJ1dgUKAQEAAQAABAVmbGlwWQMCAAAFBm91dHB1dA0CAgYIcG9zaXRpb24FDAQFAAcFY29sb3IFDAQFAAQAAAgKcGl4ZWxDb2xvcgUMBAAACQxjYWxjdWxhdGVkVVYFCgQAAAoEbW9kZQECAAEAAAAAAAsFY29sb3IFDAIAAAwIX19pbml0X18OBgAADQZ2ZXJ0ZXgOBgAADghmcmFnbWVudA4GAAADAgwAAAUCBgQCBwUMAggFDAUMBgQCCQUKAgMFCgUKAAANAAAFAQYEAgYFDAkDKg4ECgICBQoAAAMGAQoCAgUKBAADAgQDAwEDAAAAAAAAAAADAQMAAAAAAADwPwMFDAUMAAEOAAAFARMEAgoBAQEBAQIAAAAAAQUBBgQCCAUMCwYHCQMbDgEKAgYFDBEABQoDAQMAAAAAAADwPwMCCQMqDgEBAwAAAAAAAAAAAwUMAgsFDAUMBQwAAAAA";
 h3d_shader_GpuParticle.SRC = "HXSLFmgzZC5zaGFkZXIuR3B1UGFydGljbGUzAQZjYW1lcmENAQoCBHZpZXcHAAEAAwRwcm9qBwABAAQIcG9zaXRpb24FCwABAAUIcHJvakZsaXADAAEABghwcm9qRGlhZwULAAEABwh2aWV3UHJvagcAAQAID2ludmVyc2VWaWV3UHJvagcAAQAJBXpOZWFyAwABAAoEekZhcgMAAQALA2RpcgULAwEAAAAADAZnbG9iYWwNAgQNBHRpbWUDAAwADglwaXhlbFNpemUFCgAMAA8JbW9kZWxWaWV3BwAMAQMQEG1vZGVsVmlld0ludmVyc2UHAAwBAwAAABEFaW5wdXQNAwISCHBvc2l0aW9uBQsBEQATBm5vcm1hbAULAREAAQAAFAZvdXRwdXQNBAUVCHBvc2l0aW9uBQwEFAAWBWNvbG9yBQwEFAAXBWRlcHRoAwQUABgGbm9ybWFsBQsEFAAZCXdvcmxkRGlzdAMEFAAEAAAaEHJlbGF0aXZlUG9zaXRpb24FCwQAABsTdHJhbnNmb3JtZWRQb3NpdGlvbgULBAAAHBhwaXhlbFRyYW5zZm9ybWVkUG9zaXRpb24FCwQAAB0RdHJhbnNmb3JtZWROb3JtYWwFCwQAAB4RcHJvamVjdGVkUG9zaXRpb24FDAQAAB8KcGl4ZWxDb2xvcgUMBAAAIAVkZXB0aAMEAAAhCHNjcmVlblVWBQoEAAAiCXNwZWNQb3dlcgMEAAAjCXNwZWNDb2xvcgULBAAAJAl3b3JsZERpc3QDBAAAJQVwcm9wcw0FBSYCdXYFCgElACcEdGltZQMBJQAoBGxpZmUDASUAKQRpbml0BQoBJQAqBWRlbHRhBQoBJQABAAArBmZhZGVJbgMCAAAsB2ZhZGVPdXQDAgAALQlmYWRlUG93ZXIDAgAALglzcGVlZEluY3IDAgAALwdncmF2aXR5AwIAADAFY29sb3IKAgAAMQd0ZXh0dXJlCgIAADIEdGltZQMCAAAzB21heFRpbWUDAgAANAtsb29wQ291bnRlcgMCAAA1D2FuaW1hdGlvblJlcGVhdAMCAAA2E2FuaW1hdGlvbkZpeGVkRnJhbWUDAgAANwt0b3RhbEZyYW1lcwMCAAA4CWZyYW1lU2l6ZQUKAgAAOQ1mcmFtZURpdmlzaW9uBQsCAAA6CXRyYW5zZm9ybQgCAAA7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";
