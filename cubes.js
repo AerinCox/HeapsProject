@@ -3898,6 +3898,10 @@ WASDCameraController.prototype = $extend(h3d_scene_CameraController.prototype,{
 		this.moveX += dx;
 		this.moveY += dy;
 	}
+	,setPos: function(xPos,yPos) {
+		this.targetOffset.x = xPos;
+		this.targetOffset.y = yPos;
+	}
 	,__class__: WASDCameraController
 });
 var h3d_scene_World = function(chunkSize,parent,autoCollect) {
@@ -4982,7 +4986,7 @@ Main.main = function() {
 };
 Main.__super__ = hxd_App;
 Main.prototype = $extend(hxd_App.prototype,{
-	cube1: null
+	player: null
 	,world: null
 	,camera: null
 	,line: null
@@ -4990,19 +4994,21 @@ Main.prototype = $extend(hxd_App.prototype,{
 		var _gthis = this;
 		hxd_App.prototype.init.call(this);
 		this.world = new WorldMesh(16,this.s3d);
-		var r = this.world.loadModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model));
+		var rock = this.world.loadModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model));
 		var _g = 0;
 		while(_g < 1000) {
 			var i = _g++;
-			this.world.add(r,Math.random() * 128,Math.random() * 128,0,1.2 + hxd_Math.srand(0.4),hxd_Math.srand(Math.PI));
+			this.world.add(rock,Math.random() * 128,Math.random() * 128,0,1.2 + hxd_Math.srand(0.4),hxd_Math.srand(Math.PI));
 		}
 		this.world.done();
+		this.camera = new WASDCameraController(50,this.s3d);
+		this.camera.set(500);
 		var cubeShape = new h3d_prim_Cube();
 		cubeShape.unindex();
 		cubeShape.addNormals();
 		cubeShape.addUVs();
-		this.cube1 = new h3d_scene_Mesh(cubeShape,null,this.s3d);
-		var _this = this.cube1;
+		this.player = new h3d_scene_Mesh(cubeShape,null,this.s3d);
+		var _this = this.player;
 		var v1 = _this.scaleX * 0.2;
 		_this.scaleX = v1;
 		var f = 1;
@@ -5037,14 +5043,14 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var _this = this.cube1.material;
+		var _this = this.player.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
-		var light = new h3d_scene_fwd_DirLight(new h3d_Vector(0.3,-0.4,-0.9),this.s3d);
+		new h3d_scene_fwd_DirLight(new h3d_Vector(0.3,-0.4,-0.9),this.s3d);
 		var _this = this.s3d.lightSystem.ambientLight;
-		_this.x = 0.56470588235294117;
-		_this.y = 0.56470588235294117;
-		_this.z = 0.56470588235294117;
+		_this.x = 0.6;
+		_this.y = 0.;
+		_this.z = 0.;
 		_this.w = 0.;
 		var shadow = this.s3d.renderer.getPass(h3d_pass_DefaultShadowMap);
 		shadow.set_size(2048);
@@ -5090,50 +5096,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		b.yMax = 20;
 		b.zMax = 55;
 		parts.set_volumeBounds(b);
-		var _this = this.s3d.camera.target;
-		var x = 72;
-		var y = 72;
-		var z = 0;
-		if(z == null) {
-			z = 0.;
-		}
-		if(y == null) {
-			y = 0.;
-		}
-		if(x == null) {
-			x = 0.;
-		}
-		_this.x = x;
-		_this.y = y;
-		_this.z = z;
-		_this.w = 1.;
-		var _this = this.s3d.camera.pos;
-		var x = 120;
-		var y = 120;
-		var z = 40;
-		if(z == null) {
-			z = 0.;
-		}
-		if(y == null) {
-			y = 0.;
-		}
-		if(x == null) {
-			x = 0.;
-		}
-		_this.x = x;
-		_this.y = y;
-		_this.z = z;
-		_this.w = 1.;
-		this.s3d.camera.zNear = 1;
-		this.s3d.camera.zFar = 100;
-		this.camera = new WASDCameraController(null,this.s3d);
-		this.camera.initFromScene();
-		this.line = new h2d_Graphics(this.s2d);
-		this.line.beginFill(-1);
-		this.line.drawRect(0,-0.5,100,1);
-		this.line.endFill();
-		var something = function(e) {
-			var _this = _gthis.cube1;
+		var clickToMove = function(e) {
+			var _this = _gthis.player;
 			var x = e.relX;
 			var y = e.relY;
 			var z = e.relZ;
@@ -5168,9 +5132,13 @@ Main.prototype = $extend(hxd_App.prototype,{
 			} else {
 				_this.flags &= ~f;
 			}
+			_gthis.camera.setPos(e.relX,e.relY);
 		};
-		this.world.interactFunction = something;
-		hxd_Window.getInstance().addEventTarget($bind(this,this.onEvent));
+		this.world.interactFunction = clickToMove;
+		this.line = new h2d_Graphics(this.s2d);
+		this.line.beginFill(-1);
+		this.line.drawRect(0,-0.5,100,1);
+		this.line.endFill();
 	}
 	,onEvent: function(event) {
 	}
