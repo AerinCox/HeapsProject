@@ -3731,11 +3731,11 @@ h3d_scene_CameraController.prototype = $extend(h3d_scene_Object.prototype,{
 				if(e.kind == hxd_EventKind.ERelease && HxOverrides.now() / 1000 - this.pushTime < 0.2) {
 					var dx = e.relX - this.pushStartX;
 					var dy = e.relY - this.pushStartY;
-					var dz1 = 0.;
-					if(dz1 == null) {
-						dz1 = 0.;
+					var dz = 0.;
+					if(dz == null) {
+						dz = 0.;
 					}
-					tmp = Math.sqrt(dx * dx + dy * dy + dz1 * dz1) < 5;
+					tmp = Math.sqrt(dx * dx + dy * dy + dz * dz) < 5;
 				} else {
 					tmp = false;
 				}
@@ -5009,8 +5009,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		cubeShape.addUVs();
 		this.player = new h3d_scene_Mesh(cubeShape,null,this.s3d);
 		var _this = this.player;
-		var v1 = _this.scaleX * 0.2;
-		_this.scaleX = v1;
+		var v = _this.scaleX * 0.2;
+		_this.scaleX = v;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -5018,8 +5018,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var v1 = _this.scaleY * 0.2;
-		_this.scaleY = v1;
+		var v = _this.scaleY * 0.2;
+		_this.scaleY = v;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -5027,8 +5027,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var v1 = _this.scaleZ * 0.2;
-		_this.scaleZ = v1;
+		var v = _this.scaleZ * 0.2;
+		_this.scaleZ = v;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -5046,6 +5046,103 @@ Main.prototype = $extend(hxd_App.prototype,{
 		var _this = this.player.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
+		var cache = new h3d_prim_ModelCache();
+		var interactableRock = cache.loadModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model));
+		var _g = 0;
+		var _g1 = interactableRock.getMaterials();
+		while(_g < _g1.length) {
+			var mat = _g1[_g];
+			++_g;
+			var _this = mat.mshader.color__;
+			var x = 1;
+			var y = 0;
+			var z = 0;
+			if(z == null) {
+				z = 0.;
+			}
+			if(y == null) {
+				y = 0.;
+			}
+			if(x == null) {
+				x = 0.;
+			}
+			_this.x = x;
+			_this.y = y;
+			_this.z = z;
+			_this.w = 1.;
+		}
+		var v = interactableRock.scaleX * 5;
+		interactableRock.scaleX = v;
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		var v = interactableRock.scaleY * 5;
+		interactableRock.scaleY = v;
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		var v = interactableRock.scaleZ * 5;
+		interactableRock.scaleZ = v;
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		interactableRock.x = 50;
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		interactableRock.y = 50;
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		interactableRock.z = 0;
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			interactableRock.flags |= f;
+		} else {
+			interactableRock.flags &= ~f;
+		}
+		var rockRightClick = new h3d_scene_Interactive(interactableRock.getCollider(),this.s3d);
+		rockRightClick.propagateEvents = true;
+		rockRightClick.enableRightButton = true;
+		rockRightClick.onRelease = function(e) {
+			var tmp = hxd_Key.isReleased(1);
+		};
+		this.s3d.addChild(interactableRock);
 		new h3d_scene_fwd_DirLight(new h3d_Vector(0.3,-0.4,-0.9),this.s3d);
 		var _this = this.s3d.lightSystem.ambientLight;
 		_this.x = 0.6;
@@ -39547,6 +39644,156 @@ h3d_prim_HMDModel.prototype = $extend(h3d_prim_MeshPrimitive.prototype,{
 	}
 	,__class__: h3d_prim_HMDModel
 });
+var h3d_prim_ModelCache = function() {
+	this.models = new haxe_ds_StringMap();
+	this.textures = new haxe_ds_StringMap();
+	this.anims = new haxe_ds_StringMap();
+};
+$hxClasses["h3d.prim.ModelCache"] = h3d_prim_ModelCache;
+h3d_prim_ModelCache.__name__ = "h3d.prim.ModelCache";
+h3d_prim_ModelCache.prototype = {
+	models: null
+	,textures: null
+	,anims: null
+	,dispose: function() {
+		this.anims = new haxe_ds_StringMap();
+		this.models = new haxe_ds_StringMap();
+		var h = this.textures.h;
+		var t_h = h;
+		var t_keys = Object.keys(h);
+		var t_length = t_keys.length;
+		var t_current = 0;
+		while(t_current < t_length) {
+			var t = t_h[t_keys[t_current++]];
+			t.dispose();
+		}
+		this.textures = new haxe_ds_StringMap();
+	}
+	,loadLibrary: function(res) {
+		return this.loadLibraryData(res).lib;
+	}
+	,loadLibraryData: function(res) {
+		var path = res.entry.get_path();
+		var m = this.models.h[path];
+		if(m == null) {
+			var props;
+			try {
+				var parts = path.split(".");
+				parts.pop();
+				parts.push("props");
+				props = JSON.parse(hxd_res_Loader.currentInstance.load(parts.join(".")).toText());
+			} catch( _g ) {
+				if(((haxe_Exception.caught(_g).unwrap()) instanceof hxd_fs_NotFound)) {
+					props = null;
+				} else {
+					throw _g;
+				}
+			}
+			m = { lib : res.toHmd(), props : props};
+			this.models.h[path] = m;
+		}
+		return m;
+	}
+	,loadModel: function(res) {
+		var m = this.loadLibraryData(res);
+		var _g = $bind(this,this.loadTexture);
+		var model = res;
+		var tmp = function(texturePath) {
+			return _g(model,texturePath);
+		};
+		return m.lib.makeObject(tmp);
+	}
+	,loadTexture: function(model,texturePath) {
+		var fullPath = texturePath;
+		if(model != null) {
+			fullPath = model.entry.get_path() + "@" + fullPath;
+		}
+		var t = this.textures.h[fullPath];
+		if(t != null) {
+			return t;
+		}
+		var tres;
+		try {
+			tres = hxd_res_Loader.currentInstance.load(texturePath);
+		} catch( _g ) {
+			var _g1 = haxe_Exception.caught(_g).unwrap();
+			if(((_g1) instanceof hxd_fs_NotFound)) {
+				var error = _g1;
+				if(model == null) {
+					throw haxe_Exception.thrown(error);
+				}
+				var path = model.entry.get_directory();
+				if(path != "") {
+					path += "/";
+				}
+				path += texturePath.split("/").pop();
+				try {
+					tres = hxd_res_Loader.currentInstance.load(path);
+				} catch( _g1 ) {
+					if(((haxe_Exception.caught(_g1).unwrap()) instanceof hxd_fs_NotFound)) {
+						try {
+							var name = path.split("/").pop();
+							var c = name.charAt(0);
+							if(c == c.toLowerCase()) {
+								name = c.toUpperCase() + HxOverrides.substr(name,1,null);
+							} else {
+								name = c.toLowerCase() + HxOverrides.substr(name,1,null);
+							}
+							path = HxOverrides.substr(path,0,-name.length) + name;
+							tres = hxd_res_Loader.currentInstance.load(path);
+						} catch( _g2 ) {
+							if(((haxe_Exception.caught(_g2).unwrap()) instanceof hxd_fs_NotFound)) {
+								throw haxe_Exception.thrown(error);
+							} else {
+								throw _g2;
+							}
+						}
+					} else {
+						throw _g1;
+					}
+				}
+			} else {
+				throw _g;
+			}
+		}
+		t = tres.toTexture();
+		this.textures.h[fullPath] = t;
+		return t;
+	}
+	,loadAnimation: function(anim,name,forModel) {
+		var path = anim.entry.get_path();
+		if(name != null) {
+			path += ":" + name;
+		}
+		var a = this.anims.h[path];
+		if(a != null) {
+			return a;
+		}
+		a = this.initAnimation(anim,name,forModel);
+		this.anims.h[path] = a;
+		return a;
+	}
+	,setAnimationProps: function(a,resName,props) {
+		if(props == null || props.animations == null) {
+			return;
+		}
+		var n = props.animations[resName];
+		if(n != null && n.events != null) {
+			a.setEvents(n.events);
+		}
+	}
+	,initAnimation: function(res,name,forModel) {
+		var m = this.loadLibraryData(res);
+		var a = m.lib.loadAnimation(name);
+		this.setAnimationProps(a,res.entry.name,m.props);
+		if(forModel != null) {
+			var m = this.loadLibraryData(forModel);
+			this.setAnimationProps(a,res.entry.name,m.props);
+		}
+		return a;
+	}
+	,__class__: h3d_prim_ModelCache
+};
 var h3d_prim_Plane2D = function() {
 	h3d_prim_Primitive.call(this);
 };

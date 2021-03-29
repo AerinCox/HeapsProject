@@ -1,3 +1,4 @@
+import hxd.Key;
 import hxd.Event;
 import hxd.fmt.fbx.Geometry;
 import hxd.fmt.hmd.Data.Model;
@@ -85,6 +86,24 @@ class Main extends hxd.App {
 		player = new Mesh(cubeShape, s3d);
 		player.scale(0.2);
 		player.material.shadows = false;
+
+		// Interactable Object
+		var cache = new h3d.prim.ModelCache();
+		var interactableRock = cache.loadModel(hxd.Res.rock);
+		for (mat in interactableRock.getMaterials()) {
+			mat.color.set(1, 0, 0);
+		}
+		interactableRock.scale(5);
+		interactableRock.setPosition(50,50,0);
+		var rockRightClick = new h3d.scene.Interactive(interactableRock.getCollider(), s3d);
+		rockRightClick.propagateEvents = true;
+		rockRightClick.enableRightButton = true;
+		rockRightClick.onRelease = function (e : hxd.Event){
+			if(hxd.Key.isReleased(Key.MOUSE_RIGHT)){
+				
+			}
+		}
+		s3d.addChild(interactableRock);
 
 		// Light
 		new h3d.scene.fwd.DirLight(new h3d.Vector(0.3, -0.4, -0.9), s3d);

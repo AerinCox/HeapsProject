@@ -1,0 +1,3 @@
+This project is using:
+- Haxe 4.2.1
+- Heaps.io on this commit: fd661b65202336ddc87d770fc0dadde86d7d1704

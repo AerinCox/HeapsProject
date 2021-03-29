@@ -1,3 +1,4 @@
+-cp src
 -lib heaps
 -js cubes.js
 -main Main
