@@ -1,3 +1,10 @@
+import js.html.MouseEvent;
+import h2d.col.Point;
+import ch3.scene.TileSprite;
+import h3d.mat.Texture;
+import h2d.TileGroup;
+import h2d.Scene;
+import h2d.Object;
 import hxd.Key;
 import hxd.Event;
 import hxd.fmt.fbx.Geometry;
@@ -8,8 +15,14 @@ import h3d.Vector;
 import h2d.Interactive;
 import h3d.prim.Cube;
 import h3d.scene.*;
+//import ch3.scene.S2DPlane;
+import h2d.Graphics;
 
 class WASDCameraController extends h3d.scene.CameraController {
+	override public function new(?distance, ?s3d, ?s2d) {
+		super(distance, s3d);
+	}
+
 	override function onEvent(e:hxd.Event) {
 		e.propagate = true;
 		switch (e.kind) {
@@ -24,11 +37,18 @@ class WASDCameraController extends h3d.scene.CameraController {
 		moveY += dy;
 	}
 
-	public function setPos(xPos, yPos) {
+	public function setPos(xPos:Float, yPos:Float, xMouse:Float, yMouse:Float) {
 		targetOffset.x = xPos;
 		targetOffset.y = yPos;
 	}
 }
+
+// class UniqueKey {
+// 	private static var _key = 0;
+// 	public static function getNextKey() {
+// 		return ++_key;
+// 	}
+// }
 
 class WorldMesh extends h3d.scene.World {
 	public var interactFunction:(e:Event) -> Void;
@@ -58,9 +78,11 @@ class WorldMesh extends h3d.scene.World {
 class Main extends hxd.App {
 	var player:Mesh;
 	var world:WorldMesh;
-
 	var camera:WASDCameraController;
-	var line:h2d.Graphics;
+	var cursor:h2d.Graphics;
+	//var clickUI:TileSprite;
+	var interactableRock:h3d.scene.Object;
+	var gameUI: GameUI;
 
 	override function init() {
 		super.init();
@@ -75,7 +97,7 @@ class Main extends hxd.App {
 		world.done();
 
 		// Camera
-		camera = new WASDCameraController(50, s3d);
+		camera = new WASDCameraController(50, s3d, s2d);
 		camera.set(500);
 
 		// Player
@@ -87,22 +109,27 @@ class Main extends hxd.App {
 		player.scale(0.2);
 		player.material.shadows = false;
 
+		// Game UI
+		gameUI = new GameUI(s2d);
+
 		// Interactable Object
 		var cache = new h3d.prim.ModelCache();
-		var interactableRock = cache.loadModel(hxd.Res.rock);
+		interactableRock = cache.loadModel(hxd.Res.rock);
 		for (mat in interactableRock.getMaterials()) {
 			mat.color.set(1, 0, 0);
 		}
 		interactableRock.scale(5);
-		interactableRock.setPosition(50,50,0);
+		interactableRock.setPosition(50, 50, 0);
 		var rockRightClick = new h3d.scene.Interactive(interactableRock.getCollider(), s3d);
 		rockRightClick.propagateEvents = true;
 		rockRightClick.enableRightButton = true;
-		rockRightClick.onRelease = function (e : hxd.Event){
-			if(hxd.Key.isReleased(Key.MOUSE_RIGHT)){
-				
+		rockRightClick.onRelease = function(e:hxd.Event) {
+			if (hxd.Key.isReleased(Key.MOUSE_RIGHT)) {
+				gameUI.clearExamine();
+				gameUI.makeExamine(s2d.mouseX, s2d.mouseY);
 			}
 		}
+
 		s3d.addChild(interactableRock);
 
 		// Light
@@ -125,18 +152,17 @@ class Main extends hxd.App {
 		g.emitMode = CameraBounds;
 		parts.volumeBounds = h3d.col.Bounds.fromValues(-20, -20, 15, 40, 40, 40);
 
-		// Interactions
 		var clickToMove = function(e:hxd.Event) {
 			player.setPosition(e.relX, e.relY, e.relZ);
-			camera.setPos(e.relX, e.relY);
+			camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
 		};
 		world.interactFunction = clickToMove;
 
 		// Cursor
-		line = new h2d.Graphics(s2d);
-		line.beginFill(0xFFFFFFFF);
-		line.drawRect(0, -0.5, 100, 1);
-		line.endFill();
+		cursor = new h2d.Graphics(s2d);
+		cursor.beginFill(0xFFFFFFFF);
+		cursor.drawRect(0, -0.5, 100, 1);
+		cursor.endFill();
 
 		// A General World Event
 		// hxd.Window.getInstance().addEventTarget(onEvent);
@@ -150,8 +176,8 @@ class Main extends hxd.App {
 		var px = s2d.mouseX;
 		var py = s2d.mouseY;
 
-		line.x = px;
-		line.y = py;
+		cursor.x = px;
+		cursor.y = py;
 
 		// Camera Rotation
 		if (hxd.Key.isDown(hxd.Key.A)) {
@@ -173,3 +199,24 @@ class Main extends hxd.App {
 		new Main();
 	}
 }
+
+// Code Notes
+		// 3d scene tile stuff
+		// var t = hxd.Res.dedede.toTile();
+		// t.dx = Std.int(-t.width / 2);
+		// t.dy = Std.int(-t.height / 2);
+
+		// rockRightClick.onRelease = function(e:hxd.Event) {
+		// 	if (hxd.Key.isReleased(Key.MOUSE_RIGHT)) {
+		// 		if (clickUI != null) {
+		// 			clickUI.remove();
+		// 		}
+		// 		clickUI = new TileSprite(t, 500, true, interactableRock);
+		// 		var newPos = clickUI.globalToLocal(new h3d.col.Point(e.relX, e.relY, e.relZ));
+		// 		clickUI.x = newPos.x;
+		// 		clickUI.y = newPos.y;
+		// 		clickUI.z = newPos.z;
+		// 		clickUI.material.receiveShadows = false;
+		// 		clickUI.material.texture.filter = Nearest;
+		// 	}
+		// }

@@ -1,5 +1,6 @@
 -cp src
 -lib heaps
+-lib heeps
 -js cubes.js
 -main Main
 -debug
