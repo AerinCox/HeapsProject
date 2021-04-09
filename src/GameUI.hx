@@ -1,7 +1,3 @@
-import h2d.Interactive;
-import h2d.Text;
-import h2d.Tile;
-import h2d.Bitmap;
 import h2d.Flow;
 
 class GameUI {
@@ -24,10 +20,8 @@ class GameUI {
 		examineFlow.horizontalSpacing = 10;
 		var button = new Button(examineFlow, 100, 60);
 		button.setText("Attack Pee Pee", Color.BLACK);
-		button.propagateEvents = true;
 		var button2 = new Button(examineFlow, 100, 60);
 		button2.setText("Examine Poo Poo", Color.BLACK);
-		button2.propagateEvents = true;
 
 		examineFlow.setPosition(xPos - 20, yPos - 20);
 

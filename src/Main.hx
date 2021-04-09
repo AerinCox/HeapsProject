@@ -1,21 +1,9 @@
-import js.html.MouseEvent;
-import h2d.col.Point;
-import ch3.scene.TileSprite;
-import h3d.mat.Texture;
-import h2d.TileGroup;
-import h2d.Scene;
-import h2d.Object;
 import hxd.Key;
 import hxd.Event;
-import hxd.fmt.fbx.Geometry;
-import hxd.fmt.hmd.Data.Model;
-import h3d.scene.World.WorldModel;
-import h3d.scene.World.WorldModelGeometry;
 import h3d.Vector;
-import h2d.Interactive;
 import h3d.prim.Cube;
 import h3d.scene.*;
-//import ch3.scene.S2DPlane;
+// import ch3.scene.S2DPlane;
 import h2d.Graphics;
 
 class WASDCameraController extends h3d.scene.CameraController {
@@ -58,15 +46,17 @@ class WorldMesh extends h3d.scene.World {
 	}
 
 	override function initChunkSoil(c:h3d.scene.World.WorldChunk) {
-		var cube = new h3d.prim.Cube(chunkSize, chunkSize, 0);
-		cube.addNormals();
-		cube.addUVs();
-		var soil = new h3d.scene.Mesh(cube, c.root);
+		// Terrain
+		var test = new Cube(chunkSize);
+		// TODO: Heightmaps for each block.
+		var terrain = new Terrain(chunkSize);
+		terrain.addNormals();
+		terrain.addUVs();
+		var soil = new h3d.scene.Mesh(terrain, c.root);
 		soil.x = c.x;
 		soil.y = c.y;
+		// TODO: Fix weird shadow between block lines.
 		soil.material.texture = h3d.mat.Texture.fromColor(0x408020);
-		soil.material.shadows = true;
-
 		var interactive = new h3d.scene.Interactive(soil.getCollider(), c.root);
 		interactive.propagateEvents = true;
 		interactive.onClick = function(e:hxd.Event) {
@@ -80,19 +70,18 @@ class Main extends hxd.App {
 	var world:WorldMesh;
 	var camera:WASDCameraController;
 	var cursor:h2d.Graphics;
-	//var clickUI:TileSprite;
 	var interactableRock:h3d.scene.Object;
-	var gameUI: GameUI;
+	var gameUI:GameUI;
 
 	override function init() {
 		super.init();
 
 		// World
-		world = new WorldMesh(16, s3d);
+		world = new WorldMesh(64, s3d);
 		var rock = world.loadModel(hxd.Res.rock);
 
 		for (i in 0...1000)
-			world.add(rock, Math.random() * 128, Math.random() * 128, 0, 1.2 + hxd.Math.srand(0.4), hxd.Math.srand(Math.PI));
+			world.add(rock, Math.random() * 300, Math.random() * 300, 0, 0.5, hxd.Math.srand(Math.PI));
 
 		world.done();
 
@@ -201,22 +190,21 @@ class Main extends hxd.App {
 }
 
 // Code Notes
-		// 3d scene tile stuff
-		// var t = hxd.Res.dedede.toTile();
-		// t.dx = Std.int(-t.width / 2);
-		// t.dy = Std.int(-t.height / 2);
-
-		// rockRightClick.onRelease = function(e:hxd.Event) {
-		// 	if (hxd.Key.isReleased(Key.MOUSE_RIGHT)) {
-		// 		if (clickUI != null) {
-		// 			clickUI.remove();
-		// 		}
-		// 		clickUI = new TileSprite(t, 500, true, interactableRock);
-		// 		var newPos = clickUI.globalToLocal(new h3d.col.Point(e.relX, e.relY, e.relZ));
-		// 		clickUI.x = newPos.x;
-		// 		clickUI.y = newPos.y;
-		// 		clickUI.z = newPos.z;
-		// 		clickUI.material.receiveShadows = false;
-		// 		clickUI.material.texture.filter = Nearest;
-		// 	}
-		// }
+// 3d scene tile stuff
+// var t = hxd.Res.dedede.toTile();
+// t.dx = Std.int(-t.width / 2);
+// t.dy = Std.int(-t.height / 2);
+// rockRightClick.onRelease = function(e:hxd.Event) {
+// 	if (hxd.Key.isReleased(Key.MOUSE_RIGHT)) {
+// 		if (clickUI != null) {
+// 			clickUI.remove();
+// 		}
+// 		clickUI = new TileSprite(t, 500, true, interactableRock);
+// 		var newPos = clickUI.globalToLocal(new h3d.col.Point(e.relX, e.relY, e.relZ));
+// 		clickUI.x = newPos.x;
+// 		clickUI.y = newPos.y;
+// 		clickUI.z = newPos.z;
+// 		clickUI.material.receiveShadows = false;
+// 		clickUI.material.texture.filter = Nearest;
+// 	}
+// }
