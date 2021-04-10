@@ -13,8 +13,8 @@ class Terrain extends h3d.prim.Polygon {
 			for (y in 0...YSize) {
 				// TODO: Image Heightmap of some kind.
 				var z = 0;
-				if (x > (chunkSize / 2) - 20 && x < (chunkSize / 2) + 20) {
-					z = 1;
+				if (x > (chunkSize / 2) - 3 && x < (chunkSize / 2) + 3) {
+					z = 2;
 				}
 				// END TODO
 				pointList.push(new Point(x, y, z));

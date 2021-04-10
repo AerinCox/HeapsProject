@@ -1,3 +1,4 @@
+import h2d.col.Point;
 import hxd.Key;
 import hxd.Event;
 import h3d.Vector;
@@ -38,36 +39,9 @@ class WASDCameraController extends h3d.scene.CameraController {
 // 	}
 // }
 
-class WorldMesh extends h3d.scene.World {
-	public var interactFunction:(e:Event) -> Void;
-
-	override public function new(chunkSize:Int, parent, ?autoCollect = true) {
-		super(chunkSize, parent, autoCollect);
-	}
-
-	override function initChunkSoil(c:h3d.scene.World.WorldChunk) {
-		// Terrain
-		var test = new Cube(chunkSize);
-		// TODO: Heightmaps for each block.
-		var terrain = new Terrain(chunkSize);
-		terrain.addNormals();
-		terrain.addUVs();
-		var soil = new h3d.scene.Mesh(terrain, c.root);
-		soil.x = c.x;
-		soil.y = c.y;
-		// TODO: Fix weird shadow between block lines.
-		soil.material.texture = h3d.mat.Texture.fromColor(0x408020);
-		var interactive = new h3d.scene.Interactive(soil.getCollider(), c.root);
-		interactive.propagateEvents = true;
-		interactive.onClick = function(e:hxd.Event) {
-			interactFunction(e);
-		}
-	}
-}
-
 class Main extends hxd.App {
 	var player:Mesh;
-	var world:WorldMesh;
+	var world:WorldSquare;
 	var camera:WASDCameraController;
 	var cursor:h2d.Graphics;
 	var interactableRock:h3d.scene.Object;
@@ -77,13 +51,7 @@ class Main extends hxd.App {
 		super.init();
 
 		// World
-		world = new WorldMesh(64, s3d);
-		var rock = world.loadModel(hxd.Res.rock);
-
-		for (i in 0...1000)
-			world.add(rock, Math.random() * 300, Math.random() * 300, 0, 0.5, hxd.Math.srand(Math.PI));
-
-		world.done();
+		world = new WorldSquare(16, s3d);
 
 		// Camera
 		camera = new WASDCameraController(50, s3d, s2d);
@@ -97,12 +65,14 @@ class Main extends hxd.App {
 		player = new Mesh(cubeShape, s3d);
 		player.scale(0.2);
 		player.material.shadows = false;
-
+		player.setPosition(0, 0, 0);
 		// Game UI
 		gameUI = new GameUI(s2d);
 
-		// Interactable Object
+		// Objects
 		var cache = new h3d.prim.ModelCache();
+		world.addModel(hxd.Res.rock, cache, 8, 1, 1, 0);
+
 		interactableRock = cache.loadModel(hxd.Res.rock);
 		for (mat in interactableRock.getMaterials()) {
 			mat.color.set(1, 0, 0);
@@ -132,7 +102,7 @@ class Main extends hxd.App {
 		shadow.bias *= 0.1;
 		shadow.color.set(0.7, 0.7, 0.7);
 
-		var parts = new h3d.parts.GpuParticles(world);
+		var parts = new h3d.parts.GpuParticles(s3d);
 		var g = parts.addGroup();
 		g.size = 0.2;
 		g.gravity = 1;
@@ -141,8 +111,10 @@ class Main extends hxd.App {
 		g.emitMode = CameraBounds;
 		parts.volumeBounds = h3d.col.Bounds.fromValues(-20, -20, 15, 40, 40, 40);
 
+		// Click to move interaction (uses the world's soil object)
 		var clickToMove = function(e:hxd.Event) {
 			player.setPosition(e.relX, e.relY, e.relZ);
+			trace(player.z);
 			camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
 		};
 		world.interactFunction = clickToMove;

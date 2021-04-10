@@ -5973,898 +5973,6 @@ WASDCameraController.prototype = $extend(h3d_scene_CameraController.prototype,{
 	}
 	,__class__: WASDCameraController
 });
-var h3d_scene_World = function(chunkSize,parent,autoCollect) {
-	if(autoCollect == null) {
-		autoCollect = true;
-	}
-	this.defaultSpecularBG = 0;
-	this.defaultNormalBG = 8421631;
-	this.defaultDiffuseBG = 0;
-	this.bigTextureSize = 2048;
-	this.specularInAlpha = false;
-	this.enableNormalMaps = false;
-	this.enableSpecular = false;
-	h3d_scene_Object.call(this,parent);
-	this.chunks = new haxe_ds_IntMap();
-	this.bigTextures = [];
-	this.allChunks = [];
-	this.chunksBounds = { xMin : 2147483647, yMin : 2147483647, xMax : -2147483648, yMax : -2147483648};
-	this.textures = new haxe_ds_StringMap();
-	this.chunkSize = chunkSize;
-	this.autoCollect = autoCollect;
-	if(autoCollect) {
-		h3d_Engine.CURRENT.mem.garbage = $bind(this,this.garbage);
-	}
-};
-$hxClasses["h3d.scene.World"] = h3d_scene_World;
-h3d_scene_World.__name__ = "h3d.scene.World";
-h3d_scene_World.noGarbage = function() {
-};
-h3d_scene_World.__super__ = h3d_scene_Object;
-h3d_scene_World.prototype = $extend(h3d_scene_Object.prototype,{
-	chunkSize: null
-	,enableSpecular: null
-	,enableNormalMaps: null
-	,specularInAlpha: null
-	,bigTextureSize: null
-	,defaultDiffuseBG: null
-	,defaultNormalBG: null
-	,defaultSpecularBG: null
-	,chunks: null
-	,allChunks: null
-	,chunksBounds: null
-	,bigTextures: null
-	,textures: null
-	,autoCollect: null
-	,garbage: function() {
-		var last = null;
-		var _g = 0;
-		var _g1 = this.allChunks;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c.initialized && (c.root.flags & 2) == 0 && (last == null || c.lastFrame < last.lastFrame)) {
-				last = c;
-			}
-		}
-		if(last != null) {
-			this.cleanChunk(last);
-		}
-	}
-	,buildFormat: function() {
-		var r = { fmt : [new hxd_fmt_hmd_GeometryFormat("position",3),new hxd_fmt_hmd_GeometryFormat("normal",3)], defaults : []};
-		if(this.enableNormalMaps) {
-			r.defaults[r.fmt.length] = new h3d_Vector(1,0,0);
-			r.fmt.push(new hxd_fmt_hmd_GeometryFormat("tangent",3));
-		}
-		r.fmt.push(new hxd_fmt_hmd_GeometryFormat("uv",2));
-		return r;
-	}
-	,getBlend: function(r) {
-		if(r.entry.get_extension() == "jpg") {
-			return h2d_BlendMode.None;
-		}
-		return h2d_BlendMode.Alpha;
-	}
-	,resolveTexturePath: function(r,mat) {
-		var path = mat.diffuseTexture;
-		if(hxd_res_Loader.currentInstance.exists(path)) {
-			return path;
-		}
-		var dir = r.entry.get_directory();
-		if(dir != "") {
-			dir += "/";
-		}
-		return dir + path.split("/").pop();
-	}
-	,resolveSpecularTexture: function(path,mat) {
-		if(mat.specularTexture == null) {
-			return null;
-		}
-		try {
-			return hxd_res_Loader.currentInstance.load(mat.specularTexture).toImage();
-		} catch( _g ) {
-			if(((haxe_Exception.caught(_g).unwrap()) instanceof hxd_fs_NotFound)) {
-				try {
-					var path1 = path.split("/");
-					path1.pop();
-					path1.push(mat.specularTexture.split("/").pop());
-					return hxd_res_Loader.currentInstance.load(path1.join("/")).toImage();
-				} catch( _g1 ) {
-					if(((haxe_Exception.caught(_g1).unwrap()) instanceof hxd_fs_NotFound)) {
-						return null;
-					} else {
-						throw _g1;
-					}
-				}
-			} else {
-				throw _g;
-			}
-		}
-	}
-	,resolveNormalMap: function(path,mat) {
-		if(mat.normalMap == null) {
-			return null;
-		}
-		try {
-			return hxd_res_Loader.currentInstance.load(mat.normalMap).toImage();
-		} catch( _g ) {
-			if(((haxe_Exception.caught(_g).unwrap()) instanceof hxd_fs_NotFound)) {
-				try {
-					var path1 = path.split("/");
-					path1.pop();
-					path1.push(mat.normalMap.split("/").pop());
-					return hxd_res_Loader.currentInstance.load(path1.join("/")).toImage();
-				} catch( _g1 ) {
-					if(((haxe_Exception.caught(_g1).unwrap()) instanceof hxd_fs_NotFound)) {
-						return null;
-					} else {
-						throw _g1;
-					}
-				}
-			} else {
-				throw _g;
-			}
-		}
-	}
-	,loadMaterialTexture: function(r,mat,modelName) {
-		var texturePath = this.resolveTexturePath(r,mat);
-		var m = this.textures.h[texturePath];
-		if(m != null) {
-			return m;
-		}
-		var rt = hxd_res_Loader.currentInstance.load(texturePath).toImage();
-		var t = null;
-		var btex = null;
-		var _g = 0;
-		var _g1 = this.bigTextures;
-		while(_g < _g1.length) {
-			var b = _g1[_g];
-			++_g;
-			t = b.diffuse.add(rt);
-			if(t != null) {
-				btex = b;
-				break;
-			}
-		}
-		if(t == null) {
-			var b = new h3d_mat_BigTexture(this.bigTextures.length,this.bigTextureSize,this.defaultDiffuseBG);
-			btex = { diffuse : b, spec : null, normal : null};
-			this.bigTextures.unshift(btex);
-			t = b.add(rt);
-			if(t == null) {
-				throw haxe_Exception.thrown("Texture " + texturePath + " is too big");
-			}
-		}
-		var specTex = null;
-		if(this.enableSpecular) {
-			var res = this.resolveSpecularTexture(texturePath,mat);
-			if(res != null) {
-				var size = res.getInfo();
-				if(size.width != t.get_width() || size.height != t.get_height()) {
-					throw haxe_Exception.thrown("Texture " + res.entry.get_path() + " has different size from diffuse (" + size.width + "x" + size.height + ")");
-				}
-			}
-			if(this.specularInAlpha) {
-				if(res != null) {
-					t.setAlpha(res);
-					specTex = t;
-				}
-			} else {
-				if(btex.spec == null) {
-					btex.spec = new h3d_mat_BigTexture(-1,this.bigTextureSize,this.defaultSpecularBG);
-				}
-				if(res != null) {
-					specTex = btex.spec.add(res);
-				} else {
-					specTex = btex.spec.addEmpty(t.get_width(),t.get_height());
-				}
-			}
-		}
-		var normalMap = null;
-		if(this.enableNormalMaps) {
-			var res = this.resolveNormalMap(texturePath,mat);
-			if(res != null) {
-				var size = res.getInfo();
-				if(size.width != t.get_width() || size.height != t.get_height()) {
-					throw haxe_Exception.thrown("Texture " + res.entry.get_path() + " has different size from diffuse (" + size.width + "x" + size.height + ")");
-				}
-			}
-			if(btex.normal == null) {
-				btex.normal = new h3d_mat_BigTexture(-1,this.bigTextureSize,this.defaultNormalBG);
-			}
-			if(res != null) {
-				normalMap = btex.normal.add(res);
-			} else {
-				normalMap = btex.normal.addEmpty(t.get_width(),t.get_height());
-			}
-		}
-		var m = new h3d_scene_WorldMaterial();
-		m.t = t;
-		m.spec = specTex;
-		m.normal = normalMap;
-		m.blend = this.getBlend(rt);
-		m.killAlpha = null;
-		m.emissive = null;
-		m.mat = mat;
-		m.culling = true;
-		m.stencil = null;
-		m.updateBits();
-		this.textures.h[texturePath] = m;
-		return m;
-	}
-	,done: function() {
-		var _g = 0;
-		var _g1 = this.bigTextures;
-		while(_g < _g1.length) {
-			var b = _g1[_g];
-			++_g;
-			b.diffuse.done();
-			if(b.spec != null) {
-				b.spec.done();
-			}
-			if(b.normal != null) {
-				b.normal.done();
-			}
-		}
-	}
-	,loadModel: function(r,filter) {
-		var lib = r.toHmd();
-		var models = lib.header.models;
-		var format = this.buildFormat();
-		var model = new h3d_scene_WorldModel(r);
-		model.stride = 0;
-		var _g = 0;
-		var _g1 = format.fmt;
-		while(_g < _g1.length) {
-			var f = _g1[_g];
-			++_g;
-			model.stride += f.format & 7;
-		}
-		var startVertex = 0;
-		var startIndex = 0;
-		var _g = 0;
-		while(_g < models.length) {
-			var m = models[_g];
-			++_g;
-			if(filter != null && !filter(m)) {
-				continue;
-			}
-			var geom = lib.header.geometries[m.geometry];
-			if(geom == null) {
-				continue;
-			}
-			var pos = m.position.toMatrix();
-			var parentIdx = m.parent;
-			while(parentIdx >= 0) {
-				var parent = models[parentIdx];
-				pos.multiply(parent.position.toMatrix(),pos);
-				parentIdx = parent.parent;
-			}
-			var _g1 = 0;
-			var _g2 = m.materials.length;
-			while(_g1 < _g2) {
-				var mid = _g1++;
-				var mat = lib.header.materials[m.materials[mid]];
-				if(mat == null || mat.diffuseTexture == null) {
-					continue;
-				}
-				var wmat = this.loadMaterialTexture(r,mat,m.name);
-				if(wmat == null) {
-					continue;
-				}
-				var data = lib.getBuffers(geom,format.fmt,format.defaults,mid);
-				var m1 = new h3d_scene_WorldModelGeometry(wmat);
-				m1.vertexCount = data.vertexes.length / model.stride | 0;
-				m1.indexCount = data.indexes.length;
-				m1.startVertex = startVertex;
-				m1.startIndex = startIndex;
-				model.geometries.push(m1);
-				var vl = data.vertexes;
-				var p = 0;
-				var extra = model.stride - 8;
-				if(this.enableNormalMaps) {
-					extra -= 3;
-				}
-				var _g3 = 0;
-				var _g4 = m1.vertexCount;
-				while(_g3 < _g4) {
-					var i = _g3++;
-					var x = vl[p++];
-					var y = vl[p++];
-					var z = vl[p++];
-					var nx = vl[p++];
-					var ny = vl[p++];
-					var nz = vl[p++];
-					var tx = 1.;
-					var ty = 0.;
-					var tz = 0.;
-					if(this.enableNormalMaps) {
-						tx = vl[p++];
-						ty = vl[p++];
-						tz = vl[p++];
-					}
-					var u = vl[p++];
-					var v = vl[p++];
-					var x1 = x;
-					var y1 = y;
-					var z1 = z;
-					if(z1 == null) {
-						z1 = 0.;
-					}
-					if(y1 == null) {
-						y1 = 0.;
-					}
-					if(x1 == null) {
-						x1 = 0.;
-					}
-					var pt_x = x1;
-					var pt_y = y1;
-					var pt_z = z1;
-					var pt_w = 1.;
-					var px = pt_x * pos._11 + pt_y * pos._21 + pt_z * pos._31 + pt_w * pos._41;
-					var py = pt_x * pos._12 + pt_y * pos._22 + pt_z * pos._32 + pt_w * pos._42;
-					var pz = pt_x * pos._13 + pt_y * pos._23 + pt_z * pos._33 + pt_w * pos._43;
-					pt_x = px;
-					pt_y = py;
-					pt_z = pz;
-					var this1 = model.buf;
-					if(this1.pos == this1.array.length) {
-						var newSize = this1.array.length << 1;
-						if(newSize < 128) {
-							newSize = 128;
-						}
-						var newArray = new Float32Array(newSize);
-						newArray.set(this1.array);
-						this1.array = newArray;
-					}
-					this1.array[this1.pos++] = pt_x;
-					var this2 = model.buf;
-					if(this2.pos == this2.array.length) {
-						var newSize1 = this2.array.length << 1;
-						if(newSize1 < 128) {
-							newSize1 = 128;
-						}
-						var newArray1 = new Float32Array(newSize1);
-						newArray1.set(this2.array);
-						this2.array = newArray1;
-					}
-					this2.array[this2.pos++] = pt_y;
-					var this3 = model.buf;
-					if(this3.pos == this3.array.length) {
-						var newSize2 = this3.array.length << 1;
-						if(newSize2 < 128) {
-							newSize2 = 128;
-						}
-						var newArray2 = new Float32Array(newSize2);
-						newArray2.set(this3.array);
-						this3.array = newArray2;
-					}
-					this3.array[this3.pos++] = pt_z;
-					var _this = model.bounds;
-					var x2 = pt_x;
-					var y2 = pt_y;
-					var z2 = pt_z;
-					if(x2 < _this.xMin) {
-						_this.xMin = x2;
-					}
-					if(x2 > _this.xMax) {
-						_this.xMax = x2;
-					}
-					if(y2 < _this.yMin) {
-						_this.yMin = y2;
-					}
-					if(y2 > _this.yMax) {
-						_this.yMax = y2;
-					}
-					if(z2 < _this.zMin) {
-						_this.zMin = z2;
-					}
-					if(z2 > _this.zMax) {
-						_this.zMax = z2;
-					}
-					var x3 = nx;
-					var y3 = ny;
-					var z3 = nz;
-					if(z3 == null) {
-						z3 = 0.;
-					}
-					if(y3 == null) {
-						y3 = 0.;
-					}
-					if(x3 == null) {
-						x3 = 0.;
-					}
-					var n_x = x3;
-					var n_y = y3;
-					var n_z = z3;
-					var n_w = 1.;
-					var px1 = n_x * pos._11 + n_y * pos._21 + n_z * pos._31;
-					var py1 = n_x * pos._12 + n_y * pos._22 + n_z * pos._32;
-					var pz1 = n_x * pos._13 + n_y * pos._23 + n_z * pos._33;
-					n_x = px1;
-					n_y = py1;
-					n_z = pz1;
-					var len = 1. / Math.sqrt(n_x * n_x + n_y * n_y + n_z * n_z);
-					var this4 = model.buf;
-					if(this4.pos == this4.array.length) {
-						var newSize3 = this4.array.length << 1;
-						if(newSize3 < 128) {
-							newSize3 = 128;
-						}
-						var newArray3 = new Float32Array(newSize3);
-						newArray3.set(this4.array);
-						this4.array = newArray3;
-					}
-					this4.array[this4.pos++] = n_x * len;
-					var this5 = model.buf;
-					if(this5.pos == this5.array.length) {
-						var newSize4 = this5.array.length << 1;
-						if(newSize4 < 128) {
-							newSize4 = 128;
-						}
-						var newArray4 = new Float32Array(newSize4);
-						newArray4.set(this5.array);
-						this5.array = newArray4;
-					}
-					this5.array[this5.pos++] = n_y * len;
-					var this6 = model.buf;
-					if(this6.pos == this6.array.length) {
-						var newSize5 = this6.array.length << 1;
-						if(newSize5 < 128) {
-							newSize5 = 128;
-						}
-						var newArray5 = new Float32Array(newSize5);
-						newArray5.set(this6.array);
-						this6.array = newArray5;
-					}
-					this6.array[this6.pos++] = n_z * len;
-					if(this.enableNormalMaps) {
-						var x4 = tx;
-						var y4 = ty;
-						var z4 = tz;
-						if(z4 == null) {
-							z4 = 0.;
-						}
-						if(y4 == null) {
-							y4 = 0.;
-						}
-						if(x4 == null) {
-							x4 = 0.;
-						}
-						var t_x = x4;
-						var t_y = y4;
-						var t_z = z4;
-						var t_w = 1.;
-						var tlen = Math.sqrt(t_x * t_x + t_y * t_y + t_z * t_z);
-						var px2 = t_x * pos._11 + t_y * pos._21 + t_z * pos._31;
-						var py2 = t_x * pos._12 + t_y * pos._22 + t_z * pos._32;
-						var pz2 = t_x * pos._13 + t_y * pos._23 + t_z * pos._33;
-						t_x = px2;
-						t_y = py2;
-						t_z = pz2;
-						var len1 = tlen * (1. / Math.sqrt(n_x * n_x + n_y * n_y + n_z * n_z));
-						var this7 = model.buf;
-						if(this7.pos == this7.array.length) {
-							var newSize6 = this7.array.length << 1;
-							if(newSize6 < 128) {
-								newSize6 = 128;
-							}
-							var newArray6 = new Float32Array(newSize6);
-							newArray6.set(this7.array);
-							this7.array = newArray6;
-						}
-						this7.array[this7.pos++] = t_x * len1;
-						var this8 = model.buf;
-						if(this8.pos == this8.array.length) {
-							var newSize7 = this8.array.length << 1;
-							if(newSize7 < 128) {
-								newSize7 = 128;
-							}
-							var newArray7 = new Float32Array(newSize7);
-							newArray7.set(this8.array);
-							this8.array = newArray7;
-						}
-						this8.array[this8.pos++] = t_y * len1;
-						var this9 = model.buf;
-						if(this9.pos == this9.array.length) {
-							var newSize8 = this9.array.length << 1;
-							if(newSize8 < 128) {
-								newSize8 = 128;
-							}
-							var newArray8 = new Float32Array(newSize8);
-							newArray8.set(this9.array);
-							this9.array = newArray8;
-						}
-						this9.array[this9.pos++] = t_z * len1;
-					}
-					var this10 = model.buf;
-					var v1 = u * wmat.t.su + wmat.t.du;
-					if(this10.pos == this10.array.length) {
-						var newSize9 = this10.array.length << 1;
-						if(newSize9 < 128) {
-							newSize9 = 128;
-						}
-						var newArray9 = new Float32Array(newSize9);
-						newArray9.set(this10.array);
-						this10.array = newArray9;
-					}
-					this10.array[this10.pos++] = v1;
-					var this11 = model.buf;
-					var v2 = v * wmat.t.sv + wmat.t.dv;
-					if(this11.pos == this11.array.length) {
-						var newSize10 = this11.array.length << 1;
-						if(newSize10 < 128) {
-							newSize10 = 128;
-						}
-						var newArray10 = new Float32Array(newSize10);
-						newArray10.set(this11.array);
-						this11.array = newArray10;
-					}
-					this11.array[this11.pos++] = v2;
-					var _g5 = 0;
-					var _g6 = extra;
-					while(_g5 < _g6) {
-						var k = _g5++;
-						var this12 = model.buf;
-						var v3 = vl[p++];
-						if(this12.pos == this12.array.length) {
-							var newSize11 = this12.array.length << 1;
-							if(newSize11 < 128) {
-								newSize11 = 128;
-							}
-							var newArray11 = new Float32Array(newSize11);
-							newArray11.set(this12.array);
-							this12.array = newArray11;
-						}
-						this12.array[this12.pos++] = v3;
-					}
-				}
-				var _g7 = 0;
-				var _g8 = m1.indexCount;
-				while(_g7 < _g8) {
-					var i1 = _g7++;
-					model.idx.push(data.indexes[i1] + startVertex);
-				}
-				startVertex += m1.vertexCount;
-				startIndex += m1.indexCount;
-			}
-		}
-		return model;
-	}
-	,makeId: function(cx,cy) {
-		return cx & 65535 | (cy & 65535) << 16;
-	}
-	,getChunk: function(x,y,create) {
-		if(create == null) {
-			create = false;
-		}
-		var ix = Math.floor(x / this.chunkSize);
-		var iy = Math.floor(y / this.chunkSize);
-		if(ix < 0) {
-			ix = 0;
-		}
-		if(iy < 0) {
-			iy = 0;
-		}
-		var cid = ix & 65535 | (iy & 65535) << 16;
-		var c = this.chunks.h[cid];
-		if(c == null && create) {
-			c = new h3d_scene_WorldChunk(ix,iy);
-			c.x = ix * this.chunkSize;
-			c.y = iy * this.chunkSize;
-			this.addChild(c.root);
-			this.chunks.h[cid] = c;
-			if(ix < this.chunksBounds.xMin) {
-				this.chunksBounds.xMin = ix;
-			}
-			if(iy < this.chunksBounds.yMin) {
-				this.chunksBounds.yMin = iy;
-			}
-			if(ix > this.chunksBounds.xMax) {
-				this.chunksBounds.xMax = ix;
-			}
-			if(iy > this.chunksBounds.yMax) {
-				this.chunksBounds.yMax = iy;
-			}
-			this.allChunks.push(c);
-		}
-		return c;
-	}
-	,initChunkSoil: function(c) {
-	}
-	,initChunkElements: function(c) {
-		var _g = 0;
-		var _g1 = c.elements;
-		while(_g < _g1.length) {
-			var e = _g1[_g];
-			++_g;
-			var model = e.model;
-			var _g2 = 0;
-			var _g3 = model.geometries;
-			while(_g2 < _g3.length) {
-				var g = _g3[_g2];
-				++_g2;
-				var b = c.buffers.h[g.m.bits];
-				if(b == null) {
-					var bp = new h3d_prim_BigPrimitive(this.getStride(model),true);
-					bp.hasTangents = this.enableNormalMaps;
-					b = new h3d_scene_Mesh(bp,null,c.root);
-					b.name = g.m.name;
-					c.buffers.h[g.m.bits] = b;
-					this.initMaterial(b,g.m);
-				}
-				var value = b.primitive;
-				var p = ((value) instanceof h3d_prim_BigPrimitive) ? value : null;
-				if(e.optimized) {
-					var m = e.transform;
-					var scale = m._33;
-					var rotZ = Math.atan2(m._12 / scale,m._11 / scale);
-					p.addSub(model.buf,model.idx,g.startVertex,g.startIndex / 3 | 0,g.vertexCount,g.indexCount / 3 | 0,m._41,m._42,m._43,rotZ,scale,model.stride,0.,0.,1.,null);
-				} else {
-					p.addSub(model.buf,model.idx,g.startVertex,g.startIndex / 3 | 0,g.vertexCount,g.indexCount / 3 | 0,0.,0.,0.,0.,0.,model.stride,0.,0.,1.,e.transform);
-				}
-			}
-		}
-	}
-	,cleanChunk: function(c) {
-		if(!c.initialized) {
-			return;
-		}
-		c.initialized = false;
-		var b = c.buffers.iterator();
-		while(b.hasNext()) {
-			var b1 = b.next();
-			if(b1 != null && b1.parent != null) {
-				b1.parent.removeChild(b1);
-			}
-		}
-		c.buffers = new haxe_ds_IntMap();
-	}
-	,addChunkBounds: function(c,model,mat) {
-		var _this = model.bounds;
-		var b = new h3d_col_Bounds();
-		b.xMin = _this.xMin;
-		b.xMax = _this.xMax;
-		b.yMin = _this.yMin;
-		b.yMax = _this.yMax;
-		b.zMin = _this.zMin;
-		b.zMax = _this.zMax;
-		var b1 = b;
-		b1.transform(mat);
-		var _this = c.bounds;
-		if(b1.xMin < _this.xMin) {
-			_this.xMin = b1.xMin;
-		}
-		if(b1.xMax > _this.xMax) {
-			_this.xMax = b1.xMax;
-		}
-		if(b1.yMin < _this.yMin) {
-			_this.yMin = b1.yMin;
-		}
-		if(b1.yMax > _this.yMax) {
-			_this.yMax = b1.yMax;
-		}
-		if(b1.zMin < _this.zMin) {
-			_this.zMin = b1.zMin;
-		}
-		if(b1.zMax > _this.zMax) {
-			_this.zMax = b1.zMax;
-		}
-	}
-	,initMaterial: function(mesh,mat) {
-		mesh.material.set_blendMode(mat.blend);
-		mesh.material.set_texture(mat.t.t.tex);
-		var _this = mesh.material.textureShader;
-		_this.constModified = true;
-		_this.killAlpha__ = mat.killAlpha != null;
-		mesh.material.textureShader.killAlphaThreshold__ = mat.killAlpha;
-		mesh.material.passes.set_enableLights(mat.lights);
-		var _this = mesh.material;
-		var v = mat.shadows;
-		_this.set_castShadows(v);
-		_this.set_receiveShadows(v);
-		mesh.material.passes.set_culling(mat.culling ? h3d_mat_Face.Back : h3d_mat_Face.None);
-		mesh.material.passes.set_depthWrite(true);
-		mesh.material.passes.set_depthTest(h3d_mat_Compare.Less);
-		var _g = 0;
-		var _g1 = mat.shaders;
-		while(_g < _g1.length) {
-			var s = _g1[_g];
-			++_g;
-			mesh.material.passes.addShader(s);
-		}
-		if(mat.spec != null) {
-			if(this.specularInAlpha) {
-				mesh.material.set_specularTexture(null);
-				var _this = mesh.material.textureShader;
-				_this.constModified = true;
-				_this.specularAlpha__ = true;
-			} else {
-				mesh.material.set_specularTexture(mat.spec.t.tex);
-			}
-		} else {
-			mesh.material.mshader.specularAmount__ = 0;
-		}
-		if(this.enableNormalMaps) {
-			mesh.material.set_normalMap(mat.normal.t.tex);
-		}
-	}
-	,dispose: function() {
-		var _g = 0;
-		var _g1 = this.allChunks;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			c.dispose();
-		}
-		this.allChunks = [];
-		this.chunks = new haxe_ds_IntMap();
-		var _g = 0;
-		var _g1 = this.bigTextures;
-		while(_g < _g1.length) {
-			var b = _g1[_g];
-			++_g;
-			b.diffuse.dispose();
-			if(b.spec != null) {
-				b.spec.dispose();
-			}
-			if(b.normal != null) {
-				b.normal.dispose();
-			}
-		}
-		this.bigTextures = [];
-		this.textures = new haxe_ds_StringMap();
-		if(this.autoCollect) {
-			h3d_Engine.CURRENT.mem.garbage = h3d_scene_World.noGarbage;
-		}
-	}
-	,onContextLost: function() {
-		var _g = 0;
-		var _g1 = this.allChunks;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			this.cleanChunk(c);
-		}
-	}
-	,getStride: function(model) {
-		return model.stride;
-	}
-	,add: function(model,x,y,z,scale,rotation) {
-		if(rotation == null) {
-			rotation = 0.;
-		}
-		if(scale == null) {
-			scale = 1.;
-		}
-		var c = this.getChunk(x,y,true);
-		var m = new h3d_Matrix();
-		m.initScale(scale,scale,scale);
-		m.rotate(0,0,rotation);
-		m.translate(x,y,z);
-		c.elements.push(new h3d_scene_WorldElement(model,m,true));
-		this.addChunkBounds(c,model,m);
-	}
-	,addTransform: function(model,mat) {
-		var c = this.getChunk(mat._41,mat._42,true);
-		c.elements.push(new h3d_scene_WorldElement(model,mat,false));
-		this.addChunkBounds(c,model,mat);
-	}
-	,syncRec: function(ctx) {
-		h3d_scene_Object.prototype.syncRec.call(this,ctx);
-		var _g = 0;
-		var _g1 = this.allChunks;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			var visible;
-			if(!ctx.computingStatic) {
-				var _this = c.bounds;
-				var f = ctx.camera.frustum;
-				visible = f.hasBounds(_this);
-			} else {
-				visible = true;
-			}
-			var _this1 = c.root;
-			var b = !visible;
-			var f1 = 4;
-			if(b) {
-				_this1.flags |= f1;
-			} else {
-				_this1.flags &= ~f1;
-			}
-			if(visible) {
-				c.lastFrame = ctx.frame;
-				this.initChunk(c);
-			}
-		}
-	}
-	,initChunk: function(c) {
-		if(!c.initialized) {
-			c.initialized = true;
-			this.initChunkSoil(c);
-			this.initChunkElements(c);
-		}
-	}
-	,getWorldBounds: function(b) {
-		if(b == null) {
-			b = new h3d_col_Bounds();
-		}
-		var _g = 0;
-		var _g1 = this.allChunks;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			var b1 = c.bounds;
-			if(b1.xMin < b.xMin) {
-				b.xMin = b1.xMin;
-			}
-			if(b1.xMax > b.xMax) {
-				b.xMax = b1.xMax;
-			}
-			if(b1.yMin < b.yMin) {
-				b.yMin = b1.yMin;
-			}
-			if(b1.yMax > b.yMax) {
-				b.yMax = b1.yMax;
-			}
-			if(b1.zMin < b.zMin) {
-				b.zMin = b1.zMin;
-			}
-			if(b1.zMax > b.zMax) {
-				b.zMax = b1.zMax;
-			}
-		}
-		return b;
-	}
-	,__class__: h3d_scene_World
-});
-var WorldMesh = function(chunkSize,parent,autoCollect) {
-	if(autoCollect == null) {
-		autoCollect = true;
-	}
-	h3d_scene_World.call(this,chunkSize,parent,autoCollect);
-};
-$hxClasses["WorldMesh"] = WorldMesh;
-WorldMesh.__name__ = "WorldMesh";
-WorldMesh.__super__ = h3d_scene_World;
-WorldMesh.prototype = $extend(h3d_scene_World.prototype,{
-	interactFunction: null
-	,initChunkSoil: function(c) {
-		var _gthis = this;
-		var test = new h3d_prim_Cube(this.chunkSize);
-		var terrain = new Terrain(this.chunkSize);
-		terrain.addNormals();
-		terrain.addUVs();
-		var soil = new h3d_scene_Mesh(terrain,null,c.root);
-		var v = c.x;
-		soil.x = v;
-		var f = 1;
-		var b = true;
-		if(b) {
-			soil.flags |= f;
-		} else {
-			soil.flags &= ~f;
-		}
-		var v = c.y;
-		soil.y = v;
-		var f = 1;
-		var b = true;
-		if(b) {
-			soil.flags |= f;
-		} else {
-			soil.flags &= ~f;
-		}
-		soil.material.set_texture(h3d_mat_Texture.fromColor(4227104));
-		var interactive = new h3d_scene_Interactive(soil.getCollider(),c.root);
-		interactive.propagateEvents = true;
-		interactive.onClick = function(e) {
-			_gthis.interactFunction(e);
-		};
-	}
-	,__class__: WorldMesh
-});
 var h3d_IDrawable = function() { };
 $hxClasses["h3d.IDrawable"] = h3d_IDrawable;
 h3d_IDrawable.__name__ = "h3d.IDrawable";
@@ -7062,14 +6170,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 	,init: function() {
 		var _gthis = this;
 		hxd_App.prototype.init.call(this);
-		this.world = new WorldMesh(64,this.s3d);
-		var rock = this.world.loadModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model));
-		var _g = 0;
-		while(_g < 1000) {
-			var i = _g++;
-			this.world.add(rock,Math.random() * 300,Math.random() * 300,0,0.5,hxd_Math.srand(Math.PI));
-		}
-		this.world.done();
+		this.world = new WorldSquare(16,this.s3d);
 		this.camera = new WASDCameraController(50,this.s3d,this.s2d);
 		this.camera.set(500);
 		var cubeShape = new h3d_prim_Cube();
@@ -7115,8 +6216,41 @@ Main.prototype = $extend(hxd_App.prototype,{
 		var _this = this.player.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
+		var _this = this.player;
+		_this.x = 0;
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+		_this.y = 0;
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+		_this.z = 0;
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
 		this.gameUI = new GameUI(this.s2d);
 		var cache = new h3d_prim_ModelCache();
+		this.world.addModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model),cache,8,1,1,0);
 		this.interactableRock = cache.loadModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model));
 		var _g = 0;
 		var _g1 = this.interactableRock.getMaterials();
@@ -7246,7 +6380,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 		_this.y = y;
 		_this.z = z;
 		_this.w = 1.;
-		var parts = new h3d_parts_GpuParticles(this.world);
+		var parts = new h3d_parts_GpuParticles(this.s3d);
 		var g = parts.addGroup();
 		g.needRebuild = true;
 		g.size = 0.2;
@@ -7304,6 +6438,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 			} else {
 				_this.flags &= ~f;
 			}
+			haxe_Log.trace(_gthis.player.z,{ fileName : "src/Main.hx", lineNumber : 117, className : "Main", methodName : "init"});
 			_gthis.camera.setPos(e.relX,e.relY,_gthis.s2d.get_mouseX(),_gthis.s2d.get_mouseY());
 		};
 		this.world.interactFunction = clickToMove;
@@ -8423,8 +7558,8 @@ var Terrain = function(chunkSize) {
 		while(_g2 < _g3) {
 			var y = _g2++;
 			var z = 0;
-			if(x > chunkSize / 2 - 20 && x < chunkSize / 2 + 20) {
-				z = 1;
+			if(x > chunkSize / 2 - 3 && x < chunkSize / 2 + 3) {
+				z = 2;
 			}
 			pointList.push(new h3d_col_Point(x,y,z));
 		}
@@ -8537,6 +7672,137 @@ Type.enumParameters = function(e) {
 	} else {
 		return [];
 	}
+};
+var WorldSquare = function(size,s3d) {
+	var _gthis = this;
+	this.s3d = s3d;
+	this.size = size;
+	this.terrain = new Terrain(size);
+	this.terrain.addNormals();
+	this.terrain.addUVs();
+	var soil = new h3d_scene_Mesh(this.terrain,null,s3d);
+	soil.x = 0;
+	var f = 1;
+	var b = true;
+	if(b) {
+		soil.flags |= f;
+	} else {
+		soil.flags &= ~f;
+	}
+	soil.y = 0;
+	var f = 1;
+	var b = true;
+	if(b) {
+		soil.flags |= f;
+	} else {
+		soil.flags &= ~f;
+	}
+	soil.z = 0;
+	var f = 1;
+	var b = true;
+	if(b) {
+		soil.flags |= f;
+	} else {
+		soil.flags &= ~f;
+	}
+	var f = 1;
+	var b = true;
+	if(b) {
+		soil.flags |= f;
+	} else {
+		soil.flags &= ~f;
+	}
+	soil.material.set_texture(h3d_mat_Texture.fromColor(4227104));
+	var interactive = new h3d_scene_Interactive(soil.getCollider(),s3d);
+	interactive.propagateEvents = true;
+	interactive.onClick = function(e) {
+		_gthis.interactFunction(e);
+	};
+};
+$hxClasses["WorldSquare"] = WorldSquare;
+WorldSquare.__name__ = "WorldSquare";
+WorldSquare.prototype = {
+	interactFunction: null
+	,terrain: null
+	,size: null
+	,s3d: null
+	,addModel: function(model,cache,x,y,scale,rotation) {
+		if(rotation == null) {
+			rotation = 0.;
+		}
+		if(scale == null) {
+			scale = 1.;
+		}
+		var newObj = cache.loadModel(model);
+		var v1 = newObj.scaleX * scale;
+		newObj.scaleX = v1;
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		var v1 = newObj.scaleY * scale;
+		newObj.scaleY = v1;
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		var v1 = newObj.scaleZ * scale;
+		newObj.scaleZ = v1;
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		var z = this.terrain.points[x * this.size + y].z;
+		newObj.x = x;
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		newObj.y = y;
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		newObj.z = z;
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			newObj.flags |= f;
+		} else {
+			newObj.flags &= ~f;
+		}
+		this.s3d.addChild(newObj);
+	}
+	,__class__: WorldSquare
 };
 var XmlType = {};
 XmlType.toString = function(this1) {
@@ -36156,351 +35422,6 @@ h3d_mat_BaseMaterial.prototype = $extend(hxd_impl_AnyProps.prototype,{
 	}
 	,__class__: h3d_mat_BaseMaterial
 });
-var h3d_mat_BigTextureElement = function(t,q,du,dv,su,sv) {
-	this.t = t;
-	this.q = q;
-	this.du = du;
-	this.dv = dv;
-	this.su = su;
-	this.sv = sv;
-};
-$hxClasses["h3d.mat.BigTextureElement"] = h3d_mat_BigTextureElement;
-h3d_mat_BigTextureElement.__name__ = "h3d.mat.BigTextureElement";
-h3d_mat_BigTextureElement.prototype = {
-	t: null
-	,q: null
-	,du: null
-	,dv: null
-	,su: null
-	,sv: null
-	,get_width: function() {
-		return this.q.width;
-	}
-	,get_height: function() {
-		return this.q.height;
-	}
-	,set: function(tex) {
-		if(this.q.texture == tex) {
-			return;
-		}
-		this.q.texture = tex;
-		this.t.isDone = false;
-		if(tex != null) {
-			tex.watch(($_=this.t,$bind($_,$_.rebuild)));
-		}
-	}
-	,setAlpha: function(tex) {
-		if(this.q.alphaChannel == tex) {
-			return;
-		}
-		this.q.alphaChannel = tex;
-		this.t.isDone = false;
-		if(tex != null) {
-			tex.watch(($_=this.t,$bind($_,$_.rebuild)));
-		}
-	}
-	,__class__: h3d_mat_BigTextureElement
-};
-var h3d_mat__$BigTexture_QuadTree = function(x,y,w,h) {
-	this.x = x;
-	this.y = y;
-	this.width = w;
-	this.height = h;
-};
-$hxClasses["h3d.mat._BigTexture.QuadTree"] = h3d_mat__$BigTexture_QuadTree;
-h3d_mat__$BigTexture_QuadTree.__name__ = "h3d.mat._BigTexture.QuadTree";
-h3d_mat__$BigTexture_QuadTree.prototype = {
-	x: null
-	,y: null
-	,width: null
-	,height: null
-	,used: null
-	,texture: null
-	,alphaChannel: null
-	,tr: null
-	,tl: null
-	,br: null
-	,bl: null
-	,loadingColor: null
-	,__class__: h3d_mat__$BigTexture_QuadTree
-};
-var h3d_mat_BigTexture = function(id,size,bgColor) {
-	if(bgColor == null) {
-		bgColor = -8355585;
-	}
-	this.id = id;
-	this.size = size;
-	this.bgColor = bgColor;
-	this.space = new h3d_mat__$BigTexture_QuadTree(0,0,size,size);
-	this.tex = new h3d_mat_Texture(1,1);
-	this.tex.preventAutoDispose();
-	this.tex.flags |= 1 << h3d_mat_TextureFlags.Serialize._hx_index;
-	this.tex.clear(bgColor);
-	this.tex.realloc = $bind(this,this.rebuild);
-	this.pending = [];
-};
-$hxClasses["h3d.mat.BigTexture"] = h3d_mat_BigTexture;
-h3d_mat_BigTexture.__name__ = "h3d.mat.BigTexture";
-h3d_mat_BigTexture.prototype = {
-	id: null
-	,tex: null
-	,loadCount: null
-	,size: null
-	,space: null
-	,allPixels: null
-	,isDone: null
-	,pending: null
-	,waitTimer: null
-	,lastEvent: null
-	,bgColor: null
-	,dispose: function() {
-		if(this.tex != null) {
-			this.tex.dispose();
-			this.tex = null;
-		}
-		if(this.allPixels != null) {
-			this.allPixels.dispose();
-			this.allPixels = null;
-		}
-		this.pending = [];
-		if(this.waitTimer != null) {
-			this.waitTimer.stop();
-			this.waitTimer = null;
-		}
-		this.isDone = false;
-		this.space = null;
-	}
-	,findBest: function(q,w,h) {
-		if(q == null || q.width < w || q.height < h) {
-			return null;
-		}
-		if(!q.used) {
-			return q;
-		}
-		var b = this.findBest(q.tr,w,h);
-		var b2 = this.findBest(q.tl,w,h);
-		if(b == null || b2 != null && b2.width * b2.height < b.width * b.height) {
-			b = b2;
-		}
-		var b2 = this.findBest(q.bl,w,h);
-		if(b == null || b2 != null && b2.width * b2.height < b.width * b.height) {
-			b = b2;
-		}
-		var b2 = this.findBest(q.br,w,h);
-		if(b == null || b2 != null && b2.width * b2.height < b.width * b.height) {
-			b = b2;
-		}
-		return b;
-	}
-	,split: function(q,sw,sh,rw,rh) {
-		if(q.width < sw || q.height < sh) {
-			q.used = true;
-			if(q.width == rw && q.height == rh) {
-				return q;
-			}
-			q.tl = new h3d_mat__$BigTexture_QuadTree(q.x,q.y,rw,rh);
-			q.tl.used = true;
-			q.tr = new h3d_mat__$BigTexture_QuadTree(q.x + rw,q.y,q.width - rw,rh);
-			q.bl = new h3d_mat__$BigTexture_QuadTree(q.x,q.y + rh,rw,q.height - rh);
-			q.br = new h3d_mat__$BigTexture_QuadTree(q.x + rw,q.y + rh,q.width - rw,q.height - rh);
-			return q.tl;
-		}
-		q.used = true;
-		var qw = q.width >> 1;
-		var qh = q.height >> 1;
-		q.tl = new h3d_mat__$BigTexture_QuadTree(q.x,q.y,qw,qh);
-		q.tr = new h3d_mat__$BigTexture_QuadTree(q.x + qw,q.y,qw,qh);
-		q.bl = new h3d_mat__$BigTexture_QuadTree(q.x,q.y + qh,qw,qh);
-		q.br = new h3d_mat__$BigTexture_QuadTree(q.x + qw,q.y + qh,qw,qh);
-		return this.split(q.tl,sw,sh,rw,rh);
-	}
-	,allocPos: function(w,h) {
-		var q = this.findBest(this.space,w,h);
-		if(q == null) {
-			return null;
-		}
-		var w2 = 1;
-		var h2 = 1;
-		while(w > w2) w2 <<= 1;
-		while(h > h2) h2 <<= 1;
-		return this.split(q,w2 << 1,h2 << 1,w,h);
-	}
-	,rebuild: function() {
-		var old = this.space;
-		var oldT = this.tex;
-		this.tex = null;
-		this.dispose();
-		this.tex = oldT;
-		this.space = old;
-		this.done();
-	}
-	,add: function(t) {
-		var tsize = t.getInfo();
-		var q = this.allocPos(tsize.width,tsize.height);
-		if(t.getInfo().dataFormat == 4) {
-			throw haxe_Exception.thrown("BigTexture does not support DDS on this platform for " + t.entry.get_path());
-		}
-		if(q == null) {
-			return null;
-		}
-		var e = new h3d_mat_BigTextureElement(this,q,q.x / this.size,q.y / this.size,tsize.width / this.size,tsize.height / this.size);
-		e.set(t);
-		return e;
-	}
-	,addEmpty: function(width,height) {
-		var q = this.allocPos(width,height);
-		if(q == null) {
-			return null;
-		}
-		var e = new h3d_mat_BigTextureElement(this,q,q.x / this.size,q.y / this.size,width / this.size,height / this.size);
-		return e;
-	}
-	,uploadPixels: function(pixels,x,y,alphaChannel) {
-		var bpp = this.allPixels.bytesPerPixel;
-		if(alphaChannel) {
-			var alphaPos = hxd_Pixels.getChannelOffset(this.allPixels.innerFormat,3);
-			var srcRedPos = hxd_Pixels.getChannelOffset(pixels.innerFormat,0);
-			var srcBpp = pixels.bytesPerPixel;
-			var _g = 0;
-			var _g1 = pixels.height;
-			while(_g < _g1) {
-				var dy = _g++;
-				var w = (x + (y + dy) * this.size) * bpp + alphaPos;
-				var r = dy * pixels.width * srcBpp + srcRedPos;
-				var _g2 = 0;
-				var _g3 = pixels.width;
-				while(_g2 < _g3) {
-					var dx = _g2++;
-					this.allPixels.bytes.b[w] = pixels.bytes.b[r];
-					w += bpp;
-					r += srcBpp;
-				}
-			}
-		} else {
-			pixels.convert(this.allPixels.innerFormat);
-			var _g = 0;
-			var _g1 = pixels.height;
-			while(_g < _g1) {
-				var dy = _g++;
-				this.allPixels.bytes.blit((x + (y + dy) * this.size) * bpp,pixels.bytes,dy * pixels.width * bpp,pixels.width * bpp);
-			}
-		}
-		pixels.dispose();
-	}
-	,upload: function(t,q,alphaChannel) {
-		var _gthis = this;
-		if(t.getInfo().dataFormat != 0) {
-			this.uploadPixels(t.getPixels(),q.x,q.y,alphaChannel);
-		} else {
-			this.loadCount++;
-			var o = { t : t, q : q, alpha : alphaChannel, skip : false};
-			this.pending.push(o);
-			var load = null;
-			load = function() {
-				if(alphaChannel) {
-					if(o.skip) {
-						return;
-					}
-					if(q.loadingColor) {
-						haxe_Timer.delay(load,10);
-						return;
-					}
-				} else {
-					q.loadingColor = true;
-				}
-				t.entry.loadBitmap(function(bmp) {
-					if(o.skip) {
-						return;
-					}
-					if(!alphaChannel) {
-						q.loadingColor = false;
-					}
-					_gthis.lastEvent = HxOverrides.now() / 1000;
-					HxOverrides.remove(_gthis.pending,o);
-					var bmp1 = hxd_fs_LoadedBitmap.toBitmap(bmp);
-					var pixels = bmp1.getPixels();
-					bmp1.ctx = null;
-					bmp1.pixel = null;
-					_gthis.uploadPixels(pixels,q.x,q.y,alphaChannel);
-					_gthis.loadCount--;
-					_gthis.flush();
-				});
-			};
-			load();
-		}
-	}
-	,retry: function(pixels) {
-		if(this.allPixels != pixels) {
-			this.waitTimer.stop();
-			this.waitTimer = null;
-			return;
-		}
-		if(HxOverrides.now() / 1000 - this.lastEvent < 4) {
-			return;
-		}
-		this.lastEvent = HxOverrides.now() / 1000;
-		var old = this.pending;
-		this.loadCount -= this.pending.length;
-		this.pending = [];
-		var _g = 0;
-		while(_g < old.length) {
-			var o = old[_g];
-			++_g;
-			o.skip = true;
-			this.upload(o.t,o.q,o.alpha);
-		}
-	}
-	,flush: function() {
-		if(this.allPixels == null || this.loadCount > 0) {
-			return;
-		}
-		if(this.tex.width != this.size) {
-			this.tex.resize(this.size,this.size);
-		}
-		this.tex.uploadPixels(this.allPixels);
-		this.allPixels.dispose();
-		this.allPixels = null;
-		if(this.waitTimer != null) {
-			this.waitTimer.stop();
-			this.waitTimer = null;
-		}
-	}
-	,done: function() {
-		var _gthis = this;
-		if(this.isDone) {
-			return;
-		}
-		this.isDone = true;
-		if(this.allPixels == null) {
-			this.allPixels = hxd_Pixels.alloc(this.size,this.size,h3d_mat_Texture.nativeFormat);
-			if(this.bgColor != 0) {
-				this.allPixels.clear(this.bgColor);
-			}
-		}
-		var loadRec = null;
-		loadRec = function(q) {
-			if(q == null) {
-				return;
-			}
-			if(q.texture != null) {
-				_gthis.upload(q.texture,q,false);
-			}
-			if(q.alphaChannel != null) {
-				_gthis.upload(q.alphaChannel,q,true);
-			}
-			loadRec(q.tl);
-			loadRec(q.tr);
-			loadRec(q.bl);
-			loadRec(q.br);
-		};
-		loadRec(this.space);
-		if(this.loadCount > 0) {
-			return;
-		}
-		this.flush();
-	}
-	,__class__: h3d_mat_BigTexture
-};
 var h3d_mat_Face = $hxEnums["h3d.mat.Face"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.mat.Face",toString:$estr}
 	,Back: {_hx_name:"Back",_hx_index:1,__enum__:"h3d.mat.Face",toString:$estr}
@@ -48022,256 +46943,6 @@ h3d_scene_Skin.prototype = $extend(h3d_scene_MultiMaterial.prototype,{
 	}
 	,__class__: h3d_scene_Skin
 });
-var h3d_scene_WorldElement = function(model,mat,optimized) {
-	this.model = model;
-	this.transform = mat;
-	this.optimized = optimized;
-};
-$hxClasses["h3d.scene.WorldElement"] = h3d_scene_WorldElement;
-h3d_scene_WorldElement.__name__ = "h3d.scene.WorldElement";
-h3d_scene_WorldElement.prototype = {
-	model: null
-	,transform: null
-	,optimized: null
-	,__class__: h3d_scene_WorldElement
-};
-var h3d_scene_WorldChunk = function(cx,cy) {
-	this.initialized = false;
-	this.cx = cx;
-	this.cy = cy;
-	this.elements = [];
-	this.root = new h3d_scene_Object();
-	this.buffers = new haxe_ds_IntMap();
-	this.bounds = new h3d_col_Bounds();
-	var _this = this.root;
-	var f = 128;
-	_this.flags |= f;
-	this.root.name = "chunk[" + cx + "-" + cy + "]";
-};
-$hxClasses["h3d.scene.WorldChunk"] = h3d_scene_WorldChunk;
-h3d_scene_WorldChunk.__name__ = "h3d.scene.WorldChunk";
-h3d_scene_WorldChunk.prototype = {
-	cx: null
-	,cy: null
-	,x: null
-	,y: null
-	,root: null
-	,buffers: null
-	,bounds: null
-	,initialized: null
-	,lastFrame: null
-	,elements: null
-	,dispose: function() {
-		var _this = this.root;
-		if(_this != null && _this.parent != null) {
-			_this.parent.removeChild(_this);
-		}
-	}
-	,__class__: h3d_scene_WorldChunk
-};
-var h3d_scene_WorldMaterial = function() {
-	this.lights = true;
-	this.shadows = true;
-	this.shaders = [];
-};
-$hxClasses["h3d.scene.WorldMaterial"] = h3d_scene_WorldMaterial;
-h3d_scene_WorldMaterial.__name__ = "h3d.scene.WorldMaterial";
-h3d_scene_WorldMaterial.prototype = {
-	bits: null
-	,t: null
-	,spec: null
-	,normal: null
-	,mat: null
-	,culling: null
-	,blend: null
-	,killAlpha: null
-	,emissive: null
-	,stencil: null
-	,lights: null
-	,shadows: null
-	,shaders: null
-	,name: null
-	,clone: function() {
-		var wm = new h3d_scene_WorldMaterial();
-		wm.bits = this.bits;
-		wm.t = this.t;
-		wm.spec = this.spec;
-		wm.normal = this.normal;
-		wm.mat = this.mat;
-		wm.culling = this.culling;
-		wm.blend = this.blend;
-		wm.killAlpha = this.killAlpha;
-		wm.emissive = this.emissive;
-		wm.stencil = this.stencil;
-		wm.lights = this.lights;
-		wm.shadows = this.shadows;
-		wm.shaders = this.shaders.slice();
-		wm.name = this.name;
-		return wm;
-	}
-	,updateBits: function() {
-		this.bits = (this.t.t == null ? 0 : this.t.t.id << 18) | (this.stencil == null ? 0 : this.stencil) << 10 | (this.normal == null ? 0 : 1) << 9 | this.blend._hx_index << 6 | (this.killAlpha == null ? 0 : 1) << 5 | (this.emissive == null ? 0 : 1) << 4 | (this.lights ? 1 : 0) << 3 | (this.shadows ? 1 : 0) << 2 | (this.spec == null ? 0 : 1) << 1 | (this.culling ? 1 : 0);
-	}
-	,__class__: h3d_scene_WorldMaterial
-};
-var h3d_scene_WorldModelGeometry = function(m) {
-	this.m = m;
-};
-$hxClasses["h3d.scene.WorldModelGeometry"] = h3d_scene_WorldModelGeometry;
-h3d_scene_WorldModelGeometry.__name__ = "h3d.scene.WorldModelGeometry";
-h3d_scene_WorldModelGeometry.prototype = {
-	m: null
-	,startVertex: null
-	,startIndex: null
-	,vertexCount: null
-	,indexCount: null
-	,__class__: h3d_scene_WorldModelGeometry
-};
-var h3d_scene_OptAlgorithm = $hxEnums["h3d.scene.OptAlgorithm"] = { __ename__:true,__constructs__:null
-	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.scene.OptAlgorithm",toString:$estr}
-	,TopDown: {_hx_name:"TopDown",_hx_index:1,__enum__:"h3d.scene.OptAlgorithm",toString:$estr}
-};
-h3d_scene_OptAlgorithm.__constructs__ = [h3d_scene_OptAlgorithm.None,h3d_scene_OptAlgorithm.TopDown];
-h3d_scene_OptAlgorithm.__empty_constructs__ = [h3d_scene_OptAlgorithm.None,h3d_scene_OptAlgorithm.TopDown];
-var h3d_scene_WorldModel = function(r) {
-	this.r = r;
-	var this1 = hxd__$FloatBuffer_Float32Expand._new(0);
-	this.buf = this1;
-	var this1 = new Array(0);
-	this.idx = this1;
-	this.geometries = [];
-	this.bounds = new h3d_col_Bounds();
-};
-$hxClasses["h3d.scene.WorldModel"] = h3d_scene_WorldModel;
-h3d_scene_WorldModel.__name__ = "h3d.scene.WorldModel";
-h3d_scene_WorldModel.prototype = {
-	r: null
-	,stride: null
-	,buf: null
-	,idx: null
-	,geometries: null
-	,bounds: null
-	,optimize: function(algo) {
-		switch(algo._hx_index) {
-		case 0:
-			break;
-		case 1:
-			var vertexCount = this.buf.pos / this.stride | 0;
-			var this1 = new Array(vertexCount);
-			var vertexRemap = this1;
-			var length = this.idx.length;
-			if(length == null) {
-				length = 0;
-			}
-			var this1 = new Array(length);
-			var indexRemap = this1;
-			var vidx = 0;
-			var iidx = 0;
-			var _g = 0;
-			var _g1 = vertexCount;
-			while(_g < _g1) {
-				var i = _g++;
-				vertexRemap[i] = -1;
-			}
-			var _g = 0;
-			var _g1 = this.geometries;
-			while(_g < _g1.length) {
-				var g = _g1[_g];
-				++_g;
-				var triCount = g.indexCount / 3 | 0;
-				var triZ = [[]];
-				var triIndexes = [];
-				if(g.startIndex != iidx) {
-					throw haxe_Exception.thrown("assert");
-				}
-				triZ[0][triCount - 1] = 0;
-				triIndexes[triCount - 1] = 0;
-				var _g2 = 0;
-				var _g3 = triCount;
-				while(_g2 < _g3) {
-					var i = _g2++;
-					var base = g.startIndex + i * 3;
-					var z1 = this.buf.array[this.idx[base++] * this.stride + 2];
-					var z2 = this.buf.array[this.idx[base++] * this.stride + 2];
-					var z3 = this.buf.array[this.idx[base++] * this.stride + 2];
-					var zmin = z1;
-					if(z2 < zmin) {
-						zmin = z2;
-					}
-					if(z3 < zmin) {
-						zmin = z3;
-					}
-					triIndexes[i] = i;
-					triZ[0][i] = zmin;
-				}
-				haxe_ds_ArraySort.sort(triIndexes,(function(triZ) {
-					return function(i1,i2) {
-						if(triZ[0][i1] < triZ[0][i2]) {
-							return 1;
-						} else {
-							return -1;
-						}
-					};
-				})(triZ));
-				var _g4 = 0;
-				var _g5 = triCount;
-				while(_g4 < _g5) {
-					var i1 = _g4++;
-					var i2 = triIndexes[i1];
-					var base1 = g.startIndex + i2 * 3;
-					var v = this.idx[base1++];
-					var nv = vertexRemap[v];
-					if(nv < 0) {
-						++vidx;
-						nv = vidx - 1;
-						vertexRemap[v] = nv;
-					}
-					indexRemap[iidx++] = nv;
-					var v1 = this.idx[base1++];
-					var nv1 = vertexRemap[v1];
-					if(nv1 < 0) {
-						++vidx;
-						nv1 = vidx - 1;
-						vertexRemap[v1] = nv1;
-					}
-					indexRemap[iidx++] = nv1;
-					var v2 = this.idx[base1++];
-					var nv2 = vertexRemap[v2];
-					if(nv2 < 0) {
-						++vidx;
-						nv2 = vidx - 1;
-						vertexRemap[v2] = nv2;
-					}
-					indexRemap[iidx++] = nv2;
-				}
-			}
-			var length = vertexCount * this.stride;
-			if(length == null) {
-				length = 0;
-			}
-			var this1 = hxd__$FloatBuffer_Float32Expand._new(length);
-			var bufRemap = this1;
-			var _g = 0;
-			var _g1 = vertexCount;
-			while(_g < _g1) {
-				var v = _g++;
-				var nv = vertexRemap[v];
-				var readPos = v * this.stride;
-				var writePos = nv * this.stride;
-				var _g2 = 0;
-				var _g3 = this.stride;
-				while(_g2 < _g3) {
-					var i = _g2++;
-					bufRemap.array[writePos++] = this.buf.array[readPos++];
-				}
-			}
-			this.idx = indexRemap;
-			this.buf = bufRemap;
-			break;
-		}
-	}
-	,__class__: h3d_scene_WorldModel
-};
 var h3d_scene_fwd_DirLight = function(dir,parent) {
 	this.dshader = new h3d_shader_DirLight();
 	h3d_scene_Light.call(this,this.dshader,parent);
