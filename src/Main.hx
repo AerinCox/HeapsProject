@@ -1,4 +1,6 @@
-import h2d.col.Point;
+import Pathfinder.MapData;
+import Pathfinder.EHeuristic;
+import Pathfinder.Coordinate;
 import hxd.Key;
 import hxd.Event;
 import h3d.Vector;
@@ -46,12 +48,14 @@ class Main extends hxd.App {
 	var cursor:h2d.Graphics;
 	var interactableRock:h3d.scene.Object;
 	var gameUI:GameUI;
+	var l_path:Array<Coordinate>;
 
 	override function init() {
 		super.init();
 
 		// World
 		world = new WorldSquare(16, s3d);
+		world.addWall(2, 2);
 
 		// Camera
 		camera = new WASDCameraController(50, s3d, s2d);
@@ -66,6 +70,7 @@ class Main extends hxd.App {
 		player.scale(0.2);
 		player.material.shadows = false;
 		player.setPosition(0, 0, 0);
+
 		// Game UI
 		gameUI = new GameUI(s2d);
 
@@ -113,9 +118,22 @@ class Main extends hxd.App {
 
 		// Click to move interaction (uses the world's soil object)
 		var clickToMove = function(e:hxd.Event) {
-			player.setPosition(e.relX, e.relY, e.relZ);
-			trace(player.z);
-			camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
+			var intX = Std.int(e.relX);
+			var intY = Std.int(e.relY);
+			if (world.checkNavMesh(intX, intY)) {
+				// player.setPosition(e.relX, e.relY, e.relZ);
+				// camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
+
+				// Pathfinding
+				var l_map = new MapData(world, world.getSize(), world.getSize());
+				var l_pathfinder = new Pathfinder(l_map); // Create a Pathfinder engine configured for our map
+				var l_startNode = new Coordinate(Std.int(player.x), Std.int(player.y)); // 	The starting node
+				var l_destinationNode = new Coordinate(Std.int(e.relX), Std.int(e.relY)); // The destination node
+				var l_heuristicType = EHeuristic.PRODUCT; // The method of A Star used
+				var l_isDiagonalEnabled = true; // Set to false to ensure only up, left, down, right movements are allowed
+				var l_isMapDynamic = false; // Set to true to force fresh lookups from IMap.isWalkable() for each node's isWalkable property (e.g. for a dynamically changing map)
+				this.l_path = l_pathfinder.createPath(l_startNode, l_destinationNode, l_heuristicType, l_isDiagonalEnabled, l_isMapDynamic);
+			}
 		};
 		world.interactFunction = clickToMove;
 
@@ -131,6 +149,9 @@ class Main extends hxd.App {
 
 	// Don't forget to remove the event using removeEventTarget when disposing your objects.
 	function onEvent(event:hxd.Event) {/* Not used currently */}
+
+	var index:Int = 0;
+	var time:Float = 0;
 
 	override function update(dt:Float) {
 		// Cursor
@@ -152,6 +173,15 @@ class Main extends hxd.App {
 		}
 		if (hxd.Key.isDown(hxd.Key.S)) {
 			camera.rot(0, -5);
+		}
+
+		time = time + dt;
+		if (l_path != null) {
+			if (time > 1 && index < l_path.length) {
+				time = 0;
+				player.setPosition(this.l_path[index].x, this.l_path[index].y, 0);
+				index++;
+			}
 		}
 	}
 

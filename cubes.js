@@ -6151,6 +6151,8 @@ hxd_App.prototype = {
 	,__class__: hxd_App
 };
 var Main = function() {
+	this.time = 0;
+	this.index = 0;
 	hxd_App.call(this);
 };
 $hxClasses["Main"] = Main;
@@ -6167,10 +6169,12 @@ Main.prototype = $extend(hxd_App.prototype,{
 	,cursor: null
 	,interactableRock: null
 	,gameUI: null
+	,l_path: null
 	,init: function() {
 		var _gthis = this;
 		hxd_App.prototype.init.call(this);
 		this.world = new WorldSquare(16,this.s3d);
+		this.world.addWall(2,2);
 		this.camera = new WASDCameraController(50,this.s3d,this.s2d);
 		this.camera.set(500);
 		var cubeShape = new h3d_prim_Cube();
@@ -6403,43 +6407,18 @@ Main.prototype = $extend(hxd_App.prototype,{
 		b.zMax = 55;
 		parts.set_volumeBounds(b);
 		var clickToMove = function(e) {
-			var _this = _gthis.player;
-			var x = e.relX;
-			var y = e.relY;
-			var z = e.relZ;
-			_this.x = x;
-			var f = 1;
-			var b = true;
-			if(b) {
-				_this.flags |= f;
-			} else {
-				_this.flags &= ~f;
+			var intX = e.relX | 0;
+			var intY = e.relY | 0;
+			if(_gthis.world.checkNavMesh(intX,intY)) {
+				var l_map = new MapData(_gthis.world,_gthis.world.getSize(),_gthis.world.getSize());
+				var l_pathfinder = new Pathfinder(l_map);
+				var l_startNode = new Coordinate(_gthis.player.x | 0,_gthis.player.y | 0);
+				var l_destinationNode = new Coordinate(e.relX | 0,e.relY | 0);
+				var l_heuristicType = EHeuristic.PRODUCT;
+				var l_isDiagonalEnabled = true;
+				var l_isMapDynamic = false;
+				_gthis.l_path = l_pathfinder.createPath(l_startNode,l_destinationNode,l_heuristicType,l_isDiagonalEnabled,l_isMapDynamic);
 			}
-			_this.y = y;
-			var f = 1;
-			var b = true;
-			if(b) {
-				_this.flags |= f;
-			} else {
-				_this.flags &= ~f;
-			}
-			_this.z = z;
-			var f = 1;
-			var b = true;
-			if(b) {
-				_this.flags |= f;
-			} else {
-				_this.flags &= ~f;
-			}
-			var f = 1;
-			var b = true;
-			if(b) {
-				_this.flags |= f;
-			} else {
-				_this.flags &= ~f;
-			}
-			haxe_Log.trace(_gthis.player.z,{ fileName : "src/Main.hx", lineNumber : 117, className : "Main", methodName : "init"});
-			_gthis.camera.setPos(e.relX,e.relY,_gthis.s2d.get_mouseX(),_gthis.s2d.get_mouseY());
 		};
 		this.world.interactFunction = clickToMove;
 		this.cursor = new h2d_Graphics(this.s2d);
@@ -6449,6 +6428,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 	}
 	,onEvent: function(event) {
 	}
+	,index: null
+	,time: null
 	,update: function(dt) {
 		var px = this.s2d.get_mouseX();
 		var py = this.s2d.get_mouseY();
@@ -6470,10 +6451,512 @@ Main.prototype = $extend(hxd_App.prototype,{
 		if(hxd_Key.isDown(83)) {
 			this.camera.rot(0,-5);
 		}
+		this.time += dt;
+		if(this.l_path != null) {
+			if(this.time > 1 && this.index < this.l_path.length) {
+				this.time = 0;
+				var _this = this.player;
+				var x = this.l_path[this.index].x;
+				var y = this.l_path[this.index].y;
+				_this.x = x;
+				var f = 1;
+				var b = true;
+				if(b) {
+					_this.flags |= f;
+				} else {
+					_this.flags &= ~f;
+				}
+				_this.y = y;
+				var f = 1;
+				var b = true;
+				if(b) {
+					_this.flags |= f;
+				} else {
+					_this.flags &= ~f;
+				}
+				_this.z = 0;
+				var f = 1;
+				var b = true;
+				if(b) {
+					_this.flags |= f;
+				} else {
+					_this.flags &= ~f;
+				}
+				var f = 1;
+				var b = true;
+				if(b) {
+					_this.flags |= f;
+				} else {
+					_this.flags &= ~f;
+				}
+				this.index++;
+			}
+		}
 	}
 	,__class__: Main
 });
 Math.__name__ = "Math";
+var Coordinate = function(p_x,p_y) {
+	if(p_y == null) {
+		p_y = 0;
+	}
+	if(p_x == null) {
+		p_x = 0;
+	}
+	this.x = p_x;
+	this.y = p_y;
+};
+$hxClasses["Coordinate"] = Coordinate;
+Coordinate.__name__ = "Coordinate";
+Coordinate.prototype = {
+	x: null
+	,y: null
+	,isEqualTo: function(p_coordinate) {
+		if(this.x == p_coordinate.x) {
+			return this.y == p_coordinate.y;
+		} else {
+			return false;
+		}
+	}
+	,toString: function() {
+		return "(" + this.x + "," + this.y + ")";
+	}
+	,clone: function() {
+		return new Coordinate(this.x,this.y);
+	}
+	,__class__: Coordinate
+};
+var EHeuristic = $hxEnums["EHeuristic"] = { __ename__:true,__constructs__:null
+	,DIAGONAL: {_hx_name:"DIAGONAL",_hx_index:0,__enum__:"EHeuristic",toString:$estr}
+	,PRODUCT: {_hx_name:"PRODUCT",_hx_index:1,__enum__:"EHeuristic",toString:$estr}
+	,EUCLIDIAN: {_hx_name:"EUCLIDIAN",_hx_index:2,__enum__:"EHeuristic",toString:$estr}
+	,MANHATTAN: {_hx_name:"MANHATTAN",_hx_index:3,__enum__:"EHeuristic",toString:$estr}
+};
+EHeuristic.__constructs__ = [EHeuristic.DIAGONAL,EHeuristic.PRODUCT,EHeuristic.EUCLIDIAN,EHeuristic.MANHATTAN];
+EHeuristic.__empty_constructs__ = [EHeuristic.DIAGONAL,EHeuristic.PRODUCT,EHeuristic.EUCLIDIAN,EHeuristic.MANHATTAN];
+var SimpleMap = function() { };
+$hxClasses["SimpleMap"] = SimpleMap;
+SimpleMap.__name__ = "SimpleMap";
+SimpleMap.__isInterface__ = true;
+SimpleMap.prototype = {
+	rows: null
+	,cols: null
+	,isWalkable: null
+	,__class__: SimpleMap
+};
+var MapData = function(worldSquare,p_cols,p_rows) {
+	this.worldSquare = worldSquare;
+	this.cols = p_cols;
+	this.rows = p_rows;
+};
+$hxClasses["MapData"] = MapData;
+MapData.__name__ = "MapData";
+MapData.__interfaces__ = [SimpleMap];
+MapData.prototype = {
+	rows: null
+	,cols: null
+	,worldSquare: null
+	,isWalkable: function(p_x,p_y) {
+		return this.worldSquare.checkNavMesh(p_x,p_y);
+	}
+	,__class__: MapData
+};
+var Node = function(p_x,p_y,p_isWalkable) {
+	if(p_isWalkable == null) {
+		p_isWalkable = true;
+	}
+	this.isWalkable = p_isWalkable;
+	Coordinate.call(this,p_x,p_y);
+};
+$hxClasses["Node"] = Node;
+Node.__name__ = "Node";
+Node.__super__ = Coordinate;
+Node.prototype = $extend(Coordinate.prototype,{
+	parent: null
+	,isWalkable: null
+	,f: null
+	,g: null
+	,toString: function() {
+		var l_result = "[Node(" + this.x + "," + this.y + ")";
+		if(this.parent != null) {
+			l_result += ", parent=(" + this.parent.x + "," + this.parent.y + ")";
+		}
+		l_result += ", " + (this.isWalkable ? "W" : "X");
+		l_result += ", f=" + this.f;
+		l_result += ", g=" + this.g;
+		l_result += "]";
+		return l_result;
+	}
+	,__class__: Node
+});
+var Pathfinder = function(p_map,p_timeOutDuration) {
+	if(p_timeOutDuration == null) {
+		p_timeOutDuration = 10000;
+	}
+	this.configure(p_map,p_timeOutDuration);
+};
+$hxClasses["Pathfinder"] = Pathfinder;
+Pathfinder.__name__ = "Pathfinder";
+Pathfinder.prototype = {
+	_map: null
+	,_timeOutDuration: null
+	,_openList: null
+	,_closedList: null
+	,_isCompleted: null
+	,_nodes: null
+	,_startNode: null
+	,_destNode: null
+	,_cols: null
+	,_rows: null
+	,_info: null
+	,configure: function(p_map,p_timeOutDuration) {
+		if(p_timeOutDuration == null) {
+			p_timeOutDuration = 10000;
+		}
+		this._map = p_map;
+		this._timeOutDuration = p_timeOutDuration;
+		this._nodes = [];
+		this._cols = this._map.cols;
+		this._rows = this._map.rows;
+		var _g = 0;
+		var _g1 = this._map.cols;
+		while(_g < _g1) {
+			var l_ix = _g++;
+			var l_line = this._nodes[l_ix] = [];
+			var _g2 = 0;
+			var _g3 = this._map.rows;
+			while(_g2 < _g3) {
+				var l_iy = _g2++;
+				l_line[l_iy] = new Node(l_ix,l_iy,this._map.isWalkable(l_ix,l_iy));
+			}
+		}
+	}
+	,_getCost: function(p_node1,p_node2,p_heuristic) {
+		switch(p_heuristic._hx_index) {
+		case 0:
+			var p_value = p_node1.x - p_node2.x;
+			var l_dx = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - p_node2.y;
+			var l_dy = p_value < 0 ? -p_value : p_value;
+			var l_diag = l_dx < l_dy ? l_dx : l_dy;
+			var l_straight = l_dx + l_dy;
+			return 10 * (l_straight - 2 * l_diag) + 14 * l_diag;
+		case 1:
+			var p_value = p_node1.x - this._destNode.x;
+			var l_dx1 = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - this._destNode.y;
+			var l_dy1 = p_value < 0 ? -p_value : p_value;
+			var p_value = this._startNode.x - this._destNode.x;
+			var l_dx2 = p_value < 0 ? -p_value : p_value;
+			var p_value = this._startNode.y - this._destNode.y;
+			var l_dy2 = p_value < 0 ? -p_value : p_value;
+			var p_value = l_dx1 * l_dy2 - l_dx2 * l_dy1;
+			var l_cross = (p_value < 0 ? -p_value : p_value) * .01;
+			var p_value = p_node1.x - p_node2.x;
+			var l_dx = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - p_node2.y;
+			var l_dy = p_value < 0 ? -p_value : p_value;
+			var l_diag = l_dx < l_dy ? l_dx : l_dy;
+			var l_straight = l_dx + l_dy;
+			return 10 * (l_straight - 2 * l_diag) + 14 * l_diag + l_cross;
+		case 2:
+			var p_value = p_node1.x - p_node2.x;
+			var l_dx = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - p_node2.y;
+			var l_dy = p_value < 0 ? -p_value : p_value;
+			return Math.sqrt(l_dx * l_dx + l_dy * l_dy) * 10;
+		case 3:
+			var l_dx = p_node1.x - p_node2.x;
+			var l_dy = p_node1.y - p_node2.y;
+			return ((l_dx > 0 ? l_dx : -l_dx) + (l_dy > 0 ? l_dy : -l_dy)) * 10;
+		}
+	}
+	,_getCostDiagonal: function(p_node1,p_node2) {
+		var p_value = p_node1.x - p_node2.x;
+		var l_dx = p_value < 0 ? -p_value : p_value;
+		var p_value = p_node1.y - p_node2.y;
+		var l_dy = p_value < 0 ? -p_value : p_value;
+		var l_diag = l_dx < l_dy ? l_dx : l_dy;
+		var l_straight = l_dx + l_dy;
+		return 10 * (l_straight - 2 * l_diag) + 14 * l_diag;
+	}
+	,_getCostProduct: function(p_node1,p_node2) {
+		var p_value = p_node1.x - this._destNode.x;
+		var l_dx1 = p_value < 0 ? -p_value : p_value;
+		var p_value = p_node1.y - this._destNode.y;
+		var l_dy1 = p_value < 0 ? -p_value : p_value;
+		var p_value = this._startNode.x - this._destNode.x;
+		var l_dx2 = p_value < 0 ? -p_value : p_value;
+		var p_value = this._startNode.y - this._destNode.y;
+		var l_dy2 = p_value < 0 ? -p_value : p_value;
+		var p_value = l_dx1 * l_dy2 - l_dx2 * l_dy1;
+		var l_cross = (p_value < 0 ? -p_value : p_value) * .01;
+		var p_value = p_node1.x - p_node2.x;
+		var l_dx = p_value < 0 ? -p_value : p_value;
+		var p_value = p_node1.y - p_node2.y;
+		var l_dy = p_value < 0 ? -p_value : p_value;
+		var l_diag = l_dx < l_dy ? l_dx : l_dy;
+		var l_straight = l_dx + l_dy;
+		return 10 * (l_straight - 2 * l_diag) + 14 * l_diag + l_cross;
+	}
+	,_getCostEuclidian: function(p_node1,p_node2) {
+		var p_value = p_node1.x - p_node2.x;
+		var l_dx = p_value < 0 ? -p_value : p_value;
+		var p_value = p_node1.y - p_node2.y;
+		var l_dy = p_value < 0 ? -p_value : p_value;
+		return Math.sqrt(l_dx * l_dx + l_dy * l_dy) * 10;
+	}
+	,_getCostManhattan: function(p_node1,p_node2) {
+		var l_dx = p_node1.x - p_node2.x;
+		var l_dy = p_node1.y - p_node2.y;
+		return ((l_dx > 0 ? l_dx : -l_dx) + (l_dy > 0 ? l_dy : -l_dy)) * 10;
+	}
+	,createPath: function(p_start,p_dest,p_heuristic,p_isDiagonalEnabled,p_isMapDynamic) {
+		if(p_isMapDynamic == null) {
+			p_isMapDynamic = false;
+		}
+		if(p_isDiagonalEnabled == null) {
+			p_isDiagonalEnabled = true;
+		}
+		if(p_heuristic == null) {
+			p_heuristic = EHeuristic.PRODUCT;
+		}
+		this._info = { heuristic : p_heuristic, timeElapsed : 0, pathLength : 0, isDiagonalEnabled : p_isDiagonalEnabled};
+		if(!this._map.isWalkable(p_start.x,p_start.y) || !this._map.isWalkable(p_dest.x,p_dest.y) || p_start.isEqualTo(p_dest)) {
+			return null;
+		}
+		this._openList = [];
+		this._closedList = [];
+		this._startNode = this._nodes[p_start.x][p_start.y];
+		this._destNode = this._nodes[p_dest.x][p_dest.y];
+		this._startNode.g = 0;
+		var p_node1 = this._startNode;
+		var p_node2 = this._destNode;
+		var tmp;
+		switch(p_heuristic._hx_index) {
+		case 0:
+			var p_value = p_node1.x - p_node2.x;
+			var l_dx = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - p_node2.y;
+			var l_dy = p_value < 0 ? -p_value : p_value;
+			var l_diag = l_dx < l_dy ? l_dx : l_dy;
+			var l_straight = l_dx + l_dy;
+			tmp = 10 * (l_straight - 2 * l_diag) + 14 * l_diag;
+			break;
+		case 1:
+			var p_value = p_node1.x - this._destNode.x;
+			var l_dx1 = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - this._destNode.y;
+			var l_dy1 = p_value < 0 ? -p_value : p_value;
+			var p_value = this._startNode.x - this._destNode.x;
+			var l_dx2 = p_value < 0 ? -p_value : p_value;
+			var p_value = this._startNode.y - this._destNode.y;
+			var l_dy2 = p_value < 0 ? -p_value : p_value;
+			var p_value = l_dx1 * l_dy2 - l_dx2 * l_dy1;
+			var l_cross = (p_value < 0 ? -p_value : p_value) * .01;
+			var p_value = p_node1.x - p_node2.x;
+			var l_dx = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - p_node2.y;
+			var l_dy = p_value < 0 ? -p_value : p_value;
+			var l_diag = l_dx < l_dy ? l_dx : l_dy;
+			var l_straight = l_dx + l_dy;
+			tmp = 10 * (l_straight - 2 * l_diag) + 14 * l_diag + l_cross;
+			break;
+		case 2:
+			var p_value = p_node1.x - p_node2.x;
+			var l_dx = p_value < 0 ? -p_value : p_value;
+			var p_value = p_node1.y - p_node2.y;
+			var l_dy = p_value < 0 ? -p_value : p_value;
+			tmp = Math.sqrt(l_dx * l_dx + l_dy * l_dy) * 10;
+			break;
+		case 3:
+			var l_dx = p_node1.x - p_node2.x;
+			var l_dy = p_node1.y - p_node2.y;
+			tmp = ((l_dx > 0 ? l_dx : -l_dx) + (l_dy > 0 ? l_dy : -l_dy)) * 10;
+			break;
+		}
+		this._startNode.f = tmp;
+		this._openList.push(this._startNode);
+		return this._searchPath(p_heuristic,p_isDiagonalEnabled,p_isMapDynamic);
+	}
+	,_getPath: function() {
+		var l_path = [];
+		var l_node = this._destNode;
+		l_path[0] = l_node.clone();
+		while(true) {
+			l_node = l_node.parent;
+			l_path.unshift(l_node.clone());
+			if(l_node == this._startNode) {
+				break;
+			}
+		}
+		return l_path;
+	}
+	,_searchPath: function(p_heuristic,p_isDiagonalEnabled,p_isMapDynamic) {
+		if(p_isMapDynamic == null) {
+			p_isMapDynamic = false;
+		}
+		if(p_isDiagonalEnabled == null) {
+			p_isDiagonalEnabled = true;
+		}
+		var l_minX;
+		var l_maxX;
+		var l_minY;
+		var l_maxY;
+		var l_isWalkable;
+		var l_g;
+		var l_f;
+		var l_cost;
+		var l_nextNode = null;
+		var l_currentNode = this._startNode;
+		var l_startTime = HxOverrides.now() / 1000;
+		this._isCompleted = false;
+		while(!this._isCompleted) {
+			l_minX = l_currentNode.x - 1 < 0 ? 0 : l_currentNode.x - 1;
+			l_maxX = l_currentNode.x + 1 >= this._cols ? this._cols - 1 : l_currentNode.x + 1;
+			l_minY = l_currentNode.y - 1 < 0 ? 0 : l_currentNode.y - 1;
+			l_maxY = l_currentNode.y + 1 >= this._rows ? this._rows - 1 : l_currentNode.y + 1;
+			var _g = l_minY;
+			var _g1 = l_maxY + 1;
+			while(_g < _g1) {
+				var l_iy = _g++;
+				var _g2 = l_minX;
+				var _g3 = l_maxX + 1;
+				while(_g2 < _g3) {
+					var l_ix = _g2++;
+					l_nextNode = this._nodes[l_ix][l_iy];
+					l_isWalkable = !p_isMapDynamic && l_nextNode.isWalkable || p_isMapDynamic && this._map.isWalkable(l_ix,l_iy);
+					if(l_nextNode == l_currentNode || !l_isWalkable) {
+						continue;
+					}
+					l_cost = 10;
+					if(!(l_currentNode.x == l_nextNode.x || l_currentNode.y == l_nextNode.y)) {
+						if(!p_isDiagonalEnabled) {
+							continue;
+						}
+						l_cost = 14;
+					}
+					l_g = l_currentNode.g + l_cost;
+					var p_node2 = this._destNode;
+					var l_f1;
+					switch(p_heuristic._hx_index) {
+					case 0:
+						var p_value = l_nextNode.x - p_node2.x;
+						var l_dx = p_value < 0 ? -p_value : p_value;
+						var p_value1 = l_nextNode.y - p_node2.y;
+						var l_dy = p_value1 < 0 ? -p_value1 : p_value1;
+						var l_diag = l_dx < l_dy ? l_dx : l_dy;
+						var l_straight = l_dx + l_dy;
+						l_f1 = 10 * (l_straight - 2 * l_diag) + 14 * l_diag;
+						break;
+					case 1:
+						var p_value2 = l_nextNode.x - this._destNode.x;
+						var l_dx1 = p_value2 < 0 ? -p_value2 : p_value2;
+						var p_value3 = l_nextNode.y - this._destNode.y;
+						var l_dy1 = p_value3 < 0 ? -p_value3 : p_value3;
+						var p_value4 = this._startNode.x - this._destNode.x;
+						var l_dx2 = p_value4 < 0 ? -p_value4 : p_value4;
+						var p_value5 = this._startNode.y - this._destNode.y;
+						var l_dy2 = p_value5 < 0 ? -p_value5 : p_value5;
+						var p_value6 = l_dx1 * l_dy2 - l_dx2 * l_dy1;
+						var l_cross = (p_value6 < 0 ? -p_value6 : p_value6) * .01;
+						var p_value7 = l_nextNode.x - p_node2.x;
+						var l_dx3 = p_value7 < 0 ? -p_value7 : p_value7;
+						var p_value8 = l_nextNode.y - p_node2.y;
+						var l_dy3 = p_value8 < 0 ? -p_value8 : p_value8;
+						var l_diag1 = l_dx3 < l_dy3 ? l_dx3 : l_dy3;
+						var l_straight1 = l_dx3 + l_dy3;
+						l_f1 = 10 * (l_straight1 - 2 * l_diag1) + 14 * l_diag1 + l_cross;
+						break;
+					case 2:
+						var p_value9 = l_nextNode.x - p_node2.x;
+						var l_dx4 = p_value9 < 0 ? -p_value9 : p_value9;
+						var p_value10 = l_nextNode.y - p_node2.y;
+						var l_dy4 = p_value10 < 0 ? -p_value10 : p_value10;
+						l_f1 = Math.sqrt(l_dx4 * l_dx4 + l_dy4 * l_dy4) * 10;
+						break;
+					case 3:
+						var l_dx5 = l_nextNode.x - p_node2.x;
+						var l_dy5 = l_nextNode.y - p_node2.y;
+						l_f1 = ((l_dx5 > 0 ? l_dx5 : -l_dx5) + (l_dy5 > 0 ? l_dy5 : -l_dy5)) * 10;
+						break;
+					}
+					l_f = l_g + l_f1;
+					if(this._openList.indexOf(l_nextNode) != -1 || this._closedList.indexOf(l_nextNode) != -1) {
+						if(l_nextNode.f > l_f) {
+							l_nextNode.f = l_f;
+							l_nextNode.g = l_g;
+							l_nextNode.parent = l_currentNode;
+						}
+					} else {
+						l_nextNode.f = l_f;
+						l_nextNode.g = l_g;
+						l_nextNode.parent = l_currentNode;
+						this._openList.push(l_nextNode);
+					}
+				}
+				this._info.timeElapsed = (HxOverrides.now() / 1000 - l_startTime) * 1000 | 0;
+				if(this._info.timeElapsed > this._timeOutDuration) {
+					return null;
+				}
+			}
+			this._closedList.push(l_currentNode);
+			if(this._openList.length == 0) {
+				return null;
+			}
+			this._openList.sort($bind(this,this._sort));
+			l_currentNode = this._openList.shift();
+			if(l_currentNode == this._destNode) {
+				this._isCompleted = true;
+			}
+		}
+		this._info.timeElapsed = (HxOverrides.now() / 1000 - l_startTime) * 1000 | 0;
+		var l_path = [];
+		var l_node = this._destNode;
+		l_path[0] = l_node.clone();
+		while(true) {
+			l_node = l_node.parent;
+			l_path.unshift(l_node.clone());
+			if(l_node == this._startNode) {
+				break;
+			}
+		}
+		var l_path1 = l_path;
+		this._info.pathLength = l_path1.length;
+		return l_path1;
+	}
+	,_sort: function(p_x,p_y) {
+		if(p_x.f > p_y.f) {
+			return 1;
+		} else if(p_x.f < p_y.f) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+	,_intAbs: function(p_value) {
+		if(p_value < 0) {
+			return -p_value;
+		} else {
+			return p_value;
+		}
+	}
+	,_intMin: function(p_v1,p_v2) {
+		if(p_v1 < p_v2) {
+			return p_v1;
+		} else {
+			return p_v2;
+		}
+	}
+	,getInfo: function() {
+		if(this._isCompleted) {
+			return "Success using " + Std.string(this._info.heuristic) + (!this._info.isDiagonalEnabled ? " (and diagonals disabled )" : "") + " with a path length of " + this._info.pathLength + " taking " + this._info.timeElapsed + "ms";
+		} else {
+			return "Fail";
+		}
+	}
+	,__class__: Pathfinder
+};
 var Reflect = function() { };
 $hxClasses["Reflect"] = Reflect;
 Reflect.__name__ = "Reflect";
@@ -7718,6 +8201,18 @@ var WorldSquare = function(size,s3d) {
 	interactive.onClick = function(e) {
 		_gthis.interactFunction(e);
 	};
+	this.navMesh = [];
+	var _g = 0;
+	var _g1 = size;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = size;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			this.navMesh[x * size + y] = true;
+		}
+	}
 };
 $hxClasses["WorldSquare"] = WorldSquare;
 WorldSquare.__name__ = "WorldSquare";
@@ -7726,6 +8221,93 @@ WorldSquare.prototype = {
 	,terrain: null
 	,size: null
 	,s3d: null
+	,navMesh: null
+	,checkNavMesh: function(x,y) {
+		var coord = x * this.size + y;
+		if(coord >= this.navMesh.length || coord < 0) {
+			return false;
+		}
+		return this.navMesh[coord];
+	}
+	,getSize: function() {
+		return this.navMesh.length;
+	}
+	,addWall: function(x,y) {
+		var cubeShape = new h3d_prim_Cube();
+		cubeShape.unindex();
+		cubeShape.addNormals();
+		var wall = new h3d_scene_Mesh(cubeShape,null,this.s3d);
+		wall.scaleX = 1;
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		wall.scaleY = 5;
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		wall.scaleZ = 5;
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		var _this = wall.material;
+		_this.set_castShadows(false);
+		_this.set_receiveShadows(false);
+		var z = this.terrain.points[x * this.size + y].z;
+		wall.x = x;
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		wall.y = y;
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		wall.z = z;
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			wall.flags |= f;
+		} else {
+			wall.flags &= ~f;
+		}
+		var _g = x;
+		var _g1 = x + 1;
+		while(_g < _g1) {
+			var width = _g++;
+			var _g2 = y;
+			var _g3 = y + 5;
+			while(_g2 < _g3) {
+				var length = _g2++;
+				this.navMesh[width * this.size + length] = false;
+			}
+		}
+	}
 	,addModel: function(model,cache,x,y,scale,rotation) {
 		if(rotation == null) {
 			rotation = 0.;
@@ -81750,6 +82332,8 @@ h3d_Matrix.SQ13 = 0.57735026918962576450914878050196;
 h3d_scene_Object.ROT2RAD = -0.017453292519943295769236907684886;
 h3d_scene_Object.tmpMat = new h3d_Matrix();
 h3d_scene_Object.tmpVec = new h3d_Vector();
+Pathfinder._COST_ADJACENT = 10;
+Pathfinder._COST_DIAGIONAL = 14;
 Xml.Element = 0;
 Xml.PCData = 1;
 Xml.CData = 2;
