@@ -1,5 +1,3 @@
-import Pathfinder.MapData;
-import Pathfinder.EHeuristic;
 import Pathfinder.Coordinate;
 import hxd.Key;
 import hxd.Event;
@@ -48,7 +46,15 @@ class Main extends hxd.App {
 	var cursor:h2d.Graphics;
 	var interactableRock:h3d.scene.Object;
 	var gameUI:GameUI;
-	var l_path:Array<Coordinate>;
+	// Eventually move this pathfinding stuff to entity classes vvv
+	var pathfinder:Pathfinder;
+	var currPath:Array<Coordinate>;
+
+	// TODO: These are just some temporary variables for pathfinding stuff.
+	var index:Int = 0;
+	var time:Float = 0;
+	var currX:Float;
+	var currY:Float;
 
 	override function init() {
 		super.init();
@@ -96,7 +102,7 @@ class Main extends hxd.App {
 
 		s3d.addChild(interactableRock);
 
-		// Light
+		// Light n Shadow
 		new h3d.scene.fwd.DirLight(new h3d.Vector(0.3, -0.4, -0.9), s3d);
 		s3d.lightSystem.ambientLight.setColor(0x990000);
 
@@ -116,23 +122,21 @@ class Main extends hxd.App {
 		g.emitMode = CameraBounds;
 		parts.volumeBounds = h3d.col.Bounds.fromValues(-20, -20, 15, 40, 40, 40);
 
-		// Click to move interaction (uses the world's soil object)
-		var clickToMove = function(e:hxd.Event) {
-			var intX = Std.int(e.relX);
-			var intY = Std.int(e.relY);
-			if (world.checkNavMesh(intX, intY)) {
-				// player.setPosition(e.relX, e.relY, e.relZ);
-				// camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
+		// Pathfinding System Init
+		this.pathfinder = new Pathfinder(world);
+		this.currPath = [];
 
-				// Pathfinding
-				var l_map = new MapData(world, world.getSize(), world.getSize());
-				var l_pathfinder = new Pathfinder(l_map); // Create a Pathfinder engine configured for our map
-				var l_startNode = new Coordinate(Std.int(player.x), Std.int(player.y)); // 	The starting node
-				var l_destinationNode = new Coordinate(Std.int(e.relX), Std.int(e.relY)); // The destination node
-				var l_heuristicType = EHeuristic.PRODUCT; // The method of A Star used
-				var l_isDiagonalEnabled = true; // Set to false to ensure only up, left, down, right movements are allowed
-				var l_isMapDynamic = false; // Set to true to force fresh lookups from IMap.isWalkable() for each node's isWalkable property (e.g. for a dynamically changing map)
-				this.l_path = l_pathfinder.createPath(l_startNode, l_destinationNode, l_heuristicType, l_isDiagonalEnabled, l_isMapDynamic);
+		// Click to Move interaction
+		var clickToMove = function(e:hxd.Event) {
+			var eventX = Math.floor(e.relX);
+			var eventY = Math.floor(e.relY);
+			if (world.checkNavMesh(eventX, eventY)) {
+				this.currPath = pathfinder.generatePath(Math.round(player.x), Math.round(player.y), eventX, eventY);
+				// TODO: These are just some temporary variables for pathfinding stuff.
+				this.index = 0;
+				this.time = 0;
+				currX = player.x;
+				currY = player.y;
 			}
 		};
 		world.interactFunction = clickToMove;
@@ -149,9 +153,6 @@ class Main extends hxd.App {
 
 	// Don't forget to remove the event using removeEventTarget when disposing your objects.
 	function onEvent(event:hxd.Event) {/* Not used currently */}
-
-	var index:Int = 0;
-	var time:Float = 0;
 
 	override function update(dt:Float) {
 		// Cursor
@@ -174,15 +175,30 @@ class Main extends hxd.App {
 		if (hxd.Key.isDown(hxd.Key.S)) {
 			camera.rot(0, -5);
 		}
-
-		time = time + dt;
-		if (l_path != null) {
-			if (time > 1 && index < l_path.length) {
-				time = 0;
-				player.setPosition(this.l_path[index].x, this.l_path[index].y, 0);
-				index++;
+		// camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
+		if (currPath != null && currPath.length != 0) {
+			time = time + dt;
+			if (time <= 1) {
+				var lerpX = lerp(currX, currPath[index].x, time);
+				var lerpY = lerp(currY, currPath[index].y, time);
+				player.setPosition(lerpX, lerpY, 0);
+			} else {
+				this.currX = player.x;
+				this.currY = player.y;
+				if (index + 1 == currPath.length) {
+					currPath = null;
+					index = 0;
+					time = 0;
+				} else {
+					time = 0;
+					index++;
+				}
 			}
 		}
+	}
+
+	public static function lerp(min:Float, max:Float, time:Float):Float {
+		return min + (max - min) * time;
 	}
 
 	static function main() {

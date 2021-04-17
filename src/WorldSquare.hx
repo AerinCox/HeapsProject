@@ -7,16 +7,16 @@ class WorldSquare {
 	public var interactFunction:(e:Event) -> Void;
 
 	var terrain:Terrain;
-	var size:Int;
+	var width:Int;
 	var s3d:Object;
 	var navMesh:Array<Bool>; // TRUE are spots that are good, FALSE is an obstacle
 
-	public function new(size:Int, s3d:Object) {
+	public function new(width:Int, s3d:Object) {
 		this.s3d = s3d;
-		this.size = size;
+		this.width = width;
 		// Terrain
 		// TODO: Heightmaps for each block.
-		this.terrain = new Terrain(size);
+		this.terrain = new Terrain(width);
 		terrain.addNormals();
 		terrain.addUVs();
 		var soil = new h3d.scene.Mesh(terrain, s3d);
@@ -29,22 +29,22 @@ class WorldSquare {
 			interactFunction(e);
 		}
 		navMesh = new Array<Bool>();
-		for(x in 0...size){
-			for (y in 0...size){
-				navMesh[(x * size) + y] = true;
+		for(x in 0...width){
+			for (y in 0...width){
+				navMesh[(x * width) + y] = true;
 			}
 		}
 	}
 
 	public function checkNavMesh(x:Int, y:Int){
-		var coord = (x * size) + y;
+		var coord = (x * width) + y;
 		if(coord >= navMesh.length || coord < 0){
 			return false;
 		}
 		return navMesh[coord];
 	}
-	public function getSize(){
-		return navMesh.length;
+	public function getWidth(){
+		return this.width;
 	}
 
 	public function addWall(x:Int, y:Int) {
@@ -56,11 +56,11 @@ class WorldSquare {
 		wall.scaleY = 5;
 		wall.scaleZ = 5;
 		wall.material.shadows = false;
-		wall.setPosition(x, y, terrain.points[(x * size) + y].z);
+		wall.setPosition(x, y, terrain.points[(x * width) + y].z);
 
 		for (width in x...x+1) {
 			for (length in y...(y + 5)) {
-				navMesh[(width * size) + length] = false;
+				navMesh[(width * width) + length] = false;
 			}
 		}
 	}
@@ -68,7 +68,7 @@ class WorldSquare {
 	public function addModel(model:Model, cache:h3d.prim.ModelCache, x:Int, y:Int, scale = 1., rotation = 0.) {
 		var newObj = cache.loadModel(model);
 		newObj.scale(scale);
-		var z = terrain.points[(x * size) + y].z;
+		var z = terrain.points[(x * width) + y].z;
 		newObj.setPosition(x, y, z);
 		s3d.addChild(newObj);
 	}

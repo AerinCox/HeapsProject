@@ -6157,6 +6157,9 @@ var Main = function() {
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
+Main.lerp = function(min,max,time) {
+	return min + (max - min) * time;
+};
 Main.main = function() {
 	hxd_Res.set_loader(new hxd_res_Loader(new hxd_fs_EmbedFileSystem(haxe_Unserializer.run("oy8:rock.hmdty10:dedede.pngty9:icons.pngty15:rockTexture.jpgty14:testHeight.pngtg"))));
 	new Main();
@@ -6169,7 +6172,12 @@ Main.prototype = $extend(hxd_App.prototype,{
 	,cursor: null
 	,interactableRock: null
 	,gameUI: null
-	,l_path: null
+	,pathfinder: null
+	,currPath: null
+	,index: null
+	,time: null
+	,currX: null
+	,currY: null
 	,init: function() {
 		var _gthis = this;
 		hxd_App.prototype.init.call(this);
@@ -6406,18 +6414,17 @@ Main.prototype = $extend(hxd_App.prototype,{
 		b.yMax = 20;
 		b.zMax = 55;
 		parts.set_volumeBounds(b);
+		this.pathfinder = new Pathfinder(this.world);
+		this.currPath = [];
 		var clickToMove = function(e) {
-			var intX = e.relX | 0;
-			var intY = e.relY | 0;
-			if(_gthis.world.checkNavMesh(intX,intY)) {
-				var l_map = new MapData(_gthis.world,_gthis.world.getSize(),_gthis.world.getSize());
-				var l_pathfinder = new Pathfinder(l_map);
-				var l_startNode = new Coordinate(_gthis.player.x | 0,_gthis.player.y | 0);
-				var l_destinationNode = new Coordinate(e.relX | 0,e.relY | 0);
-				var l_heuristicType = EHeuristic.PRODUCT;
-				var l_isDiagonalEnabled = true;
-				var l_isMapDynamic = false;
-				_gthis.l_path = l_pathfinder.createPath(l_startNode,l_destinationNode,l_heuristicType,l_isDiagonalEnabled,l_isMapDynamic);
+			var eventX = Math.floor(e.relX);
+			var eventY = Math.floor(e.relY);
+			if(_gthis.world.checkNavMesh(eventX,eventY)) {
+				_gthis.currPath = _gthis.pathfinder.generatePath(Math.round(_gthis.player.x),Math.round(_gthis.player.y),eventX,eventY);
+				_gthis.index = 0;
+				_gthis.time = 0;
+				_gthis.currX = _gthis.player.x;
+				_gthis.currY = _gthis.player.y;
 			}
 		};
 		this.world.interactFunction = clickToMove;
@@ -6428,8 +6435,6 @@ Main.prototype = $extend(hxd_App.prototype,{
 	}
 	,onEvent: function(event) {
 	}
-	,index: null
-	,time: null
 	,update: function(dt) {
 		var px = this.s2d.get_mouseX();
 		var py = this.s2d.get_mouseY();
@@ -6451,14 +6456,13 @@ Main.prototype = $extend(hxd_App.prototype,{
 		if(hxd_Key.isDown(83)) {
 			this.camera.rot(0,-5);
 		}
-		this.time += dt;
-		if(this.l_path != null) {
-			if(this.time > 1 && this.index < this.l_path.length) {
-				this.time = 0;
+		if(this.currPath != null && this.currPath.length != 0) {
+			this.time += dt;
+			if(this.time <= 1) {
+				var lerpX = Main.lerp(this.currX,this.currPath[this.index].x,this.time);
+				var lerpY = Main.lerp(this.currY,this.currPath[this.index].y,this.time);
 				var _this = this.player;
-				var x = this.l_path[this.index].x;
-				var y = this.l_path[this.index].y;
-				_this.x = x;
+				_this.x = lerpX;
 				var f = 1;
 				var b = true;
 				if(b) {
@@ -6466,7 +6470,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 				} else {
 					_this.flags &= ~f;
 				}
-				_this.y = y;
+				_this.y = lerpY;
 				var f = 1;
 				var b = true;
 				if(b) {
@@ -6489,13 +6493,40 @@ Main.prototype = $extend(hxd_App.prototype,{
 				} else {
 					_this.flags &= ~f;
 				}
-				this.index++;
+			} else {
+				this.currX = this.player.x;
+				this.currY = this.player.y;
+				if(this.index + 1 == this.currPath.length) {
+					this.currPath = null;
+					this.index = 0;
+					this.time = 0;
+				} else {
+					this.time = 0;
+					this.index++;
+				}
 			}
 		}
 	}
 	,__class__: Main
 });
 Math.__name__ = "Math";
+var Pathfinder = function(worldSquare) {
+	var map = new MapData(worldSquare,worldSquare.getWidth(),worldSquare.getWidth());
+	this.a_pathfinder = new AStarPathfinder(map);
+};
+$hxClasses["Pathfinder"] = Pathfinder;
+Pathfinder.__name__ = "Pathfinder";
+Pathfinder.prototype = {
+	a_pathfinder: null
+	,generatePath: function(startX,startY,destX,destY) {
+		var a_startNode = new Coordinate(startX,startY);
+		var a_destinationNode = new Coordinate(destX,destY);
+		var path = this.a_pathfinder.createPath(a_startNode,a_destinationNode,EHeuristic.PRODUCT,true,false);
+		path.shift();
+		return path;
+	}
+	,__class__: Pathfinder
+};
 var Coordinate = function(p_x,p_y) {
 	if(p_y == null) {
 		p_y = 0;
@@ -6589,15 +6620,15 @@ Node.prototype = $extend(Coordinate.prototype,{
 	}
 	,__class__: Node
 });
-var Pathfinder = function(p_map,p_timeOutDuration) {
+var AStarPathfinder = function(p_map,p_timeOutDuration) {
 	if(p_timeOutDuration == null) {
 		p_timeOutDuration = 10000;
 	}
 	this.configure(p_map,p_timeOutDuration);
 };
-$hxClasses["Pathfinder"] = Pathfinder;
-Pathfinder.__name__ = "Pathfinder";
-Pathfinder.prototype = {
+$hxClasses["AStarPathfinder"] = AStarPathfinder;
+AStarPathfinder.__name__ = "AStarPathfinder";
+AStarPathfinder.prototype = {
 	_map: null
 	,_timeOutDuration: null
 	,_openList: null
@@ -6955,7 +6986,7 @@ Pathfinder.prototype = {
 			return "Fail";
 		}
 	}
-	,__class__: Pathfinder
+	,__class__: AStarPathfinder
 };
 var Reflect = function() { };
 $hxClasses["Reflect"] = Reflect;
@@ -8156,11 +8187,11 @@ Type.enumParameters = function(e) {
 		return [];
 	}
 };
-var WorldSquare = function(size,s3d) {
+var WorldSquare = function(width,s3d) {
 	var _gthis = this;
 	this.s3d = s3d;
-	this.size = size;
-	this.terrain = new Terrain(size);
+	this.width = width;
+	this.terrain = new Terrain(width);
 	this.terrain.addNormals();
 	this.terrain.addUVs();
 	var soil = new h3d_scene_Mesh(this.terrain,null,s3d);
@@ -8203,14 +8234,14 @@ var WorldSquare = function(size,s3d) {
 	};
 	this.navMesh = [];
 	var _g = 0;
-	var _g1 = size;
+	var _g1 = width;
 	while(_g < _g1) {
 		var x = _g++;
 		var _g2 = 0;
-		var _g3 = size;
+		var _g3 = width;
 		while(_g2 < _g3) {
 			var y = _g2++;
-			this.navMesh[x * size + y] = true;
+			this.navMesh[x * width + y] = true;
 		}
 	}
 };
@@ -8219,18 +8250,18 @@ WorldSquare.__name__ = "WorldSquare";
 WorldSquare.prototype = {
 	interactFunction: null
 	,terrain: null
-	,size: null
+	,width: null
 	,s3d: null
 	,navMesh: null
 	,checkNavMesh: function(x,y) {
-		var coord = x * this.size + y;
+		var coord = x * this.width + y;
 		if(coord >= this.navMesh.length || coord < 0) {
 			return false;
 		}
 		return this.navMesh[coord];
 	}
-	,getSize: function() {
-		return this.navMesh.length;
+	,getWidth: function() {
+		return this.width;
 	}
 	,addWall: function(x,y) {
 		var cubeShape = new h3d_prim_Cube();
@@ -8264,7 +8295,7 @@ WorldSquare.prototype = {
 		var _this = wall.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
-		var z = this.terrain.points[x * this.size + y].z;
+		var z = this.terrain.points[x * this.width + y].z;
 		wall.x = x;
 		var f = 1;
 		var b = true;
@@ -8304,7 +8335,7 @@ WorldSquare.prototype = {
 			var _g3 = y + 5;
 			while(_g2 < _g3) {
 				var length = _g2++;
-				this.navMesh[width * this.size + length] = false;
+				this.navMesh[width * width + length] = false;
 			}
 		}
 	}
@@ -8350,7 +8381,7 @@ WorldSquare.prototype = {
 		} else {
 			newObj.flags &= ~f;
 		}
-		var z = this.terrain.points[x * this.size + y].z;
+		var z = this.terrain.points[x * this.width + y].z;
 		newObj.x = x;
 		var f = 1;
 		var b = true;
@@ -82332,8 +82363,8 @@ h3d_Matrix.SQ13 = 0.57735026918962576450914878050196;
 h3d_scene_Object.ROT2RAD = -0.017453292519943295769236907684886;
 h3d_scene_Object.tmpMat = new h3d_Matrix();
 h3d_scene_Object.tmpVec = new h3d_Vector();
-Pathfinder._COST_ADJACENT = 10;
-Pathfinder._COST_DIAGIONAL = 14;
+AStarPathfinder._COST_ADJACENT = 10;
+AStarPathfinder._COST_DIAGIONAL = 14;
 Xml.Element = 0;
 Xml.PCData = 1;
 Xml.CData = 2;
