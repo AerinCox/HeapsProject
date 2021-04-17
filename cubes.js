@@ -6178,6 +6178,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 	,time: null
 	,currX: null
 	,currY: null
+	,currZ: null
 	,init: function() {
 		var _gthis = this;
 		hxd_App.prototype.init.call(this);
@@ -6425,6 +6426,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 				_gthis.time = 0;
 				_gthis.currX = _gthis.player.x;
 				_gthis.currY = _gthis.player.y;
+				_gthis.currZ = _gthis.player.z;
 			}
 		};
 		this.world.interactFunction = clickToMove;
@@ -6459,8 +6461,9 @@ Main.prototype = $extend(hxd_App.prototype,{
 		if(this.currPath != null && this.currPath.length != 0) {
 			this.time += dt;
 			if(this.time <= 1) {
-				var lerpX = Main.lerp(this.currX,this.currPath[this.index].x,this.time);
-				var lerpY = Main.lerp(this.currY,this.currPath[this.index].y,this.time);
+				var lerpX = Main.lerp(this.currX,this.currPath[this.index].x + 0.5,this.time);
+				var lerpY = Main.lerp(this.currY,this.currPath[this.index].y + 0.5,this.time);
+				var lerpZ = Main.lerp(this.currZ,this.world.getZ(this.currPath[this.index].x,this.currPath[this.index].y),this.time);
 				var _this = this.player;
 				_this.x = lerpX;
 				var f = 1;
@@ -6478,7 +6481,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 				} else {
 					_this.flags &= ~f;
 				}
-				_this.z = 0;
+				_this.z = lerpZ;
 				var f = 1;
 				var b = true;
 				if(b) {
@@ -6493,9 +6496,11 @@ Main.prototype = $extend(hxd_App.prototype,{
 				} else {
 					_this.flags &= ~f;
 				}
+				this.camera.setPos(lerpX,lerpY,this.s2d.get_mouseX(),this.s2d.get_mouseY());
 			} else {
 				this.currX = this.player.x;
 				this.currY = this.player.y;
+				this.currZ = this.player.z;
 				if(this.index + 1 == this.currPath.length) {
 					this.currPath = null;
 					this.index = 0;
@@ -6522,7 +6527,9 @@ Pathfinder.prototype = {
 		var a_startNode = new Coordinate(startX,startY);
 		var a_destinationNode = new Coordinate(destX,destY);
 		var path = this.a_pathfinder.createPath(a_startNode,a_destinationNode,EHeuristic.PRODUCT,true,false);
-		path.shift();
+		if(path != null && path.length != 0) {
+			path.shift();
+		}
 		return path;
 	}
 	,__class__: Pathfinder
@@ -8253,6 +8260,9 @@ WorldSquare.prototype = {
 	,width: null
 	,s3d: null
 	,navMesh: null
+	,getZ: function(x,y) {
+		return this.terrain.points[x * this.width + y].z;
+	}
 	,checkNavMesh: function(x,y) {
 		var coord = x * this.width + y;
 		if(coord >= this.navMesh.length || coord < 0) {
@@ -8295,7 +8305,7 @@ WorldSquare.prototype = {
 		var _this = wall.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
-		var z = this.terrain.points[x * this.width + y].z;
+		var z = this.getZ(x,y);
 		wall.x = x;
 		var f = 1;
 		var b = true;
@@ -8330,12 +8340,12 @@ WorldSquare.prototype = {
 		var _g = x;
 		var _g1 = x + 1;
 		while(_g < _g1) {
-			var width = _g++;
+			var wallWidth = _g++;
 			var _g2 = y;
 			var _g3 = y + 5;
 			while(_g2 < _g3) {
-				var length = _g2++;
-				this.navMesh[width * width + length] = false;
+				var wallLength = _g2++;
+				this.navMesh[wallWidth * this.width + wallLength] = false;
 			}
 		}
 	}

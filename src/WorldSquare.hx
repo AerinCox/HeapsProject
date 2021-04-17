@@ -36,6 +36,10 @@ class WorldSquare {
 		}
 	}
 
+	public function getZ(x:Int, y:Int){
+		return terrain.points[(x * width) + y].z;
+	}
+
 	public function checkNavMesh(x:Int, y:Int){
 		var coord = (x * width) + y;
 		if(coord >= navMesh.length || coord < 0){
@@ -56,11 +60,11 @@ class WorldSquare {
 		wall.scaleY = 5;
 		wall.scaleZ = 5;
 		wall.material.shadows = false;
-		wall.setPosition(x, y, terrain.points[(x * width) + y].z);
+		wall.setPosition(x, y, getZ(x,y));
 
-		for (width in x...x+1) {
-			for (length in y...(y + 5)) {
-				navMesh[(width * width) + length] = false;
+		for (wallWidth in x...x+1) {
+			for (wallLength in y...(y + 5)) {
+				navMesh[(wallWidth * width) + wallLength] = false;
 			}
 		}
 	}

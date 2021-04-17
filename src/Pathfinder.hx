@@ -2,7 +2,7 @@ import haxe.Timer;
 
 // Public Stuff that I call:
 class Pathfinder {
-	var a_pathfinder: AStarPathfinder;
+	var a_pathfinder:AStarPathfinder;
 
 	public function new(worldSquare:WorldSquare) {
 		var map = new MapData(worldSquare, worldSquare.getWidth(), worldSquare.getWidth());
@@ -13,12 +13,15 @@ class Pathfinder {
 		var a_startNode = new Coordinate(startX, startY);
 		var a_destinationNode = new Coordinate(destX, destY);
 		var path = a_pathfinder.createPath(a_startNode, a_destinationNode, EHeuristic.PRODUCT, true, false);
-		path.shift();
+		if (path != null && path.length != 0) {
+			path.shift();
+		}
 		return path;
 	}
 }
 
 // Private Pathfinding Code:
+
 /**
  * A class to find an optimized A Star path across an SimpleMap boolean grid.
  * @author Statm	https://github.com/statm/haxe-astar

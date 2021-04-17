@@ -55,6 +55,7 @@ class Main extends hxd.App {
 	var time:Float = 0;
 	var currX:Float;
 	var currY:Float;
+	var currZ:Float;
 
 	override function init() {
 		super.init();
@@ -137,6 +138,7 @@ class Main extends hxd.App {
 				this.time = 0;
 				currX = player.x;
 				currY = player.y;
+				currZ = player.z;
 			}
 		};
 		world.interactFunction = clickToMove;
@@ -175,16 +177,19 @@ class Main extends hxd.App {
 		if (hxd.Key.isDown(hxd.Key.S)) {
 			camera.rot(0, -5);
 		}
-		// camera.setPos(e.relX, e.relY, s2d.mouseX, s2d.mouseY);
+		// 
 		if (currPath != null && currPath.length != 0) {
 			time = time + dt;
 			if (time <= 1) {
-				var lerpX = lerp(currX, currPath[index].x, time);
-				var lerpY = lerp(currY, currPath[index].y, time);
-				player.setPosition(lerpX, lerpY, 0);
+				var lerpX = lerp(currX, currPath[index].x + 0.5, time);
+				var lerpY = lerp(currY, currPath[index].y + 0.5, time);
+				var lerpZ = lerp(currZ, world.getZ(currPath[index].x, currPath[index].y), time);
+				player.setPosition(lerpX, lerpY, lerpZ);
+				camera.setPos(lerpX, lerpY, s2d.mouseX, s2d.mouseY);
 			} else {
 				this.currX = player.x;
 				this.currY = player.y;
+				this.currZ = player.z;
 				if (index + 1 == currPath.length) {
 					currPath = null;
 					index = 0;
