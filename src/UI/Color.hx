@@ -1,3 +1,5 @@
+package ui;
+
 import h3d.Vector;
 
 class Color 

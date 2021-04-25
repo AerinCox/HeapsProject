@@ -6,6 +6,7 @@ import h3d.prim.Cube;
 import h3d.scene.*;
 // import ch3.scene.S2DPlane;
 import h2d.Graphics;
+import ui.*;
 
 class WASDCameraController extends h3d.scene.CameraController {
 	override public function new(?distance, ?s3d, ?s2d) {

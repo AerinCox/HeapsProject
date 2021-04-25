@@ -1,10 +1,6 @@
-package avenyrh.ui;
-
-import avenyrh.engine.Tweeny;
 import h2d.Flow;
 import h2d.Tile;
 import h2d.Object;
-import avenyrh.utils.Tween;
 import h2d.Graphics;
 
 /**

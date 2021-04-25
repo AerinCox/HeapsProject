@@ -1,6 +1,7 @@
 -cp src
 -lib heaps
 -lib heeps
+-lib udprotean
 -js cubes.js
 -main Main
 -debug

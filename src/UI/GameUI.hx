@@ -1,3 +1,4 @@
+package ui;
 import h2d.Flow;
 
 class GameUI {

@@ -1,4 +1,4 @@
-package avenyrh.ui;
+package ui;
 
 import h2d.Bitmap;
 import h2d.Tile;

@@ -1,3 +1,5 @@
+package ui;
+
 import h2d.Font;
 import h2d.RenderContext;
 import hxd.Event;
