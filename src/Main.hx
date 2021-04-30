@@ -1,3 +1,5 @@
+import hxd.net.Socket;
+import hxd.net.SocketHost.SocketClient;
 import Pathfinder.Coordinate;
 import hxd.Key;
 import hxd.Event;
@@ -57,6 +59,9 @@ class Main extends hxd.App {
 	var currX:Float;
 	var currY:Float;
 	var currZ:Float;
+
+	// Networking
+	var client : js.html.WebSocket;
 
 	override function init() {
 		super.init();
@@ -152,6 +157,15 @@ class Main extends hxd.App {
 
 		// A General World Event
 		// hxd.Window.getInstance().addEventTarget(onEvent);
+
+		// Networking
+		client = new js.html.WebSocket('ws://localhost:8080');
+		client.addEventListener('open', function (event) {
+			client.send('Hello Server!');
+		});
+		client.addEventListener('message', function (event) {
+			trace('Message from server ', event.data);
+		});
 	}
 
 	// Don't forget to remove the event using removeEventTarget when disposing your objects.
