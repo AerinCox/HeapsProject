@@ -4398,7 +4398,7 @@ Main.prototype = $extend(hxd_App.prototype,{
 			_gthis.client.send("Hello Server!");
 		});
 		this.client.addEventListener("message",function(event) {
-			haxe_Log.trace("Message from server ",{ fileName : "src/Main.hx", lineNumber : 167, className : "Main", methodName : "init", customParams : [event.data]});
+			haxe_Log.trace("Message from server ",{ fileName : "src/Main.hx", lineNumber : 165, className : "Main", methodName : "init", customParams : [event.data]});
 		});
 	}
 	,onEvent: function(event) {
@@ -4530,7 +4530,7 @@ Coordinate.prototype = {
 	}
 	,__class__: Coordinate
 };
-var EHeuristic = $hxEnums["EHeuristic"] = { __ename__:"EHeuristic",__constructs__:null
+var EHeuristic = $hxEnums["EHeuristic"] = { __ename__:true,__constructs__:null
 	,DIAGONAL: {_hx_name:"DIAGONAL",_hx_index:0,__enum__:"EHeuristic",toString:$estr}
 	,PRODUCT: {_hx_name:"PRODUCT",_hx_index:1,__enum__:"EHeuristic",toString:$estr}
 	,EUCLIDIAN: {_hx_name:"EUCLIDIAN",_hx_index:2,__enum__:"EHeuristic",toString:$estr}
@@ -5253,12 +5253,6 @@ h3d_prim_Primitive.prototype = {
 	,toString: function() {
 		var c = js_Boot.getClass(this);
 		return c.__name__.split(".").pop();
-	}
-	,customSerialize: function(ctx) {
-		throw haxe_Exception.thrown("Cannot serialize " + this.toString());
-	}
-	,customUnserialize: function(ctx) {
-		throw haxe_Exception.thrown("customUnserialize not implemented on " + this.toString());
 	}
 	,__class__: h3d_prim_Primitive
 };
@@ -6034,254 +6028,6 @@ h3d_prim_Polygon.prototype = $extend(h3d_prim_MeshPrimitive.prototype,{
 			engine.renderMultiBuffers(bufs,engine.mem.triIndexes,0,this.triCount());
 		}
 	}
-	,customSerialize: function(ctx) {
-		var v = this.points.length;
-		if(v >= 0 && v < 128) {
-			ctx.out.addByte(v);
-		} else {
-			ctx.out.addByte(128);
-			ctx.out.addInt32(v);
-		}
-		var _g = 0;
-		var _g1 = this.points;
-		while(_g < _g1.length) {
-			var p = _g1[_g];
-			++_g;
-			ctx.out.addDouble(p.x);
-			ctx.out.addDouble(p.y);
-			ctx.out.addDouble(p.z);
-		}
-		if(this.normals == null) {
-			ctx.out.addByte(0);
-		} else {
-			var v = this.normals.length;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			var _g = 0;
-			var _g1 = this.normals;
-			while(_g < _g1.length) {
-				var p = _g1[_g];
-				++_g;
-				ctx.out.addDouble(p.x);
-				ctx.out.addDouble(p.y);
-				ctx.out.addDouble(p.z);
-			}
-		}
-		if(this.tangents == null) {
-			ctx.out.addByte(0);
-		} else {
-			var v = this.tangents.length;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			var _g = 0;
-			var _g1 = this.tangents;
-			while(_g < _g1.length) {
-				var p = _g1[_g];
-				++_g;
-				ctx.out.addDouble(p.x);
-				ctx.out.addDouble(p.y);
-				ctx.out.addDouble(p.z);
-			}
-		}
-		if(this.uvs == null) {
-			ctx.out.addByte(0);
-		} else {
-			var v = this.uvs.length;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			var _g = 0;
-			var _g1 = this.uvs;
-			while(_g < _g1.length) {
-				var uv = _g1[_g];
-				++_g;
-				ctx.out.addDouble(uv.u);
-				ctx.out.addDouble(uv.v);
-			}
-		}
-		if(this.idx == null) {
-			ctx.out.addByte(0);
-		} else {
-			var v = this.idx.length;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			var _g2_b = this.idx;
-			var _g2_len = _g2_b.length;
-			var _g2_pos = 0;
-			while(_g2_pos < _g2_len) {
-				var i = _g2_b[_g2_pos++];
-				if(i >= 0 && i < 128) {
-					ctx.out.addByte(i);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(i);
-				}
-			}
-		}
-		if(this.colors == null) {
-			ctx.out.addByte(0);
-		} else {
-			var v = this.colors.length;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			var _g = 0;
-			var _g1 = this.colors;
-			while(_g < _g1.length) {
-				var c = _g1[_g];
-				++_g;
-				ctx.out.addDouble(c.x);
-				ctx.out.addDouble(c.y);
-				ctx.out.addDouble(c.z);
-			}
-		}
-	}
-	,customUnserialize: function(ctx) {
-		var _g = [];
-		var _g1 = 0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var _g2 = v;
-		while(_g1 < _g2) {
-			var i = _g1++;
-			var v = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v1 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v2 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			_g.push(new h3d_col_Point(v,v1,v2));
-		}
-		this.points = _g;
-		var _g = [];
-		var _g1 = 0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var _g2 = v;
-		while(_g1 < _g2) {
-			var i = _g1++;
-			var v = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v1 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v2 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			_g.push(new h3d_col_Point(v,v1,v2));
-		}
-		this.normals = _g;
-		var _g = [];
-		var _g1 = 0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var _g2 = v;
-		while(_g1 < _g2) {
-			var i = _g1++;
-			var v = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v1 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v2 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			_g.push(new h3d_col_Point(v,v1,v2));
-		}
-		this.tangents = _g;
-		var _g = [];
-		var _g1 = 0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var _g2 = v;
-		while(_g1 < _g2) {
-			var i = _g1++;
-			var v = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v1 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			_g.push(new h3d_prim_UV(v,v1));
-		}
-		this.uvs = _g;
-		if(this.normals.length == 0) {
-			this.normals = null;
-		}
-		if(this.uvs.length == 0) {
-			this.uvs = null;
-		}
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var nindex = v;
-		if(nindex > 0) {
-			var this1 = new Array(0);
-			this.idx = this1;
-			var this1 = this.idx;
-			while(this1.length < nindex) this1.push(0);
-			var _g = 0;
-			var _g1 = nindex;
-			while(_g < _g1) {
-				var i = _g++;
-				var this1 = this.idx;
-				var v = ctx.input.b[ctx.inPos++];
-				if(v == 128) {
-					v = ctx.input.getInt32(ctx.inPos);
-					ctx.inPos += 4;
-				}
-				this1[i] = v;
-			}
-		}
-		var _g = [];
-		var _g1 = 0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var _g2 = v;
-		while(_g1 < _g2) {
-			var i = _g1++;
-			var v = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v1 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			var v2 = ctx.input.getDouble(ctx.inPos);
-			ctx.inPos += 8;
-			_g.push(new h3d_col_Point(v,v1,v2));
-		}
-		this.colors = _g;
-		if(this.colors.length == 0) {
-			this.colors = null;
-		}
-	}
 	,__class__: h3d_prim_Polygon
 });
 var Terrain = function(chunkSize) {
@@ -6327,19 +6073,6 @@ Terrain.__super__ = h3d_prim_Polygon;
 Terrain.prototype = $extend(h3d_prim_Polygon.prototype,{
 	__class__: Terrain
 });
-var ValueType = $hxEnums["ValueType"] = { __ename__:"ValueType",__constructs__:null
-	,TNull: {_hx_name:"TNull",_hx_index:0,__enum__:"ValueType",toString:$estr}
-	,TInt: {_hx_name:"TInt",_hx_index:1,__enum__:"ValueType",toString:$estr}
-	,TFloat: {_hx_name:"TFloat",_hx_index:2,__enum__:"ValueType",toString:$estr}
-	,TBool: {_hx_name:"TBool",_hx_index:3,__enum__:"ValueType",toString:$estr}
-	,TObject: {_hx_name:"TObject",_hx_index:4,__enum__:"ValueType",toString:$estr}
-	,TFunction: {_hx_name:"TFunction",_hx_index:5,__enum__:"ValueType",toString:$estr}
-	,TClass: ($_=function(c) { return {_hx_index:6,c:c,__enum__:"ValueType",toString:$estr}; },$_._hx_name="TClass",$_.__params__ = ["c"],$_)
-	,TEnum: ($_=function(e) { return {_hx_index:7,e:e,__enum__:"ValueType",toString:$estr}; },$_._hx_name="TEnum",$_.__params__ = ["e"],$_)
-	,TUnknown: {_hx_name:"TUnknown",_hx_index:8,__enum__:"ValueType",toString:$estr}
-};
-ValueType.__constructs__ = [ValueType.TNull,ValueType.TInt,ValueType.TFloat,ValueType.TBool,ValueType.TObject,ValueType.TFunction,ValueType.TClass,ValueType.TEnum,ValueType.TUnknown];
-ValueType.__empty_constructs__ = [ValueType.TNull,ValueType.TInt,ValueType.TFloat,ValueType.TBool,ValueType.TObject,ValueType.TFunction,ValueType.TUnknown];
 var Type = function() { };
 $hxClasses["Type"] = Type;
 Type.__name__ = "Type";
@@ -6383,41 +6116,6 @@ Type.getInstanceFields = function(c) {
 	HxOverrides.remove(a,"__class__");
 	HxOverrides.remove(a,"__properties__");
 	return a;
-};
-Type.typeof = function(v) {
-	switch(typeof(v)) {
-	case "boolean":
-		return ValueType.TBool;
-	case "function":
-		if(v.__name__ || v.__ename__) {
-			return ValueType.TObject;
-		}
-		return ValueType.TFunction;
-	case "number":
-		if(Math.ceil(v) == v % 2147483648.0) {
-			return ValueType.TInt;
-		}
-		return ValueType.TFloat;
-	case "object":
-		if(v == null) {
-			return ValueType.TNull;
-		}
-		var e = v.__enum__;
-		if(e != null) {
-			return ValueType.TEnum($hxEnums[e]);
-		}
-		var c = js_Boot.getClass(v);
-		if(c != null) {
-			return ValueType.TClass(c);
-		}
-		return ValueType.TObject;
-	case "string":
-		return ValueType.TClass(String);
-	case "undefined":
-		return ValueType.TNull;
-	default:
-		return ValueType.TUnknown;
-	}
 };
 Type.enumEq = function(a,b) {
 	if(a == b) {
@@ -6889,14 +6587,14 @@ Xml.prototype = {
 	}
 	,__class__: Xml
 };
-var format_gif_Block = $hxEnums["format.gif.Block"] = { __ename__:"format.gif.Block",__constructs__:null
+var format_gif_Block = $hxEnums["format.gif.Block"] = { __ename__:true,__constructs__:null
 	,BFrame: ($_=function(frame) { return {_hx_index:0,frame:frame,__enum__:"format.gif.Block",toString:$estr}; },$_._hx_name="BFrame",$_.__params__ = ["frame"],$_)
 	,BExtension: ($_=function(extension) { return {_hx_index:1,extension:extension,__enum__:"format.gif.Block",toString:$estr}; },$_._hx_name="BExtension",$_.__params__ = ["extension"],$_)
 	,BEOF: {_hx_name:"BEOF",_hx_index:2,__enum__:"format.gif.Block",toString:$estr}
 };
 format_gif_Block.__constructs__ = [format_gif_Block.BFrame,format_gif_Block.BExtension,format_gif_Block.BEOF];
 format_gif_Block.__empty_constructs__ = [format_gif_Block.BEOF];
-var format_gif_Extension = $hxEnums["format.gif.Extension"] = { __ename__:"format.gif.Extension",__constructs__:null
+var format_gif_Extension = $hxEnums["format.gif.Extension"] = { __ename__:true,__constructs__:null
 	,EGraphicControl: ($_=function(gce) { return {_hx_index:0,gce:gce,__enum__:"format.gif.Extension",toString:$estr}; },$_._hx_name="EGraphicControl",$_.__params__ = ["gce"],$_)
 	,EComment: ($_=function(text) { return {_hx_index:1,text:text,__enum__:"format.gif.Extension",toString:$estr}; },$_._hx_name="EComment",$_.__params__ = ["text"],$_)
 	,EText: ($_=function(pte) { return {_hx_index:2,pte:pte,__enum__:"format.gif.Extension",toString:$estr}; },$_._hx_name="EText",$_.__params__ = ["pte"],$_)
@@ -6905,20 +6603,20 @@ var format_gif_Extension = $hxEnums["format.gif.Extension"] = { __ename__:"forma
 };
 format_gif_Extension.__constructs__ = [format_gif_Extension.EGraphicControl,format_gif_Extension.EComment,format_gif_Extension.EText,format_gif_Extension.EApplicationExtension,format_gif_Extension.EUnknown];
 format_gif_Extension.__empty_constructs__ = [];
-var format_gif_ApplicationExtension = $hxEnums["format.gif.ApplicationExtension"] = { __ename__:"format.gif.ApplicationExtension",__constructs__:null
+var format_gif_ApplicationExtension = $hxEnums["format.gif.ApplicationExtension"] = { __ename__:true,__constructs__:null
 	,AENetscapeLooping: ($_=function(loops) { return {_hx_index:0,loops:loops,__enum__:"format.gif.ApplicationExtension",toString:$estr}; },$_._hx_name="AENetscapeLooping",$_.__params__ = ["loops"],$_)
 	,AEUnknown: ($_=function(name,version,data) { return {_hx_index:1,name:name,version:version,data:data,__enum__:"format.gif.ApplicationExtension",toString:$estr}; },$_._hx_name="AEUnknown",$_.__params__ = ["name","version","data"],$_)
 };
 format_gif_ApplicationExtension.__constructs__ = [format_gif_ApplicationExtension.AENetscapeLooping,format_gif_ApplicationExtension.AEUnknown];
 format_gif_ApplicationExtension.__empty_constructs__ = [];
-var format_gif_Version = $hxEnums["format.gif.Version"] = { __ename__:"format.gif.Version",__constructs__:null
+var format_gif_Version = $hxEnums["format.gif.Version"] = { __ename__:true,__constructs__:null
 	,GIF87a: {_hx_name:"GIF87a",_hx_index:0,__enum__:"format.gif.Version",toString:$estr}
 	,GIF89a: {_hx_name:"GIF89a",_hx_index:1,__enum__:"format.gif.Version",toString:$estr}
 	,Unknown: ($_=function(version) { return {_hx_index:2,version:version,__enum__:"format.gif.Version",toString:$estr}; },$_._hx_name="Unknown",$_.__params__ = ["version"],$_)
 };
 format_gif_Version.__constructs__ = [format_gif_Version.GIF87a,format_gif_Version.GIF89a,format_gif_Version.Unknown];
 format_gif_Version.__empty_constructs__ = [format_gif_Version.GIF87a,format_gif_Version.GIF89a];
-var format_gif_DisposalMethod = $hxEnums["format.gif.DisposalMethod"] = { __ename__:"format.gif.DisposalMethod",__constructs__:null
+var format_gif_DisposalMethod = $hxEnums["format.gif.DisposalMethod"] = { __ename__:true,__constructs__:null
 	,UNSPECIFIED: {_hx_name:"UNSPECIFIED",_hx_index:0,__enum__:"format.gif.DisposalMethod",toString:$estr}
 	,NO_ACTION: {_hx_name:"NO_ACTION",_hx_index:1,__enum__:"format.gif.DisposalMethod",toString:$estr}
 	,FILL_BACKGROUND: {_hx_name:"FILL_BACKGROUND",_hx_index:2,__enum__:"format.gif.DisposalMethod",toString:$estr}
@@ -7602,7 +7300,7 @@ format_gif_Tools.loopCount = function(data) {
 format_gif_Tools.log2 = function(val) {
 	return Math.log(val) / format_gif_Tools.LN2;
 };
-var format_mp3_SamplingRate = $hxEnums["format.mp3.SamplingRate"] = { __ename__:"format.mp3.SamplingRate",__constructs__:null
+var format_mp3_SamplingRate = $hxEnums["format.mp3.SamplingRate"] = { __ename__:true,__constructs__:null
 	,SR_8000: {_hx_name:"SR_8000",_hx_index:0,__enum__:"format.mp3.SamplingRate",toString:$estr}
 	,SR_11025: {_hx_name:"SR_11025",_hx_index:1,__enum__:"format.mp3.SamplingRate",toString:$estr}
 	,SR_12000: {_hx_name:"SR_12000",_hx_index:2,__enum__:"format.mp3.SamplingRate",toString:$estr}
@@ -7615,7 +7313,7 @@ var format_mp3_SamplingRate = $hxEnums["format.mp3.SamplingRate"] = { __ename__:
 };
 format_mp3_SamplingRate.__constructs__ = [format_mp3_SamplingRate.SR_8000,format_mp3_SamplingRate.SR_11025,format_mp3_SamplingRate.SR_12000,format_mp3_SamplingRate.SR_22050,format_mp3_SamplingRate.SR_24000,format_mp3_SamplingRate.SR_32000,format_mp3_SamplingRate.SR_44100,format_mp3_SamplingRate.SR_48000,format_mp3_SamplingRate.SR_Bad];
 format_mp3_SamplingRate.__empty_constructs__ = [format_mp3_SamplingRate.SR_8000,format_mp3_SamplingRate.SR_11025,format_mp3_SamplingRate.SR_12000,format_mp3_SamplingRate.SR_22050,format_mp3_SamplingRate.SR_24000,format_mp3_SamplingRate.SR_32000,format_mp3_SamplingRate.SR_44100,format_mp3_SamplingRate.SR_48000,format_mp3_SamplingRate.SR_Bad];
-var format_mp3_Bitrate = $hxEnums["format.mp3.Bitrate"] = { __ename__:"format.mp3.Bitrate",__constructs__:null
+var format_mp3_Bitrate = $hxEnums["format.mp3.Bitrate"] = { __ename__:true,__constructs__:null
 	,BR_8: {_hx_name:"BR_8",_hx_index:0,__enum__:"format.mp3.Bitrate",toString:$estr}
 	,BR_16: {_hx_name:"BR_16",_hx_index:1,__enum__:"format.mp3.Bitrate",toString:$estr}
 	,BR_24: {_hx_name:"BR_24",_hx_index:2,__enum__:"format.mp3.Bitrate",toString:$estr}
@@ -7981,7 +7679,7 @@ format_mp3_CEmphasis.num2Enum = function(c) {
 		throw haxe_Exception.thrown("assert");
 	}
 };
-var format_mp3_MPEGVersion = $hxEnums["format.mp3.MPEGVersion"] = { __ename__:"format.mp3.MPEGVersion",__constructs__:null
+var format_mp3_MPEGVersion = $hxEnums["format.mp3.MPEGVersion"] = { __ename__:true,__constructs__:null
 	,MPEG_V1: {_hx_name:"MPEG_V1",_hx_index:0,__enum__:"format.mp3.MPEGVersion",toString:$estr}
 	,MPEG_V2: {_hx_name:"MPEG_V2",_hx_index:1,__enum__:"format.mp3.MPEGVersion",toString:$estr}
 	,MPEG_V25: {_hx_name:"MPEG_V25",_hx_index:2,__enum__:"format.mp3.MPEGVersion",toString:$estr}
@@ -7989,7 +7687,7 @@ var format_mp3_MPEGVersion = $hxEnums["format.mp3.MPEGVersion"] = { __ename__:"f
 };
 format_mp3_MPEGVersion.__constructs__ = [format_mp3_MPEGVersion.MPEG_V1,format_mp3_MPEGVersion.MPEG_V2,format_mp3_MPEGVersion.MPEG_V25,format_mp3_MPEGVersion.MPEG_Reserved];
 format_mp3_MPEGVersion.__empty_constructs__ = [format_mp3_MPEGVersion.MPEG_V1,format_mp3_MPEGVersion.MPEG_V2,format_mp3_MPEGVersion.MPEG_V25,format_mp3_MPEGVersion.MPEG_Reserved];
-var format_mp3_Layer = $hxEnums["format.mp3.Layer"] = { __ename__:"format.mp3.Layer",__constructs__:null
+var format_mp3_Layer = $hxEnums["format.mp3.Layer"] = { __ename__:true,__constructs__:null
 	,LayerReserved: {_hx_name:"LayerReserved",_hx_index:0,__enum__:"format.mp3.Layer",toString:$estr}
 	,Layer3: {_hx_name:"Layer3",_hx_index:1,__enum__:"format.mp3.Layer",toString:$estr}
 	,Layer2: {_hx_name:"Layer2",_hx_index:2,__enum__:"format.mp3.Layer",toString:$estr}
@@ -7997,7 +7695,7 @@ var format_mp3_Layer = $hxEnums["format.mp3.Layer"] = { __ename__:"format.mp3.La
 };
 format_mp3_Layer.__constructs__ = [format_mp3_Layer.LayerReserved,format_mp3_Layer.Layer3,format_mp3_Layer.Layer2,format_mp3_Layer.Layer1];
 format_mp3_Layer.__empty_constructs__ = [format_mp3_Layer.LayerReserved,format_mp3_Layer.Layer3,format_mp3_Layer.Layer2,format_mp3_Layer.Layer1];
-var format_mp3_ChannelMode = $hxEnums["format.mp3.ChannelMode"] = { __ename__:"format.mp3.ChannelMode",__constructs__:null
+var format_mp3_ChannelMode = $hxEnums["format.mp3.ChannelMode"] = { __ename__:true,__constructs__:null
 	,Stereo: {_hx_name:"Stereo",_hx_index:0,__enum__:"format.mp3.ChannelMode",toString:$estr}
 	,JointStereo: {_hx_name:"JointStereo",_hx_index:1,__enum__:"format.mp3.ChannelMode",toString:$estr}
 	,DualChannel: {_hx_name:"DualChannel",_hx_index:2,__enum__:"format.mp3.ChannelMode",toString:$estr}
@@ -8005,7 +7703,7 @@ var format_mp3_ChannelMode = $hxEnums["format.mp3.ChannelMode"] = { __ename__:"f
 };
 format_mp3_ChannelMode.__constructs__ = [format_mp3_ChannelMode.Stereo,format_mp3_ChannelMode.JointStereo,format_mp3_ChannelMode.DualChannel,format_mp3_ChannelMode.Mono];
 format_mp3_ChannelMode.__empty_constructs__ = [format_mp3_ChannelMode.Stereo,format_mp3_ChannelMode.JointStereo,format_mp3_ChannelMode.DualChannel,format_mp3_ChannelMode.Mono];
-var format_mp3_Emphasis = $hxEnums["format.mp3.Emphasis"] = { __ename__:"format.mp3.Emphasis",__constructs__:null
+var format_mp3_Emphasis = $hxEnums["format.mp3.Emphasis"] = { __ename__:true,__constructs__:null
 	,NoEmphasis: {_hx_name:"NoEmphasis",_hx_index:0,__enum__:"format.mp3.Emphasis",toString:$estr}
 	,Ms50_15: {_hx_name:"Ms50_15",_hx_index:1,__enum__:"format.mp3.Emphasis",toString:$estr}
 	,CCIT_J17: {_hx_name:"CCIT_J17",_hx_index:2,__enum__:"format.mp3.Emphasis",toString:$estr}
@@ -8013,7 +7711,7 @@ var format_mp3_Emphasis = $hxEnums["format.mp3.Emphasis"] = { __ename__:"format.
 };
 format_mp3_Emphasis.__constructs__ = [format_mp3_Emphasis.NoEmphasis,format_mp3_Emphasis.Ms50_15,format_mp3_Emphasis.CCIT_J17,format_mp3_Emphasis.InvalidEmphasis];
 format_mp3_Emphasis.__empty_constructs__ = [format_mp3_Emphasis.NoEmphasis,format_mp3_Emphasis.Ms50_15,format_mp3_Emphasis.CCIT_J17,format_mp3_Emphasis.InvalidEmphasis];
-var format_mp3_FrameType = $hxEnums["format.mp3.FrameType"] = { __ename__:"format.mp3.FrameType",__constructs__:null
+var format_mp3_FrameType = $hxEnums["format.mp3.FrameType"] = { __ename__:true,__constructs__:null
 	,FT_MP3: {_hx_name:"FT_MP3",_hx_index:0,__enum__:"format.mp3.FrameType",toString:$estr}
 	,FT_NONE: {_hx_name:"FT_NONE",_hx_index:1,__enum__:"format.mp3.FrameType",toString:$estr}
 };
@@ -8193,14 +7891,14 @@ format_mp3_Tools.getSampleCountHdr = function(hdr) {
 format_mp3_Tools.getFrameInfo = function(fr) {
 	return Std.string(fr.header.version) + ", " + Std.string(fr.header.layer) + ", " + Std.string(fr.header.channelMode) + ", " + Std.string(fr.header.samplingRate) + " Hz, " + Std.string(fr.header.bitrate) + " kbps " + "Emphasis: " + Std.string(fr.header.emphasis) + ", " + (fr.header.hasCrc ? "(CRC) " : "") + (fr.header.isPadded ? "(Padded) " : "") + (fr.header.isIntensityStereo ? "(Intensity Stereo) " : "") + (fr.header.isMSStereo ? "(MS Stereo) " : "") + (fr.header.isCopyrighted ? "(Copyrighted) " : "") + (fr.header.isOriginal ? "(Original) " : "");
 };
-var format_png_Color = $hxEnums["format.png.Color"] = { __ename__:"format.png.Color",__constructs__:null
+var format_png_Color = $hxEnums["format.png.Color"] = { __ename__:true,__constructs__:null
 	,ColGrey: ($_=function(alpha) { return {_hx_index:0,alpha:alpha,__enum__:"format.png.Color",toString:$estr}; },$_._hx_name="ColGrey",$_.__params__ = ["alpha"],$_)
 	,ColTrue: ($_=function(alpha) { return {_hx_index:1,alpha:alpha,__enum__:"format.png.Color",toString:$estr}; },$_._hx_name="ColTrue",$_.__params__ = ["alpha"],$_)
 	,ColIndexed: {_hx_name:"ColIndexed",_hx_index:2,__enum__:"format.png.Color",toString:$estr}
 };
 format_png_Color.__constructs__ = [format_png_Color.ColGrey,format_png_Color.ColTrue,format_png_Color.ColIndexed];
 format_png_Color.__empty_constructs__ = [format_png_Color.ColIndexed];
-var format_png_Chunk = $hxEnums["format.png.Chunk"] = { __ename__:"format.png.Chunk",__constructs__:null
+var format_png_Chunk = $hxEnums["format.png.Chunk"] = { __ename__:true,__constructs__:null
 	,CEnd: {_hx_name:"CEnd",_hx_index:0,__enum__:"format.png.Chunk",toString:$estr}
 	,CHeader: ($_=function(h) { return {_hx_index:1,h:h,__enum__:"format.png.Chunk",toString:$estr}; },$_._hx_name="CHeader",$_.__params__ = ["h"],$_)
 	,CData: ($_=function(b) { return {_hx_index:2,b:b,__enum__:"format.png.Chunk",toString:$estr}; },$_._hx_name="CData",$_.__params__ = ["b"],$_)
@@ -9625,7 +9323,7 @@ format_png_Writer.prototype = {
 	}
 	,__class__: format_png_Writer
 };
-var format_tga_ImageOrigin = $hxEnums["format.tga.ImageOrigin"] = { __ename__:"format.tga.ImageOrigin",__constructs__:null
+var format_tga_ImageOrigin = $hxEnums["format.tga.ImageOrigin"] = { __ename__:true,__constructs__:null
 	,BottomLeft: {_hx_name:"BottomLeft",_hx_index:0,__enum__:"format.tga.ImageOrigin",toString:$estr}
 	,BottomRight: {_hx_name:"BottomRight",_hx_index:1,__enum__:"format.tga.ImageOrigin",toString:$estr}
 	,TopLeft: {_hx_name:"TopLeft",_hx_index:2,__enum__:"format.tga.ImageOrigin",toString:$estr}
@@ -9633,7 +9331,7 @@ var format_tga_ImageOrigin = $hxEnums["format.tga.ImageOrigin"] = { __ename__:"f
 };
 format_tga_ImageOrigin.__constructs__ = [format_tga_ImageOrigin.BottomLeft,format_tga_ImageOrigin.BottomRight,format_tga_ImageOrigin.TopLeft,format_tga_ImageOrigin.TopRight];
 format_tga_ImageOrigin.__empty_constructs__ = [format_tga_ImageOrigin.BottomLeft,format_tga_ImageOrigin.BottomRight,format_tga_ImageOrigin.TopLeft,format_tga_ImageOrigin.TopRight];
-var format_tga_ImageType = $hxEnums["format.tga.ImageType"] = { __ename__:"format.tga.ImageType",__constructs__:null
+var format_tga_ImageType = $hxEnums["format.tga.ImageType"] = { __ename__:true,__constructs__:null
 	,NoImage: {_hx_name:"NoImage",_hx_index:0,__enum__:"format.tga.ImageType",toString:$estr}
 	,UncompressedColorMapped: {_hx_name:"UncompressedColorMapped",_hx_index:1,__enum__:"format.tga.ImageType",toString:$estr}
 	,UncompressedTrueColor: {_hx_name:"UncompressedTrueColor",_hx_index:2,__enum__:"format.tga.ImageType",toString:$estr}
@@ -9977,7 +9675,7 @@ format_tools_Inflate.__name__ = "format.tools.Inflate";
 format_tools_Inflate.run = function(bytes) {
 	return haxe_zip_Uncompress.run(bytes);
 };
-var format_wav_WAVEFormat = $hxEnums["format.wav.WAVEFormat"] = { __ename__:"format.wav.WAVEFormat",__constructs__:null
+var format_wav_WAVEFormat = $hxEnums["format.wav.WAVEFormat"] = { __ename__:true,__constructs__:null
 	,WF_PCM: {_hx_name:"WF_PCM",_hx_index:0,__enum__:"format.wav.WAVEFormat",toString:$estr}
 };
 format_wav_WAVEFormat.__constructs__ = [format_wav_WAVEFormat.WF_PCM];
@@ -11524,7 +11222,7 @@ h2d_Bitmap.prototype = $extend(h2d_Drawable.prototype,{
 	}
 	,__class__: h2d_Bitmap
 });
-var h2d_BlendMode = $hxEnums["h2d.BlendMode"] = { __ename__:"h2d.BlendMode",__constructs__:null
+var h2d_BlendMode = $hxEnums["h2d.BlendMode"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h2d.BlendMode",toString:$estr}
 	,Alpha: {_hx_name:"Alpha",_hx_index:1,__enum__:"h2d.BlendMode",toString:$estr}
 	,Add: {_hx_name:"Add",_hx_index:2,__enum__:"h2d.BlendMode",toString:$estr}
@@ -11904,7 +11602,7 @@ h2d_Camera.prototype = {
 	}
 	,__class__: h2d_Camera
 };
-var h2d_FlowAlign = $hxEnums["h2d.FlowAlign"] = { __ename__:"h2d.FlowAlign",__constructs__:null
+var h2d_FlowAlign = $hxEnums["h2d.FlowAlign"] = { __ename__:true,__constructs__:null
 	,Top: {_hx_name:"Top",_hx_index:0,__enum__:"h2d.FlowAlign",toString:$estr}
 	,Left: {_hx_name:"Left",_hx_index:1,__enum__:"h2d.FlowAlign",toString:$estr}
 	,Right: {_hx_name:"Right",_hx_index:2,__enum__:"h2d.FlowAlign",toString:$estr}
@@ -11913,14 +11611,14 @@ var h2d_FlowAlign = $hxEnums["h2d.FlowAlign"] = { __ename__:"h2d.FlowAlign",__co
 };
 h2d_FlowAlign.__constructs__ = [h2d_FlowAlign.Top,h2d_FlowAlign.Left,h2d_FlowAlign.Right,h2d_FlowAlign.Middle,h2d_FlowAlign.Bottom];
 h2d_FlowAlign.__empty_constructs__ = [h2d_FlowAlign.Top,h2d_FlowAlign.Left,h2d_FlowAlign.Right,h2d_FlowAlign.Middle,h2d_FlowAlign.Bottom];
-var h2d_FlowLayout = $hxEnums["h2d.FlowLayout"] = { __ename__:"h2d.FlowLayout",__constructs__:null
+var h2d_FlowLayout = $hxEnums["h2d.FlowLayout"] = { __ename__:true,__constructs__:null
 	,Horizontal: {_hx_name:"Horizontal",_hx_index:0,__enum__:"h2d.FlowLayout",toString:$estr}
 	,Vertical: {_hx_name:"Vertical",_hx_index:1,__enum__:"h2d.FlowLayout",toString:$estr}
 	,Stack: {_hx_name:"Stack",_hx_index:2,__enum__:"h2d.FlowLayout",toString:$estr}
 };
 h2d_FlowLayout.__constructs__ = [h2d_FlowLayout.Horizontal,h2d_FlowLayout.Vertical,h2d_FlowLayout.Stack];
 h2d_FlowLayout.__empty_constructs__ = [h2d_FlowLayout.Horizontal,h2d_FlowLayout.Vertical,h2d_FlowLayout.Stack];
-var h2d_FlowOverflow = $hxEnums["h2d.FlowOverflow"] = { __ename__:"h2d.FlowOverflow",__constructs__:null
+var h2d_FlowOverflow = $hxEnums["h2d.FlowOverflow"] = { __ename__:true,__constructs__:null
 	,Expand: {_hx_name:"Expand",_hx_index:0,__enum__:"h2d.FlowOverflow",toString:$estr}
 	,Limit: {_hx_name:"Limit",_hx_index:1,__enum__:"h2d.FlowOverflow",toString:$estr}
 	,Hidden: {_hx_name:"Hidden",_hx_index:2,__enum__:"h2d.FlowOverflow",toString:$estr}
@@ -13546,7 +13244,7 @@ h2d_FontChar.prototype = {
 	}
 	,__class__: h2d_FontChar
 };
-var h2d_FontType = $hxEnums["h2d.FontType"] = { __ename__:"h2d.FontType",__constructs__:null
+var h2d_FontType = $hxEnums["h2d.FontType"] = { __ename__:true,__constructs__:null
 	,BitmapFont: {_hx_name:"BitmapFont",_hx_index:0,__enum__:"h2d.FontType",toString:$estr}
 	,SignedDistanceField: ($_=function(channel,alphaCutoff,smoothing) { return {_hx_index:1,channel:channel,alphaCutoff:alphaCutoff,smoothing:smoothing,__enum__:"h2d.FontType",toString:$estr}; },$_._hx_name="SignedDistanceField",$_.__params__ = ["channel","alphaCutoff","smoothing"],$_)
 };
@@ -18182,7 +17880,7 @@ h2d_ScaleGrid.prototype = $extend(h2d_TileGroup.prototype,{
 	}
 	,__class__: h2d_ScaleGrid
 });
-var h2d_ScaleModeAlign = $hxEnums["h2d.ScaleModeAlign"] = { __ename__:"h2d.ScaleModeAlign",__constructs__:null
+var h2d_ScaleModeAlign = $hxEnums["h2d.ScaleModeAlign"] = { __ename__:true,__constructs__:null
 	,Left: {_hx_name:"Left",_hx_index:0,__enum__:"h2d.ScaleModeAlign",toString:$estr}
 	,Right: {_hx_name:"Right",_hx_index:1,__enum__:"h2d.ScaleModeAlign",toString:$estr}
 	,Center: {_hx_name:"Center",_hx_index:2,__enum__:"h2d.ScaleModeAlign",toString:$estr}
@@ -18191,7 +17889,7 @@ var h2d_ScaleModeAlign = $hxEnums["h2d.ScaleModeAlign"] = { __ename__:"h2d.Scale
 };
 h2d_ScaleModeAlign.__constructs__ = [h2d_ScaleModeAlign.Left,h2d_ScaleModeAlign.Right,h2d_ScaleModeAlign.Center,h2d_ScaleModeAlign.Top,h2d_ScaleModeAlign.Bottom];
 h2d_ScaleModeAlign.__empty_constructs__ = [h2d_ScaleModeAlign.Left,h2d_ScaleModeAlign.Right,h2d_ScaleModeAlign.Center,h2d_ScaleModeAlign.Top,h2d_ScaleModeAlign.Bottom];
-var h2d_ScaleMode = $hxEnums["h2d.ScaleMode"] = { __ename__:"h2d.ScaleMode",__constructs__:null
+var h2d_ScaleMode = $hxEnums["h2d.ScaleMode"] = { __ename__:true,__constructs__:null
 	,Resize: {_hx_name:"Resize",_hx_index:0,__enum__:"h2d.ScaleMode",toString:$estr}
 	,Stretch: ($_=function(width,height) { return {_hx_index:1,width:width,height:height,__enum__:"h2d.ScaleMode",toString:$estr}; },$_._hx_name="Stretch",$_.__params__ = ["width","height"],$_)
 	,LetterBox: ($_=function(width,height,integerScale,horizontalAlign,verticalAlign) { return {_hx_index:2,width:width,height:height,integerScale:integerScale,horizontalAlign:horizontalAlign,verticalAlign:verticalAlign,__enum__:"h2d.ScaleMode",toString:$estr}; },$_._hx_name="LetterBox",$_.__params__ = ["width","height","integerScale","horizontalAlign","verticalAlign"],$_)
@@ -19108,7 +18806,7 @@ h2d_Scene.prototype = $extend(h2d_Layers.prototype,{
 	}
 	,__class__: h2d_Scene
 });
-var h2d_Align = $hxEnums["h2d.Align"] = { __ename__:"h2d.Align",__constructs__:null
+var h2d_Align = $hxEnums["h2d.Align"] = { __ename__:true,__constructs__:null
 	,Left: {_hx_name:"Left",_hx_index:0,__enum__:"h2d.Align",toString:$estr}
 	,Right: {_hx_name:"Right",_hx_index:1,__enum__:"h2d.Align",toString:$estr}
 	,Center: {_hx_name:"Center",_hx_index:2,__enum__:"h2d.Align",toString:$estr}
@@ -22896,7 +22594,7 @@ h2d_col_IPoint.prototype = {
 	}
 	,__class__: h2d_col_IPoint
 };
-var h2d_col_OffsetKind = $hxEnums["h2d.col.OffsetKind"] = { __ename__:"h2d.col.OffsetKind",__constructs__:null
+var h2d_col_OffsetKind = $hxEnums["h2d.col.OffsetKind"] = { __ename__:true,__constructs__:null
 	,Square: {_hx_name:"Square",_hx_index:0,__enum__:"h2d.col.OffsetKind",toString:$estr}
 	,Miter: {_hx_name:"Miter",_hx_index:1,__enum__:"h2d.col.OffsetKind",toString:$estr}
 	,Round: ($_=function(arc) { return {_hx_index:2,arc:arc,__enum__:"h2d.col.OffsetKind",toString:$estr}; },$_._hx_name="Round",$_.__params__ = ["arc"],$_)
@@ -24966,7 +24664,7 @@ h2d_impl__$BatchDrawState_StateEntry.prototype = {
 	}
 	,__class__: h2d_impl__$BatchDrawState_StateEntry
 };
-var h3d_BufferFlag = $hxEnums["h3d.BufferFlag"] = { __ename__:"h3d.BufferFlag",__constructs__:null
+var h3d_BufferFlag = $hxEnums["h3d.BufferFlag"] = { __ename__:true,__constructs__:null
 	,Dynamic: {_hx_name:"Dynamic",_hx_index:0,__enum__:"h3d.BufferFlag",toString:$estr}
 	,Triangles: {_hx_name:"Triangles",_hx_index:1,__enum__:"h3d.BufferFlag",toString:$estr}
 	,Quads: {_hx_name:"Quads",_hx_index:2,__enum__:"h3d.BufferFlag",toString:$estr}
@@ -27264,7 +26962,7 @@ h3d_anim_Animation.prototype = {
 	}
 	,__class__: h3d_anim_Animation
 };
-var h3d_anim_DataLayout = $hxEnums["h3d.anim.DataLayout"] = { __ename__:"h3d.anim.DataLayout",__constructs__:null
+var h3d_anim_DataLayout = $hxEnums["h3d.anim.DataLayout"] = { __ename__:true,__constructs__:null
 	,Position: {_hx_name:"Position",_hx_index:0,__enum__:"h3d.anim.DataLayout",toString:$estr}
 	,Rotation: {_hx_name:"Rotation",_hx_index:1,__enum__:"h3d.anim.DataLayout",toString:$estr}
 	,Scale: {_hx_name:"Scale",_hx_index:2,__enum__:"h3d.anim.DataLayout",toString:$estr}
@@ -29595,34 +29293,6 @@ h3d_col_Bounds.prototype = {
 		var dz = this.zMax - this.zMin;
 		return new h3d_col_Sphere((this.xMin + this.xMax) * 0.5,(this.yMin + this.yMax) * 0.5,(this.zMin + this.zMax) * 0.5,Math.sqrt(dx * dx + dy * dy + dz * dz) * 0.5);
 	}
-	,customSerialize: function(ctx) {
-		ctx.out.addFloat(this.xMin);
-		ctx.out.addFloat(this.xMax);
-		ctx.out.addFloat(this.yMin);
-		ctx.out.addFloat(this.yMax);
-		ctx.out.addFloat(this.zMin);
-		ctx.out.addFloat(this.zMax);
-	}
-	,customUnserialize: function(ctx) {
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.xMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.xMax = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.yMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.yMax = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.zMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.zMax = v;
-	}
 	,__class__: h3d_col_Bounds
 };
 var h3d_col_OptimizedCollider = function(a,b) {
@@ -29661,10 +29331,6 @@ h3d_col_OptimizedCollider.prototype = {
 		} else {
 			return false;
 		}
-	}
-	,customSerialize: function(ctx) {
-	}
-	,customUnserialize: function(ctx) {
 	}
 	,__class__: h3d_col_OptimizedCollider
 };
@@ -31087,10 +30753,6 @@ h3d_col_ObjectCollider.prototype = {
 		s.r = oldR;
 		return res;
 	}
-	,customSerialize: function(ctx) {
-	}
-	,customUnserialize: function(ctx) {
-	}
 	,__class__: h3d_col_ObjectCollider
 };
 var h3d_col_Plane = function(nx,ny,nz,d) {
@@ -31858,11 +31520,6 @@ h3d_col_TriPlane.prototype = {
 	,getPoints: function() {
 		return [new h3d_col_Point(this.p0x,this.p0y,this.p0z),new h3d_col_Point(this.d1x + this.p0x,this.d1y + this.p0y,this.d1z + this.p0z),new h3d_col_Point(this.d2x + this.p0x,this.d2y + this.p0y,this.d2z + this.p0z)];
 	}
-	,customSerialize: function(ctx) {
-		throw haxe_Exception.thrown("Cannot serialize " + Std.string(this));
-	}
-	,customUnserialize: function(ctx) {
-	}
 	,__class__: h3d_col_TriPlane
 };
 var h3d_col_Polygon = function() {
@@ -32461,11 +32118,6 @@ h3d_col_Polygon.prototype = {
 	,inSphere: function(s) {
 		throw haxe_Exception.thrown("Not implemented");
 	}
-	,customSerialize: function(ctx) {
-		throw haxe_Exception.thrown("Cannot serialize " + Std.string(this));
-	}
-	,customUnserialize: function(ctx) {
-	}
 	,__class__: h3d_col_Polygon
 };
 var h3d_col_PolygonBuffer = function() {
@@ -32804,89 +32456,6 @@ h3d_col_PolygonBuffer.prototype = {
 		}
 		return best;
 	}
-	,customSerialize: function(ctx) {
-		if(this.source == null) {
-			throw haxe_Exception.thrown("Cannot serialize " + Std.string(this));
-		}
-		var s = this.source.entry.get_path();
-		if(s == null) {
-			ctx.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			ctx.out.add(b);
-		}
-		var s = this.source.geometryName;
-		if(s == null) {
-			ctx.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			ctx.out.add(b);
-		}
-	}
-	,customUnserialize: function(ctx) {
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		var file;
-		if(len == 0) {
-			file = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			file = s;
-		}
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		var name;
-		if(len == 0) {
-			name = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			name = s;
-		}
-		var ctx1 = ctx;
-		var lib = ctx1.loadHMD(file);
-		var gindex = -1;
-		var _g = 0;
-		var _g1 = lib.header.models;
-		while(_g < _g1.length) {
-			var h = _g1[_g];
-			++_g;
-			if(h.name == name) {
-				gindex = h.geometry;
-				break;
-			}
-		}
-		if(gindex < 0) {
-			throw haxe_Exception.thrown(file + " does not have model " + name);
-		}
-		var prim = lib.makePrimitive(gindex);
-		prim.initCollider(this);
-	}
 	,__class__: h3d_col_PolygonBuffer
 };
 var h3d_col_SkinCollider = function(obj,col) {
@@ -33085,17 +32654,6 @@ h3d_col_SkinCollider.prototype = {
 			this.transform.buffer[v++] = py;
 			this.transform.buffer[v++] = pz;
 		}
-	}
-	,customSerialize: function(ctx) {
-	}
-	,customUnserialize: function(ctx) {
-		this.transform = new h3d_col_PolygonBuffer();
-		var tmp = this.transform;
-		var this1 = this.col.buffer;
-		var this2 = new Array(this1.length);
-		var r = this2;
-		haxe_ds_Vector.blit(this1,0,r,0,this1.length);
-		tmp.setData(r,this.col.indexes,this.col.startIndex,this.col.triCount);
 	}
 	,__class__: h3d_col_SkinCollider
 };
@@ -33296,29 +32854,9 @@ h3d_col_Sphere.prototype = {
 	,toString: function() {
 		return "Sphere{" + Std.string(new h3d_col_Point(this.x,this.y,this.z)) + "," + hxd_Math.fmt(this.r) + "}";
 	}
-	,customSerialize: function(ctx) {
-		ctx.out.addFloat(this.x);
-		ctx.out.addFloat(this.y);
-		ctx.out.addFloat(this.z);
-		ctx.out.addFloat(this.r);
-	}
-	,customUnserialize: function(ctx) {
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.x = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.y = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.z = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.r = v;
-	}
 	,__class__: h3d_col_Sphere
 };
-var h3d_impl_Feature = $hxEnums["h3d.impl.Feature"] = { __ename__:"h3d.impl.Feature",__constructs__:null
+var h3d_impl_Feature = $hxEnums["h3d.impl.Feature"] = { __ename__:true,__constructs__:null
 	,StandardDerivatives: {_hx_name:"StandardDerivatives",_hx_index:0,__enum__:"h3d.impl.Feature",toString:$estr}
 	,FloatTextures: {_hx_name:"FloatTextures",_hx_index:1,__enum__:"h3d.impl.Feature",toString:$estr}
 	,AllocDepthBuffer: {_hx_name:"AllocDepthBuffer",_hx_index:2,__enum__:"h3d.impl.Feature",toString:$estr}
@@ -33333,42 +32871,17 @@ var h3d_impl_Feature = $hxEnums["h3d.impl.Feature"] = { __ename__:"h3d.impl.Feat
 };
 h3d_impl_Feature.__constructs__ = [h3d_impl_Feature.StandardDerivatives,h3d_impl_Feature.FloatTextures,h3d_impl_Feature.AllocDepthBuffer,h3d_impl_Feature.HardwareAccelerated,h3d_impl_Feature.MultipleRenderTargets,h3d_impl_Feature.Queries,h3d_impl_Feature.SRGBTextures,h3d_impl_Feature.ShaderModel3,h3d_impl_Feature.BottomLeftCoords,h3d_impl_Feature.Wireframe,h3d_impl_Feature.InstancedRendering];
 h3d_impl_Feature.__empty_constructs__ = [h3d_impl_Feature.StandardDerivatives,h3d_impl_Feature.FloatTextures,h3d_impl_Feature.AllocDepthBuffer,h3d_impl_Feature.HardwareAccelerated,h3d_impl_Feature.MultipleRenderTargets,h3d_impl_Feature.Queries,h3d_impl_Feature.SRGBTextures,h3d_impl_Feature.ShaderModel3,h3d_impl_Feature.BottomLeftCoords,h3d_impl_Feature.Wireframe,h3d_impl_Feature.InstancedRendering];
-var h3d_impl_QueryKind = $hxEnums["h3d.impl.QueryKind"] = { __ename__:"h3d.impl.QueryKind",__constructs__:null
+var h3d_impl_QueryKind = $hxEnums["h3d.impl.QueryKind"] = { __ename__:true,__constructs__:null
 	,TimeStamp: {_hx_name:"TimeStamp",_hx_index:0,__enum__:"h3d.impl.QueryKind",toString:$estr}
 	,Samples: {_hx_name:"Samples",_hx_index:1,__enum__:"h3d.impl.QueryKind",toString:$estr}
 };
 h3d_impl_QueryKind.__constructs__ = [h3d_impl_QueryKind.TimeStamp,h3d_impl_QueryKind.Samples];
 h3d_impl_QueryKind.__empty_constructs__ = [h3d_impl_QueryKind.TimeStamp,h3d_impl_QueryKind.Samples];
-var h3d_impl_RenderFlag = $hxEnums["h3d.impl.RenderFlag"] = { __ename__:"h3d.impl.RenderFlag",__constructs__:null
+var h3d_impl_RenderFlag = $hxEnums["h3d.impl.RenderFlag"] = { __ename__:true,__constructs__:null
 	,CameraHandness: {_hx_name:"CameraHandness",_hx_index:0,__enum__:"h3d.impl.RenderFlag",toString:$estr}
 };
 h3d_impl_RenderFlag.__constructs__ = [h3d_impl_RenderFlag.CameraHandness];
 h3d_impl_RenderFlag.__empty_constructs__ = [h3d_impl_RenderFlag.CameraHandness];
-var haxe_IMap = function() { };
-$hxClasses["haxe.IMap"] = haxe_IMap;
-haxe_IMap.__name__ = "haxe.IMap";
-haxe_IMap.__isInterface__ = true;
-haxe_IMap.prototype = {
-	get: null
-	,keys: null
-	,__class__: haxe_IMap
-};
-var haxe_ds_StringMap = function() {
-	this.h = Object.create(null);
-};
-$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
-haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
-haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
-haxe_ds_StringMap.prototype = {
-	h: null
-	,get: function(key) {
-		return this.h[key];
-	}
-	,keys: function() {
-		return new haxe_ds__$StringMap_StringMapKeyIterator(this.h);
-	}
-	,__class__: haxe_ds_StringMap
-};
 var h3d_impl_InputNames = function(names) {
 	this.id = h3d_impl_InputNames.UID++;
 	this.names = names;
@@ -35272,9 +34785,6 @@ h3d_impl_InstanceBuffer.prototype = {
 	}
 	,__class__: h3d_impl_InstanceBuffer
 };
-var h3d_impl_MacroHelper = function() { };
-$hxClasses["h3d.impl.MacroHelper"] = h3d_impl_MacroHelper;
-h3d_impl_MacroHelper.__name__ = "h3d.impl.MacroHelper";
 var h3d_impl__$ManagedBuffer_FreeCell = function(pos,count,next) {
 	this.pos = pos;
 	this.count = count;
@@ -35897,7 +35407,7 @@ h3d_impl_NullDriver.prototype = $extend(h3d_impl_Driver.prototype,{
 	}
 	,__class__: h3d_impl_NullDriver
 });
-var h3d_impl_Step = $hxEnums["h3d.impl.Step"] = { __ename__:"h3d.impl.Step",__constructs__:null
+var h3d_impl_Step = $hxEnums["h3d.impl.Step"] = { __ename__:true,__constructs__:null
 	,MainDraw: {_hx_name:"MainDraw",_hx_index:0,__enum__:"h3d.impl.Step",toString:$estr}
 	,Decals: {_hx_name:"Decals",_hx_index:1,__enum__:"h3d.impl.Step",toString:$estr}
 	,Shadows: {_hx_name:"Shadows",_hx_index:2,__enum__:"h3d.impl.Step",toString:$estr}
@@ -36151,7 +35661,7 @@ h3d_mat_BaseMaterial.prototype = $extend(hxd_impl_AnyProps.prototype,{
 	}
 	,__class__: h3d_mat_BaseMaterial
 });
-var h3d_mat_Face = $hxEnums["h3d.mat.Face"] = { __ename__:"h3d.mat.Face",__constructs__:null
+var h3d_mat_Face = $hxEnums["h3d.mat.Face"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.mat.Face",toString:$estr}
 	,Back: {_hx_name:"Back",_hx_index:1,__enum__:"h3d.mat.Face",toString:$estr}
 	,Front: {_hx_name:"Front",_hx_index:2,__enum__:"h3d.mat.Face",toString:$estr}
@@ -36159,7 +35669,7 @@ var h3d_mat_Face = $hxEnums["h3d.mat.Face"] = { __ename__:"h3d.mat.Face",__const
 };
 h3d_mat_Face.__constructs__ = [h3d_mat_Face.None,h3d_mat_Face.Back,h3d_mat_Face.Front,h3d_mat_Face.Both];
 h3d_mat_Face.__empty_constructs__ = [h3d_mat_Face.None,h3d_mat_Face.Back,h3d_mat_Face.Front,h3d_mat_Face.Both];
-var h3d_mat_Blend = $hxEnums["h3d.mat.Blend"] = { __ename__:"h3d.mat.Blend",__constructs__:null
+var h3d_mat_Blend = $hxEnums["h3d.mat.Blend"] = { __ename__:true,__constructs__:null
 	,One: {_hx_name:"One",_hx_index:0,__enum__:"h3d.mat.Blend",toString:$estr}
 	,Zero: {_hx_name:"Zero",_hx_index:1,__enum__:"h3d.mat.Blend",toString:$estr}
 	,SrcAlpha: {_hx_name:"SrcAlpha",_hx_index:2,__enum__:"h3d.mat.Blend",toString:$estr}
@@ -36178,7 +35688,7 @@ var h3d_mat_Blend = $hxEnums["h3d.mat.Blend"] = { __ename__:"h3d.mat.Blend",__co
 };
 h3d_mat_Blend.__constructs__ = [h3d_mat_Blend.One,h3d_mat_Blend.Zero,h3d_mat_Blend.SrcAlpha,h3d_mat_Blend.SrcColor,h3d_mat_Blend.DstAlpha,h3d_mat_Blend.DstColor,h3d_mat_Blend.OneMinusSrcAlpha,h3d_mat_Blend.OneMinusSrcColor,h3d_mat_Blend.OneMinusDstAlpha,h3d_mat_Blend.OneMinusDstColor,h3d_mat_Blend.ConstantColor,h3d_mat_Blend.ConstantAlpha,h3d_mat_Blend.OneMinusConstantColor,h3d_mat_Blend.OneMinusConstantAlpha,h3d_mat_Blend.SrcAlphaSaturate];
 h3d_mat_Blend.__empty_constructs__ = [h3d_mat_Blend.One,h3d_mat_Blend.Zero,h3d_mat_Blend.SrcAlpha,h3d_mat_Blend.SrcColor,h3d_mat_Blend.DstAlpha,h3d_mat_Blend.DstColor,h3d_mat_Blend.OneMinusSrcAlpha,h3d_mat_Blend.OneMinusSrcColor,h3d_mat_Blend.OneMinusDstAlpha,h3d_mat_Blend.OneMinusDstColor,h3d_mat_Blend.ConstantColor,h3d_mat_Blend.ConstantAlpha,h3d_mat_Blend.OneMinusConstantColor,h3d_mat_Blend.OneMinusConstantAlpha,h3d_mat_Blend.SrcAlphaSaturate];
-var h3d_mat_Compare = $hxEnums["h3d.mat.Compare"] = { __ename__:"h3d.mat.Compare",__constructs__:null
+var h3d_mat_Compare = $hxEnums["h3d.mat.Compare"] = { __ename__:true,__constructs__:null
 	,Always: {_hx_name:"Always",_hx_index:0,__enum__:"h3d.mat.Compare",toString:$estr}
 	,Never: {_hx_name:"Never",_hx_index:1,__enum__:"h3d.mat.Compare",toString:$estr}
 	,Equal: {_hx_name:"Equal",_hx_index:2,__enum__:"h3d.mat.Compare",toString:$estr}
@@ -36190,7 +35700,7 @@ var h3d_mat_Compare = $hxEnums["h3d.mat.Compare"] = { __ename__:"h3d.mat.Compare
 };
 h3d_mat_Compare.__constructs__ = [h3d_mat_Compare.Always,h3d_mat_Compare.Never,h3d_mat_Compare.Equal,h3d_mat_Compare.NotEqual,h3d_mat_Compare.Greater,h3d_mat_Compare.GreaterEqual,h3d_mat_Compare.Less,h3d_mat_Compare.LessEqual];
 h3d_mat_Compare.__empty_constructs__ = [h3d_mat_Compare.Always,h3d_mat_Compare.Never,h3d_mat_Compare.Equal,h3d_mat_Compare.NotEqual,h3d_mat_Compare.Greater,h3d_mat_Compare.GreaterEqual,h3d_mat_Compare.Less,h3d_mat_Compare.LessEqual];
-var h3d_mat_StencilOp = $hxEnums["h3d.mat.StencilOp"] = { __ename__:"h3d.mat.StencilOp",__constructs__:null
+var h3d_mat_StencilOp = $hxEnums["h3d.mat.StencilOp"] = { __ename__:true,__constructs__:null
 	,Keep: {_hx_name:"Keep",_hx_index:0,__enum__:"h3d.mat.StencilOp",toString:$estr}
 	,Zero: {_hx_name:"Zero",_hx_index:1,__enum__:"h3d.mat.StencilOp",toString:$estr}
 	,Replace: {_hx_name:"Replace",_hx_index:2,__enum__:"h3d.mat.StencilOp",toString:$estr}
@@ -36202,26 +35712,26 @@ var h3d_mat_StencilOp = $hxEnums["h3d.mat.StencilOp"] = { __ename__:"h3d.mat.Ste
 };
 h3d_mat_StencilOp.__constructs__ = [h3d_mat_StencilOp.Keep,h3d_mat_StencilOp.Zero,h3d_mat_StencilOp.Replace,h3d_mat_StencilOp.Increment,h3d_mat_StencilOp.IncrementWrap,h3d_mat_StencilOp.Decrement,h3d_mat_StencilOp.DecrementWrap,h3d_mat_StencilOp.Invert];
 h3d_mat_StencilOp.__empty_constructs__ = [h3d_mat_StencilOp.Keep,h3d_mat_StencilOp.Zero,h3d_mat_StencilOp.Replace,h3d_mat_StencilOp.Increment,h3d_mat_StencilOp.IncrementWrap,h3d_mat_StencilOp.Decrement,h3d_mat_StencilOp.DecrementWrap,h3d_mat_StencilOp.Invert];
-var h3d_mat_MipMap = $hxEnums["h3d.mat.MipMap"] = { __ename__:"h3d.mat.MipMap",__constructs__:null
+var h3d_mat_MipMap = $hxEnums["h3d.mat.MipMap"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.mat.MipMap",toString:$estr}
 	,Nearest: {_hx_name:"Nearest",_hx_index:1,__enum__:"h3d.mat.MipMap",toString:$estr}
 	,Linear: {_hx_name:"Linear",_hx_index:2,__enum__:"h3d.mat.MipMap",toString:$estr}
 };
 h3d_mat_MipMap.__constructs__ = [h3d_mat_MipMap.None,h3d_mat_MipMap.Nearest,h3d_mat_MipMap.Linear];
 h3d_mat_MipMap.__empty_constructs__ = [h3d_mat_MipMap.None,h3d_mat_MipMap.Nearest,h3d_mat_MipMap.Linear];
-var h3d_mat_Filter = $hxEnums["h3d.mat.Filter"] = { __ename__:"h3d.mat.Filter",__constructs__:null
+var h3d_mat_Filter = $hxEnums["h3d.mat.Filter"] = { __ename__:true,__constructs__:null
 	,Nearest: {_hx_name:"Nearest",_hx_index:0,__enum__:"h3d.mat.Filter",toString:$estr}
 	,Linear: {_hx_name:"Linear",_hx_index:1,__enum__:"h3d.mat.Filter",toString:$estr}
 };
 h3d_mat_Filter.__constructs__ = [h3d_mat_Filter.Nearest,h3d_mat_Filter.Linear];
 h3d_mat_Filter.__empty_constructs__ = [h3d_mat_Filter.Nearest,h3d_mat_Filter.Linear];
-var h3d_mat_Wrap = $hxEnums["h3d.mat.Wrap"] = { __ename__:"h3d.mat.Wrap",__constructs__:null
+var h3d_mat_Wrap = $hxEnums["h3d.mat.Wrap"] = { __ename__:true,__constructs__:null
 	,Clamp: {_hx_name:"Clamp",_hx_index:0,__enum__:"h3d.mat.Wrap",toString:$estr}
 	,Repeat: {_hx_name:"Repeat",_hx_index:1,__enum__:"h3d.mat.Wrap",toString:$estr}
 };
 h3d_mat_Wrap.__constructs__ = [h3d_mat_Wrap.Clamp,h3d_mat_Wrap.Repeat];
 h3d_mat_Wrap.__empty_constructs__ = [h3d_mat_Wrap.Clamp,h3d_mat_Wrap.Repeat];
-var h3d_mat_Operation = $hxEnums["h3d.mat.Operation"] = { __ename__:"h3d.mat.Operation",__constructs__:null
+var h3d_mat_Operation = $hxEnums["h3d.mat.Operation"] = { __ename__:true,__constructs__:null
 	,Add: {_hx_name:"Add",_hx_index:0,__enum__:"h3d.mat.Operation",toString:$estr}
 	,Sub: {_hx_name:"Sub",_hx_index:1,__enum__:"h3d.mat.Operation",toString:$estr}
 	,ReverseSub: {_hx_name:"ReverseSub",_hx_index:2,__enum__:"h3d.mat.Operation",toString:$estr}
@@ -36230,7 +35740,7 @@ var h3d_mat_Operation = $hxEnums["h3d.mat.Operation"] = { __ename__:"h3d.mat.Ope
 };
 h3d_mat_Operation.__constructs__ = [h3d_mat_Operation.Add,h3d_mat_Operation.Sub,h3d_mat_Operation.ReverseSub,h3d_mat_Operation.Min,h3d_mat_Operation.Max];
 h3d_mat_Operation.__empty_constructs__ = [h3d_mat_Operation.Add,h3d_mat_Operation.Sub,h3d_mat_Operation.ReverseSub,h3d_mat_Operation.Min,h3d_mat_Operation.Max];
-var h3d_mat_TextureFlags = $hxEnums["h3d.mat.TextureFlags"] = { __ename__:"h3d.mat.TextureFlags",__constructs__:null
+var h3d_mat_TextureFlags = $hxEnums["h3d.mat.TextureFlags"] = { __ename__:true,__constructs__:null
 	,Target: {_hx_name:"Target",_hx_index:0,__enum__:"h3d.mat.TextureFlags",toString:$estr}
 	,Cube: {_hx_name:"Cube",_hx_index:1,__enum__:"h3d.mat.TextureFlags",toString:$estr}
 	,MipMapped: {_hx_name:"MipMapped",_hx_index:2,__enum__:"h3d.mat.TextureFlags",toString:$estr}
@@ -36264,7 +35774,7 @@ h3d_mat_Defaults.set_shadowShader = function(s) {
 h3d_mat_Defaults.makeVolumeDecal = function(bounds) {
 	return new h3d_shader_VolumeDecal(bounds.xMax - bounds.xMin,bounds.yMax - bounds.yMin);
 };
-var h3d_mat_DepthFormat = $hxEnums["h3d.mat.DepthFormat"] = { __ename__:"h3d.mat.DepthFormat",__constructs__:null
+var h3d_mat_DepthFormat = $hxEnums["h3d.mat.DepthFormat"] = { __ename__:true,__constructs__:null
 	,Depth16: {_hx_name:"Depth16",_hx_index:0,__enum__:"h3d.mat.DepthFormat",toString:$estr}
 	,Depth24: {_hx_name:"Depth24",_hx_index:1,__enum__:"h3d.mat.DepthFormat",toString:$estr}
 	,Depth24Stencil8: {_hx_name:"Depth24Stencil8",_hx_index:2,__enum__:"h3d.mat.DepthFormat",toString:$estr}
@@ -36581,35 +36091,6 @@ h3d_mat_Material.prototype = $extend(h3d_mat_BaseMaterial.prototype,{
 		if(this.castShadows && this.receiveShadows) {
 			this.getPass("shadow").set_culling(this.passes.culling);
 		}
-	}
-	,customSerialize: function(ctx) {
-		var v = this.blendMode._hx_index;
-		if(v >= 0 && v < 128) {
-			ctx.out.addByte(v);
-		} else {
-			ctx.out.addByte(128);
-			ctx.out.addInt32(v);
-		}
-		ctx.out.addByte(this.castShadows ? 1 : 0);
-		ctx.out.addByte(this.receiveShadows ? 1 : 0);
-		ctx.addDynamic(this.props);
-	}
-	,customUnserialize: function(ctx) {
-		var last = this.passes.shaders;
-		while(last.next != null) last = last.next;
-		this.mshader = last.s;
-		var old = this.passes;
-		this.passes = null;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		this.set_blendMode(Type.createEnumIndex(h2d_BlendMode,v,null));
-		this.set_castShadows(ctx.input.b[ctx.inPos++] != 0);
-		this.set_receiveShadows(ctx.input.b[ctx.inPos++] != 0);
-		this.set_props(ctx.getDynamic());
-		this.passes = old;
 	}
 	,__class__: h3d_mat_Material
 });
@@ -37140,34 +36621,6 @@ h3d_mat_Pass.prototype = {
 			return h3d_Engine.CURRENT.driver.getNativeShaderCode(shader);
 		}
 	}
-	,customSerialize: function(ctx) {
-		var ctx1 = ctx;
-		var s = this.shaders;
-		while(s != this.parentShaders) {
-			ctx1.addShader(s.s);
-			s = s.next;
-		}
-		ctx1.addShader(null);
-	}
-	,customUnserialize: function(ctx) {
-		var ctx1 = ctx;
-		var head = null;
-		while(true) {
-			var s = ctx1.getShader();
-			if(s == null) {
-				break;
-			}
-			var sl = new hxsl_ShaderList(s);
-			if(head == null) {
-				head = this.shaders = sl;
-			} else {
-				head.next = sl;
-				head = sl;
-			}
-		}
-		this.setPassName(this.name);
-		this.loadBits(this.bits);
-	}
 	,set_enableLights: function(v) {
 		this.flags = this.flags & -2 | (v ? 1 : 0);
 		return this.enableLights = v;
@@ -37346,12 +36799,6 @@ h3d_mat_Stencil.prototype = {
 		this.opBits = s.opBits;
 		this.maskBits = s.maskBits;
 	}
-	,customSerialize: function(ctx) {
-	}
-	,customUnserialize: function(ctx) {
-		this.loadMaskBits(this.maskBits);
-		this.loadOpBits(this.opBits);
-	}
 	,set_readMask: function(v) {
 		this.maskBits = this.maskBits & -256 | v & 255;
 		return this.readMask = v;
@@ -37415,40 +36862,7 @@ h3d_mat_Stencil.prototype = {
 	}
 	,__class__: h3d_mat_Stencil
 };
-var haxe_ds_IntMap = function() {
-	this.h = { };
-};
-$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
-haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
-haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
-haxe_ds_IntMap.prototype = {
-	h: null
-	,get: function(key) {
-		return this.h[key];
-	}
-	,remove: function(key) {
-		if(!this.h.hasOwnProperty(key)) {
-			return false;
-		}
-		delete(this.h[key]);
-		return true;
-	}
-	,keys: function() {
-		var a = [];
-		for( var key in this.h ) if(this.h.hasOwnProperty(key)) a.push(key | 0);
-		return new haxe_iterators_ArrayIterator(a);
-	}
-	,iterator: function() {
-		return { ref : this.h, it : this.keys(), hasNext : function() {
-			return this.it.hasNext();
-		}, next : function() {
-			var i = this.it.next();
-			return this.ref[i];
-		}};
-	}
-	,__class__: haxe_ds_IntMap
-};
-var hxd_PixelFormat = $hxEnums["hxd.PixelFormat"] = { __ename__:"hxd.PixelFormat",__constructs__:null
+var hxd_PixelFormat = $hxEnums["hxd.PixelFormat"] = { __ename__:true,__constructs__:null
 	,ARGB: {_hx_name:"ARGB",_hx_index:0,__enum__:"hxd.PixelFormat",toString:$estr}
 	,BGRA: {_hx_name:"BGRA",_hx_index:1,__enum__:"hxd.PixelFormat",toString:$estr}
 	,RGBA: {_hx_name:"RGBA",_hx_index:2,__enum__:"hxd.PixelFormat",toString:$estr}
@@ -38058,93 +37472,13 @@ h3d_mat_TextureArray.prototype = $extend(h3d_mat_Texture.prototype,{
 	}
 	,__class__: h3d_mat_TextureArray
 });
-var h3d_mat_TextureChannels = function(w,h,flags,format) {
-	this.allowAsync = true;
-	this.channels = [];
-	if(flags == null) {
-		flags = [];
-	}
-	flags.push(h3d_mat_TextureFlags.NoAlloc);
-	h3d_mat_Texture.call(this,w,h,flags,format);
-	this.pixels = new hxd_Pixels(w,h,new haxe_io_Bytes(new ArrayBuffer(w * h * 4)),h3d_mat_Texture.nativeFormat);
-	this.realloc = $bind(this,this.restore);
-};
-$hxClasses["h3d.mat.TextureChannels"] = h3d_mat_TextureChannels;
-h3d_mat_TextureChannels.__name__ = "h3d.mat.TextureChannels";
-h3d_mat_TextureChannels.__super__ = h3d_mat_Texture;
-h3d_mat_TextureChannels.prototype = $extend(h3d_mat_Texture.prototype,{
-	pixels: null
-	,channels: null
-	,allowAsync: null
-	,restore: function() {
-		this.uploadPixels(this.pixels);
-	}
-	,reset: function() {
-		if(this.t != null) {
-			this.mem.deleteTexture(this);
-		}
-	}
-	,setPixels: function(c,src,srcChannel) {
-		this.reset();
-		this.channels[c] = { r : null, c : srcChannel};
-		this.setPixelsInner(c,src,srcChannel);
-	}
-	,setPixelsInner: function(c,src,srcChannel) {
-		if(src.width != this.width || src.height != this.height) {
-			throw haxe_Exception.thrown("Size mismatch : " + src.width + "x" + src.height + " should be " + this.width + "x" + this.height);
-		}
-		var bpp = this.pixels.bytesPerPixel;
-		var off = hxd_Pixels.getChannelOffset(this.pixels.innerFormat,c);
-		var srcBpp = src.bytesPerPixel;
-		var srcOff = hxd_Pixels.getChannelOffset(src.innerFormat,srcChannel);
-		var _g = 0;
-		var _g1 = this.height;
-		while(_g < _g1) {
-			var y = _g++;
-			var r = y * src.width * srcBpp + srcOff;
-			var w = y * this.width * bpp + off;
-			var _g2 = 0;
-			var _g3 = this.width;
-			while(_g2 < _g3) {
-				var x = _g2++;
-				this.pixels.bytes.b[w] = src.bytes.b[r];
-				w += bpp;
-				r += srcBpp;
-			}
-		}
-	}
-	,setResource: function(c,res,srcChannel) {
-		var _gthis = this;
-		if(srcChannel == null) {
-			srcChannel = c;
-		}
-		if(!this.allowAsync || res.getInfo().dataFormat != 0) {
-			this.setPixelsInner(c,res.getPixels(),srcChannel);
-		} else {
-			res.entry.loadBitmap(function(bmp) {
-				var bmp1 = hxd_fs_LoadedBitmap.toBitmap(bmp);
-				var pix = bmp1.getPixels();
-				bmp1.ctx = null;
-				bmp1.pixel = null;
-				_gthis.setPixelsInner(c,pix,srcChannel);
-			});
-		}
-		this.channels[c] = { r : res, c : srcChannel};
-		res.watch(function() {
-			if(_gthis.t != null) {
-				_gthis.setResource(c,res,srcChannel);
-			}
-		});
-	}
-	,__class__: h3d_mat_TextureChannels
-});
-var h3d_parts_GpuSortMode = $hxEnums["h3d.parts.GpuSortMode"] = { __ename__:"h3d.parts.GpuSortMode",__constructs__:null
+var h3d_parts_GpuSortMode = $hxEnums["h3d.parts.GpuSortMode"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.parts.GpuSortMode",toString:$estr}
 	,Dynamic: {_hx_name:"Dynamic",_hx_index:1,__enum__:"h3d.parts.GpuSortMode",toString:$estr}
 };
 h3d_parts_GpuSortMode.__constructs__ = [h3d_parts_GpuSortMode.None,h3d_parts_GpuSortMode.Dynamic];
 h3d_parts_GpuSortMode.__empty_constructs__ = [h3d_parts_GpuSortMode.None,h3d_parts_GpuSortMode.Dynamic];
-var h3d_parts_GpuEmitMode = $hxEnums["h3d.parts.GpuEmitMode"] = { __ename__:"h3d.parts.GpuEmitMode",__constructs__:null
+var h3d_parts_GpuEmitMode = $hxEnums["h3d.parts.GpuEmitMode"] = { __ename__:true,__constructs__:null
 	,Point: {_hx_name:"Point",_hx_index:0,__enum__:"h3d.parts.GpuEmitMode",toString:$estr}
 	,Cone: {_hx_name:"Cone",_hx_index:1,__enum__:"h3d.parts.GpuEmitMode",toString:$estr}
 	,VolumeBounds: {_hx_name:"VolumeBounds",_hx_index:2,__enum__:"h3d.parts.GpuEmitMode",toString:$estr}
@@ -43734,7 +43068,7 @@ h3d_pass_ShaderManager.prototype = {
 	}
 	,__class__: h3d_pass_ShaderManager
 };
-var h3d_pass_RenderMode = $hxEnums["h3d.pass.RenderMode"] = { __ename__:"h3d.pass.RenderMode",__constructs__:null
+var h3d_pass_RenderMode = $hxEnums["h3d.pass.RenderMode"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.pass.RenderMode",toString:$estr}
 	,Static: {_hx_name:"Static",_hx_index:1,__enum__:"h3d.pass.RenderMode",toString:$estr}
 	,Dynamic: {_hx_name:"Dynamic",_hx_index:2,__enum__:"h3d.pass.RenderMode",toString:$estr}
@@ -43742,7 +43076,7 @@ var h3d_pass_RenderMode = $hxEnums["h3d.pass.RenderMode"] = { __ename__:"h3d.pas
 };
 h3d_pass_RenderMode.__constructs__ = [h3d_pass_RenderMode.None,h3d_pass_RenderMode.Static,h3d_pass_RenderMode.Dynamic,h3d_pass_RenderMode.Mixed];
 h3d_pass_RenderMode.__empty_constructs__ = [h3d_pass_RenderMode.None,h3d_pass_RenderMode.Static,h3d_pass_RenderMode.Dynamic,h3d_pass_RenderMode.Mixed];
-var h3d_pass_ShadowSamplingKind = $hxEnums["h3d.pass.ShadowSamplingKind"] = { __ename__:"h3d.pass.ShadowSamplingKind",__constructs__:null
+var h3d_pass_ShadowSamplingKind = $hxEnums["h3d.pass.ShadowSamplingKind"] = { __ename__:true,__constructs__:null
 	,None: {_hx_name:"None",_hx_index:0,__enum__:"h3d.pass.ShadowSamplingKind",toString:$estr}
 	,PCF: {_hx_name:"PCF",_hx_index:1,__enum__:"h3d.pass.ShadowSamplingKind",toString:$estr}
 	,ESM: {_hx_name:"ESM",_hx_index:2,__enum__:"h3d.pass.ShadowSamplingKind",toString:$estr}
@@ -44393,190 +43727,6 @@ h3d_prim_BigPrimitive.prototype = $extend(h3d_prim_Primitive.prototype,{
 			this.tmpIdx[this.idxPos++] = tmp;
 		}
 	}
-	,customSerialize: function(ctx) {
-		this.flush();
-		ctx.out.addByte(this.isRaw ? 1 : 0);
-		var v = this.stride;
-		if(v >= 0 && v < 128) {
-			ctx.out.addByte(v);
-		} else {
-			ctx.out.addByte(128);
-			ctx.out.addInt32(v);
-		}
-		ctx.out.addFloat(this.bounds.xMin);
-		ctx.out.addFloat(this.bounds.yMin);
-		ctx.out.addFloat(this.bounds.zMin);
-		ctx.out.addFloat(this.bounds.xMax);
-		ctx.out.addFloat(this.bounds.yMax);
-		ctx.out.addFloat(this.bounds.zMax);
-		var v = this.buffers.length;
-		if(v >= 0 && v < 128) {
-			ctx.out.addByte(v);
-		} else {
-			ctx.out.addByte(128);
-			ctx.out.addInt32(v);
-		}
-		var reqSize = 0;
-		var _g = 0;
-		var _g1 = this.allIndexes;
-		while(_g < _g1.length) {
-			var a = _g1[_g];
-			++_g;
-			var sz = a.count << 1;
-			if(reqSize < sz) {
-				reqSize = sz;
-			}
-		}
-		var _g = 0;
-		var _g1 = this.buffers;
-		while(_g < _g1.length) {
-			var b = _g1[_g];
-			++_g;
-			var sz = b.vertices * this.stride << 2;
-			if(reqSize < sz) {
-				reqSize = sz;
-			}
-		}
-		var tmpBytes = new haxe_io_Bytes(new ArrayBuffer(reqSize));
-		var _g = 0;
-		var _g1 = this.buffers.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var idx = this.allIndexes[i];
-			idx.readBytes(tmpBytes,0,idx.count);
-			var v = idx.count;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			var len = idx.count << 1;
-			if(tmpBytes == null) {
-				ctx.out.addByte(0);
-			} else {
-				var v1 = len + 1;
-				if(v1 >= 0 && v1 < 128) {
-					ctx.out.addByte(v1);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v1);
-				}
-				ctx.out.addBytes(tmpBytes,0,len);
-			}
-			var b = this.buffers[i];
-			b.readBytes(tmpBytes,0,b.vertices);
-			var v2 = b.vertices;
-			if(v2 >= 0 && v2 < 128) {
-				ctx.out.addByte(v2);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v2);
-			}
-			var len1 = b.vertices * this.stride << 2;
-			if(tmpBytes == null) {
-				ctx.out.addByte(0);
-			} else {
-				var v3 = len1 + 1;
-				if(v3 >= 0 && v3 < 128) {
-					ctx.out.addByte(v3);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v3);
-				}
-				ctx.out.addBytes(tmpBytes,0,len1);
-			}
-		}
-	}
-	,customUnserialize: function(ctx) {
-		this.isRaw = ctx.input.b[ctx.inPos++] != 0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		this.stride = v;
-		this.bounds = new h3d_col_Bounds();
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.bounds.xMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.bounds.yMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.bounds.zMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.bounds.xMin = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.bounds.yMax = v;
-		var v = ctx.input.getFloat(ctx.inPos);
-		ctx.inPos += 4;
-		this.bounds.zMax = v;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var count = v;
-		this.buffers = [];
-		this.allIndexes = [];
-		var _g = 0;
-		var _g1 = count;
-		while(_g < _g1) {
-			var i = _g++;
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var nidx = v;
-			var idx = new h3d_Indexes(nidx);
-			var v1 = ctx.input.b[ctx.inPos++];
-			if(v1 == 128) {
-				v1 = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var len = v1;
-			var tmp;
-			if(len == 0) {
-				tmp = null;
-			} else {
-				--len;
-				var s = ctx.input.sub(ctx.inPos,len);
-				ctx.inPos += len;
-				tmp = s;
-			}
-			idx.uploadBytes(tmp,0,nidx);
-			this.allIndexes.push(idx);
-			var v2 = ctx.input.b[ctx.inPos++];
-			if(v2 == 128) {
-				v2 = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var nvert = v2;
-			var buf = new h3d_Buffer(nvert,this.stride);
-			var v3 = ctx.input.b[ctx.inPos++];
-			if(v3 == 128) {
-				v3 = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var len1 = v3;
-			var tmp1;
-			if(len1 == 0) {
-				tmp1 = null;
-			} else {
-				--len1;
-				var s1 = ctx.input.sub(ctx.inPos,len1);
-				ctx.inPos += len1;
-				tmp1 = s1;
-			}
-			buf.uploadBytes(tmp1,0,nvert);
-			this.buffers.push(buf);
-		}
-	}
 	,__class__: h3d_prim_BigPrimitive
 });
 var h3d_prim_Cube = function(x,y,z,centered) {
@@ -44996,91 +44146,6 @@ h3d_prim_HMDModel.prototype = $extend(h3d_prim_MeshPrimitive.prototype,{
 		}
 		this.initCollider(poly);
 		return this.collider;
-	}
-	,customSerialize: function(ctx) {
-		var s = this.lib.resource.entry.get_path();
-		if(s == null) {
-			ctx.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				ctx.out.addByte(v);
-			} else {
-				ctx.out.addByte(128);
-				ctx.out.addInt32(v);
-			}
-			ctx.out.add(b);
-		}
-		var _g = 0;
-		var _g1 = this.lib.header.models;
-		while(_g < _g1.length) {
-			var m = _g1[_g];
-			++_g;
-			if(this.lib.header.geometries[m.geometry] == this.data) {
-				var s = m.name;
-				if(s == null) {
-					ctx.out.addByte(0);
-				} else {
-					var b = haxe_io_Bytes.ofString(s);
-					var v = b.length + 1;
-					if(v >= 0 && v < 128) {
-						ctx.out.addByte(v);
-					} else {
-						ctx.out.addByte(128);
-						ctx.out.addInt32(v);
-					}
-					ctx.out.add(b);
-				}
-				break;
-			}
-		}
-	}
-	,customUnserialize: function(ctx) {
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		var libPath;
-		if(len == 0) {
-			libPath = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			libPath = s;
-		}
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		var modelPath;
-		if(len == 0) {
-			modelPath = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			modelPath = s;
-		}
-		var ctx1 = ctx;
-		this.lib = ctx1.loadHMD(libPath);
-		var _g = 0;
-		var _g1 = this.lib.header.models;
-		while(_g < _g1.length) {
-			var m = _g1[_g];
-			++_g;
-			if(m.name == modelPath) {
-				this.data = this.lib.header.geometries[m.geometry];
-				this.lib.cachedPrimitives[m.geometry] = this;
-				break;
-			}
-		}
-		this.dataPosition = this.lib.header.dataPosition;
 	}
 	,__class__: h3d_prim_HMDModel
 });
@@ -46380,7 +45445,7 @@ h3d_scene_PassObjects.prototype = {
 	,rendered: null
 	,__class__: h3d_scene_PassObjects
 };
-var h3d_scene_RenderMode = $hxEnums["h3d.scene.RenderMode"] = { __ename__:"h3d.scene.RenderMode",__constructs__:null
+var h3d_scene_RenderMode = $hxEnums["h3d.scene.RenderMode"] = { __ename__:true,__constructs__:null
 	,Default: {_hx_name:"Default",_hx_index:0,__enum__:"h3d.scene.RenderMode",toString:$estr}
 	,LightProbe: {_hx_name:"LightProbe",_hx_index:1,__enum__:"h3d.scene.RenderMode",toString:$estr}
 };
@@ -47487,8 +46552,7 @@ h3d_scene_Scene.prototype = $extend(h3d_scene_Object.prototype,{
 		}
 	}
 	,serializeScene: function() {
-		var s = new hxd_fmt_hsd_Serializer();
-		return s.saveHSD(this,false,this.camera);
+		throw haxe_Exception.thrown("You need -lib hxbit to serialize the scene data");
 	}
 	,__class__: h3d_scene_Scene
 });
@@ -50787,6 +49851,10 @@ h3d_shader_VolumeDecal.prototype = $extend(hxsl_Shader.prototype,{
 	}
 	,__class__: h3d_shader_VolumeDecal
 });
+var haxe_IMap = function() { };
+$hxClasses["haxe.IMap"] = haxe_IMap;
+haxe_IMap.__name__ = "haxe.IMap";
+haxe_IMap.__isInterface__ = true;
 var haxe_EntryPoint = function() { };
 $hxClasses["haxe.EntryPoint"] = haxe_EntryPoint;
 haxe_EntryPoint.__name__ = "haxe.EntryPoint";
@@ -50865,17 +49933,6 @@ haxe_Exception.prototype = $extend(Error.prototype,{
 	,__class__: haxe_Exception
 });
 var haxe_Int32 = {};
-var haxe__$Int64__$_$_$Int64 = function(high,low) {
-	this.high = high;
-	this.low = low;
-};
-$hxClasses["haxe._Int64.___Int64"] = haxe__$Int64__$_$_$Int64;
-haxe__$Int64__$_$_$Int64.__name__ = "haxe._Int64.___Int64";
-haxe__$Int64__$_$_$Int64.prototype = {
-	high: null
-	,low: null
-	,__class__: haxe__$Int64__$_$_$Int64
-};
 var haxe_Log = function() { };
 $hxClasses["haxe.Log"] = haxe_Log;
 haxe_Log.__name__ = "haxe.Log";
@@ -51069,318 +50126,6 @@ haxe_Resource.getBytes = function(name) {
 		}
 	}
 	return null;
-};
-var haxe_Serializer = function() {
-	this.buf = new StringBuf();
-	this.cache = [];
-	this.useCache = haxe_Serializer.USE_CACHE;
-	this.useEnumIndex = haxe_Serializer.USE_ENUM_INDEX;
-	this.shash = new haxe_ds_StringMap();
-	this.scount = 0;
-};
-$hxClasses["haxe.Serializer"] = haxe_Serializer;
-haxe_Serializer.__name__ = "haxe.Serializer";
-haxe_Serializer.run = function(v) {
-	var s = new haxe_Serializer();
-	s.serialize(v);
-	return s.toString();
-};
-haxe_Serializer.prototype = {
-	buf: null
-	,cache: null
-	,shash: null
-	,scount: null
-	,useCache: null
-	,useEnumIndex: null
-	,toString: function() {
-		return this.buf.b;
-	}
-	,serializeString: function(s) {
-		var x = this.shash.h[s];
-		if(x != null) {
-			this.buf.b += "R";
-			this.buf.b += x == null ? "null" : "" + x;
-			return;
-		}
-		this.shash.h[s] = this.scount++;
-		this.buf.b += "y";
-		s = encodeURIComponent(s);
-		this.buf.b += Std.string(s.length);
-		this.buf.b += ":";
-		this.buf.b += s == null ? "null" : "" + s;
-	}
-	,serializeRef: function(v) {
-		var vt = typeof(v);
-		var _g = 0;
-		var _g1 = this.cache.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var ci = this.cache[i];
-			if(typeof(ci) == vt && ci == v) {
-				this.buf.b += "r";
-				this.buf.b += i == null ? "null" : "" + i;
-				return true;
-			}
-		}
-		this.cache.push(v);
-		return false;
-	}
-	,serializeFields: function(v) {
-		var _g = 0;
-		var _g1 = Reflect.fields(v);
-		while(_g < _g1.length) {
-			var f = _g1[_g];
-			++_g;
-			this.serializeString(f);
-			this.serialize(Reflect.field(v,f));
-		}
-		this.buf.b += "g";
-	}
-	,serialize: function(v) {
-		var _g = Type.typeof(v);
-		switch(_g._hx_index) {
-		case 0:
-			this.buf.b += "n";
-			break;
-		case 1:
-			var v1 = v;
-			if(v1 == 0) {
-				this.buf.b += "z";
-				return;
-			}
-			this.buf.b += "i";
-			this.buf.b += v1 == null ? "null" : "" + v1;
-			break;
-		case 2:
-			var v1 = v;
-			if(isNaN(v1)) {
-				this.buf.b += "k";
-			} else if(!isFinite(v1)) {
-				this.buf.b += v1 < 0 ? "m" : "p";
-			} else {
-				this.buf.b += "d";
-				this.buf.b += v1 == null ? "null" : "" + v1;
-			}
-			break;
-		case 3:
-			this.buf.b += v ? "t" : "f";
-			break;
-		case 4:
-			if(js_Boot.__instanceof(v,Class)) {
-				var className = v.__name__;
-				this.buf.b += "A";
-				this.serializeString(className);
-			} else if(js_Boot.__instanceof(v,Enum)) {
-				this.buf.b += "B";
-				this.serializeString(v.__ename__);
-			} else {
-				if(this.useCache && this.serializeRef(v)) {
-					return;
-				}
-				this.buf.b += "o";
-				this.serializeFields(v);
-			}
-			break;
-		case 5:
-			throw haxe_Exception.thrown("Cannot serialize function");
-		case 6:
-			var c = _g.c;
-			if(c == String) {
-				this.serializeString(v);
-				return;
-			}
-			if(this.useCache && this.serializeRef(v)) {
-				return;
-			}
-			switch(c) {
-			case Array:
-				var ucount = 0;
-				this.buf.b += "a";
-				var l = v["length"];
-				var _g1 = 0;
-				var _g2 = l;
-				while(_g1 < _g2) {
-					var i = _g1++;
-					if(v[i] == null) {
-						++ucount;
-					} else {
-						if(ucount > 0) {
-							if(ucount == 1) {
-								this.buf.b += "n";
-							} else {
-								this.buf.b += "u";
-								this.buf.b += ucount == null ? "null" : "" + ucount;
-							}
-							ucount = 0;
-						}
-						this.serialize(v[i]);
-					}
-				}
-				if(ucount > 0) {
-					if(ucount == 1) {
-						this.buf.b += "n";
-					} else {
-						this.buf.b += "u";
-						this.buf.b += ucount == null ? "null" : "" + ucount;
-					}
-				}
-				this.buf.b += "h";
-				break;
-			case Date:
-				var d = v;
-				this.buf.b += "v";
-				this.buf.b += Std.string(d.getTime());
-				break;
-			case haxe_ds_IntMap:
-				this.buf.b += "q";
-				var v1 = v;
-				var k = v1.keys();
-				while(k.hasNext()) {
-					var k1 = k.next();
-					this.buf.b += ":";
-					this.buf.b += k1 == null ? "null" : "" + k1;
-					this.serialize(v1.h[k1]);
-				}
-				this.buf.b += "h";
-				break;
-			case haxe_ds_List:
-				this.buf.b += "l";
-				var v1 = v;
-				var _g_head = v1.h;
-				while(_g_head != null) {
-					var val = _g_head.item;
-					_g_head = _g_head.next;
-					var i = val;
-					this.serialize(i);
-				}
-				this.buf.b += "h";
-				break;
-			case haxe_ds_ObjectMap:
-				this.buf.b += "M";
-				var v1 = v;
-				var k = v1.keys();
-				while(k.hasNext()) {
-					var k1 = k.next();
-					var id = Reflect.field(k1,"__id__");
-					Reflect.deleteField(k1,"__id__");
-					this.serialize(k1);
-					k1["__id__"] = id;
-					this.serialize(v1.h[k1.__id__]);
-				}
-				this.buf.b += "h";
-				break;
-			case haxe_ds_StringMap:
-				this.buf.b += "b";
-				var v1 = v;
-				var h = v1.h;
-				var _g_h = h;
-				var _g_keys = Object.keys(h);
-				var _g_length = _g_keys.length;
-				var _g_current = 0;
-				while(_g_current < _g_length) {
-					var k = _g_keys[_g_current++];
-					this.serializeString(k);
-					this.serialize(v1.h[k]);
-				}
-				this.buf.b += "h";
-				break;
-			case haxe_io_Bytes:
-				var v1 = v;
-				this.buf.b += "s";
-				this.buf.b += Std.string(Math.ceil(v1.length * 8 / 6));
-				this.buf.b += ":";
-				var i = 0;
-				var max = v1.length - 2;
-				var b64 = haxe_Serializer.BASE64_CODES;
-				if(b64 == null) {
-					var this1 = new Array(haxe_Serializer.BASE64.length);
-					b64 = this1;
-					var _g1 = 0;
-					var _g2 = haxe_Serializer.BASE64.length;
-					while(_g1 < _g2) {
-						var i1 = _g1++;
-						b64[i1] = HxOverrides.cca(haxe_Serializer.BASE64,i1);
-					}
-					haxe_Serializer.BASE64_CODES = b64;
-				}
-				while(i < max) {
-					var b1 = v1.b[i++];
-					var b2 = v1.b[i++];
-					var b3 = v1.b[i++];
-					this.buf.b += String.fromCodePoint(b64[b1 >> 2]);
-					this.buf.b += String.fromCodePoint(b64[(b1 << 4 | b2 >> 4) & 63]);
-					this.buf.b += String.fromCodePoint(b64[(b2 << 2 | b3 >> 6) & 63]);
-					this.buf.b += String.fromCodePoint(b64[b3 & 63]);
-				}
-				if(i == max) {
-					var b1 = v1.b[i++];
-					var b2 = v1.b[i++];
-					this.buf.b += String.fromCodePoint(b64[b1 >> 2]);
-					this.buf.b += String.fromCodePoint(b64[(b1 << 4 | b2 >> 4) & 63]);
-					this.buf.b += String.fromCodePoint(b64[b2 << 2 & 63]);
-				} else if(i == max + 1) {
-					var b1 = v1.b[i++];
-					this.buf.b += String.fromCodePoint(b64[b1 >> 2]);
-					this.buf.b += String.fromCodePoint(b64[b1 << 4 & 63]);
-				}
-				break;
-			default:
-				if(this.useCache) {
-					this.cache.pop();
-				}
-				if(v.hxSerialize != null) {
-					this.buf.b += "C";
-					this.serializeString(c.__name__);
-					if(this.useCache) {
-						this.cache.push(v);
-					}
-					v.hxSerialize(this);
-					this.buf.b += "g";
-				} else {
-					this.buf.b += "c";
-					this.serializeString(c.__name__);
-					if(this.useCache) {
-						this.cache.push(v);
-					}
-					this.serializeFields(v);
-				}
-			}
-			break;
-		case 7:
-			var e = _g.e;
-			if(this.useCache) {
-				if(this.serializeRef(v)) {
-					return;
-				}
-				this.cache.pop();
-			}
-			this.buf.b += Std.string(this.useEnumIndex ? "j" : "w");
-			this.serializeString(e.__ename__);
-			if(this.useEnumIndex) {
-				this.buf.b += ":";
-				this.buf.b += Std.string(v._hx_index);
-			} else {
-				var e = v;
-				this.serializeString($hxEnums[e.__enum__].__constructs__[e._hx_index]._hx_name);
-			}
-			this.buf.b += ":";
-			var params = Type.enumParameters(v);
-			this.buf.b += Std.string(params.length);
-			var _g = 0;
-			while(_g < params.length) {
-				var p = params[_g];
-				++_g;
-				this.serialize(p);
-			}
-			if(this.useCache) {
-				this.cache.push(v);
-			}
-			break;
-		default:
-			throw haxe_Exception.thrown("Cannot serialize " + Std.string(v));
-		}
-	}
-	,__class__: haxe_Serializer
 };
 var haxe_Timer = function(time_ms) {
 	var me = this;
@@ -51898,32 +50643,6 @@ haxe_io_Bytes.prototype = {
 			this.b[pos++] = value;
 		}
 	}
-	,sub: function(pos,len) {
-		if(pos < 0 || len < 0 || pos + len > this.length) {
-			throw haxe_Exception.thrown(haxe_io_Error.OutsideBounds);
-		}
-		return new haxe_io_Bytes(this.b.buffer.slice(pos + this.b.byteOffset,pos + this.b.byteOffset + len));
-	}
-	,compare: function(other) {
-		var b1 = this.b;
-		var b2 = other.b;
-		var len = this.length < other.length ? this.length : other.length;
-		var _g = 0;
-		var _g1 = len;
-		while(_g < _g1) {
-			var i = _g++;
-			if(b1[i] != b2[i]) {
-				return b1[i] - b2[i];
-			}
-		}
-		return this.length - other.length;
-	}
-	,getDouble: function(pos) {
-		if(this.data == null) {
-			this.data = new DataView(this.b.buffer,this.b.byteOffset,this.b.byteLength);
-		}
-		return this.data.getFloat64(pos,true);
-	}
 	,getFloat: function(pos) {
 		if(this.data == null) {
 			this.data = new DataView(this.b.buffer,this.b.byteOffset,this.b.byteLength);
@@ -51959,10 +50678,6 @@ haxe_io_Bytes.prototype = {
 			this.data = new DataView(this.b.buffer,this.b.byteOffset,this.b.byteLength);
 		}
 		this.data.setInt32(pos,v,true);
-	}
-	,getInt64: function(pos) {
-		var this1 = new haxe__$Int64__$_$_$Int64(this.getInt32(pos + 4),this.getInt32(pos));
-		return this1;
 	}
 	,getString: function(pos,len,encoding) {
 		if(pos < 0 || len < 0 || pos + len > this.length) {
@@ -52012,29 +50727,9 @@ haxe_io_Bytes.prototype = {
 	,toString: function() {
 		return this.getString(0,this.length);
 	}
-	,toHex: function() {
-		var s_b = "";
-		var chars = [];
-		var str = "0123456789abcdef";
-		var _g = 0;
-		var _g1 = str.length;
-		while(_g < _g1) {
-			var i = _g++;
-			chars.push(HxOverrides.cca(str,i));
-		}
-		var _g = 0;
-		var _g1 = this.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var c = this.b[i];
-			s_b += String.fromCodePoint(chars[c >> 4]);
-			s_b += String.fromCodePoint(chars[c & 15]);
-		}
-		return s_b;
-	}
 	,__class__: haxe_io_Bytes
 };
-var haxe_io_Encoding = $hxEnums["haxe.io.Encoding"] = { __ename__:"haxe.io.Encoding",__constructs__:null
+var haxe_io_Encoding = $hxEnums["haxe.io.Encoding"] = { __ename__:true,__constructs__:null
 	,UTF8: {_hx_name:"UTF8",_hx_index:0,__enum__:"haxe.io.Encoding",toString:$estr}
 	,RawNative: {_hx_name:"RawNative",_hx_index:1,__enum__:"haxe.io.Encoding",toString:$estr}
 };
@@ -52155,29 +50850,6 @@ haxe_crypto_BaseCode.prototype = {
 	}
 	,__class__: haxe_crypto_BaseCode
 };
-var haxe_crypto_Crc32 = function() { };
-$hxClasses["haxe.crypto.Crc32"] = haxe_crypto_Crc32;
-haxe_crypto_Crc32.__name__ = "haxe.crypto.Crc32";
-haxe_crypto_Crc32.make = function(data) {
-	var c_crc = -1;
-	var b = data.b.bufferValue;
-	var _g = 0;
-	var _g1 = data.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var tmp = (c_crc ^ b.bytes[i]) & 255;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		tmp = tmp >>> 1 ^ -(tmp & 1) & -306674912;
-		c_crc = c_crc >>> 8 ^ tmp;
-	}
-	return c_crc ^ -1;
-};
 var haxe_crypto_Md5 = function() {
 };
 $hxClasses["haxe.crypto.Md5"] = haxe_crypto_Md5;
@@ -52186,52 +50858,6 @@ haxe_crypto_Md5.encode = function(s) {
 	var m = new haxe_crypto_Md5();
 	var h = m.doEncode(haxe_crypto_Md5.str2blks(s));
 	return m.hex(h);
-};
-haxe_crypto_Md5.make = function(b) {
-	var h = new haxe_crypto_Md5().doEncode(haxe_crypto_Md5.bytes2blks(b));
-	var out = new haxe_io_Bytes(new ArrayBuffer(16));
-	var p = 0;
-	out.b[p++] = h[0] & 255;
-	out.b[p++] = h[0] >> 8 & 255;
-	out.b[p++] = h[0] >> 16 & 255;
-	out.b[p++] = h[0] >>> 24;
-	out.b[p++] = h[1] & 255;
-	out.b[p++] = h[1] >> 8 & 255;
-	out.b[p++] = h[1] >> 16 & 255;
-	out.b[p++] = h[1] >>> 24;
-	out.b[p++] = h[2] & 255;
-	out.b[p++] = h[2] >> 8 & 255;
-	out.b[p++] = h[2] >> 16 & 255;
-	out.b[p++] = h[2] >>> 24;
-	out.b[p++] = h[3] & 255;
-	out.b[p++] = h[3] >> 8 & 255;
-	out.b[p++] = h[3] >> 16 & 255;
-	out.b[p++] = h[3] >>> 24;
-	return out;
-};
-haxe_crypto_Md5.bytes2blks = function(b) {
-	var nblk = (b.length + 8 >> 6) + 1;
-	var blks = [];
-	var blksSize = nblk * 16;
-	var _g = 0;
-	var _g1 = blksSize;
-	while(_g < _g1) {
-		var i = _g++;
-		blks[i] = 0;
-	}
-	var i = 0;
-	while(i < b.length) {
-		blks[i >> 2] |= b.b[i] << (((b.length << 3) + i & 3) << 3);
-		++i;
-	}
-	blks[i >> 2] |= 128 << (b.length * 8 + i) % 4 * 8;
-	var l = b.length * 8;
-	var k = nblk * 16 - 2;
-	blks[k] = l & 255;
-	blks[k] |= (l >>> 8 & 255) << 8;
-	blks[k] |= (l >>> 16 & 255) << 16;
-	blks[k] |= (l >>> 24 & 255) << 24;
-	return blks;
 };
 haxe_crypto_Md5.str2blks = function(str) {
 	var str1 = haxe_io_Bytes.ofString(str);
@@ -52565,11 +51191,6 @@ haxe_ds_BalancedTree.prototype = {
 		haxe_ds_BalancedTree.iteratorLoop(this.root,ret);
 		return new haxe_iterators_ArrayIterator(ret);
 	}
-	,keys: function() {
-		var ret = [];
-		this.keysLoop(this.root,ret);
-		return new haxe_iterators_ArrayIterator(ret);
-	}
 	,setLoop: function(k,v,node) {
 		if(node == null) {
 			return new haxe_ds_TreeNode(null,k,v,null);
@@ -52583,13 +51204,6 @@ haxe_ds_BalancedTree.prototype = {
 		} else {
 			var nr = this.setLoop(k,v,node.right);
 			return this.balance(node.left,node.key,node.value,nr);
-		}
-	}
-	,keysLoop: function(node,acc) {
-		if(node != null) {
-			this.keysLoop(node.left,acc);
-			acc.push(node.key);
-			this.keysLoop(node.right,acc);
 		}
 	}
 	,balance: function(l,k,v,r) {
@@ -52701,6 +51315,36 @@ haxe_ds_EnumValueMap.prototype = $extend(haxe_ds_BalancedTree.prototype,{
 	}
 	,__class__: haxe_ds_EnumValueMap
 });
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
+haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
+haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
+haxe_ds_IntMap.prototype = {
+	h: null
+	,remove: function(key) {
+		if(!this.h.hasOwnProperty(key)) {
+			return false;
+		}
+		delete(this.h[key]);
+		return true;
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) if(this.h.hasOwnProperty(key)) a.push(key | 0);
+		return new haxe_iterators_ArrayIterator(a);
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref[i];
+		}};
+	}
+	,__class__: haxe_ds_IntMap
+};
 var haxe_ds_List = function() {
 	this.length = 0;
 };
@@ -52778,9 +51422,6 @@ haxe_ds_ObjectMap.prototype = {
 		this.h[id] = value;
 		this.h.__keys__[id] = key;
 	}
-	,get: function(key) {
-		return this.h[key.__id__];
-	}
 	,remove: function(key) {
 		var id = key.__id__;
 		if(this.h.__keys__[id] == null) {
@@ -52800,6 +51441,16 @@ haxe_ds_ObjectMap.prototype = {
 		return new haxe_iterators_ArrayIterator(a);
 	}
 	,__class__: haxe_ds_ObjectMap
+};
+var haxe_ds_StringMap = function() {
+	this.h = Object.create(null);
+};
+$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
+haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+haxe_ds_StringMap.prototype = {
+	h: null
+	,__class__: haxe_ds_StringMap
 };
 var haxe_ds__$StringMap_StringMapKeyIterator = function(h) {
 	this.h = h;
@@ -52922,14 +51573,6 @@ haxe_io_BytesBuffer.prototype = {
 		}
 		this.view.setInt32(this.pos,v,true);
 		this.pos += 4;
-	}
-	,addInt64: function(v) {
-		if(this.pos + 8 > this.size) {
-			this.grow(8);
-		}
-		this.view.setInt32(this.pos,v.low,true);
-		this.view.setInt32(this.pos + 4,v.high,true);
-		this.pos += 8;
 	}
 	,addFloat: function(v) {
 		if(this.pos + 4 > this.size) {
@@ -53297,7 +51940,7 @@ haxe_io_Eof.prototype = {
 	}
 	,__class__: haxe_io_Eof
 };
-var haxe_io_Error = $hxEnums["haxe.io.Error"] = { __ename__:"haxe.io.Error",__constructs__:null
+var haxe_io_Error = $hxEnums["haxe.io.Error"] = { __ename__:true,__constructs__:null
 	,Blocked: {_hx_name:"Blocked",_hx_index:0,__enum__:"haxe.io.Error",toString:$estr}
 	,Overflow: {_hx_name:"Overflow",_hx_index:1,__enum__:"haxe.io.Error",toString:$estr}
 	,OutsideBounds: {_hx_name:"OutsideBounds",_hx_index:2,__enum__:"haxe.io.Error",toString:$estr}
@@ -53510,7 +52153,7 @@ haxe_iterators_ArrayIterator.prototype = {
 	}
 	,__class__: haxe_iterators_ArrayIterator
 };
-var haxe_macro_Binop = $hxEnums["haxe.macro.Binop"] = { __ename__:"haxe.macro.Binop",__constructs__:null
+var haxe_macro_Binop = $hxEnums["haxe.macro.Binop"] = { __ename__:true,__constructs__:null
 	,OpAdd: {_hx_name:"OpAdd",_hx_index:0,__enum__:"haxe.macro.Binop",toString:$estr}
 	,OpMult: {_hx_name:"OpMult",_hx_index:1,__enum__:"haxe.macro.Binop",toString:$estr}
 	,OpDiv: {_hx_name:"OpDiv",_hx_index:2,__enum__:"haxe.macro.Binop",toString:$estr}
@@ -53538,7 +52181,7 @@ var haxe_macro_Binop = $hxEnums["haxe.macro.Binop"] = { __ename__:"haxe.macro.Bi
 };
 haxe_macro_Binop.__constructs__ = [haxe_macro_Binop.OpAdd,haxe_macro_Binop.OpMult,haxe_macro_Binop.OpDiv,haxe_macro_Binop.OpSub,haxe_macro_Binop.OpAssign,haxe_macro_Binop.OpEq,haxe_macro_Binop.OpNotEq,haxe_macro_Binop.OpGt,haxe_macro_Binop.OpGte,haxe_macro_Binop.OpLt,haxe_macro_Binop.OpLte,haxe_macro_Binop.OpAnd,haxe_macro_Binop.OpOr,haxe_macro_Binop.OpXor,haxe_macro_Binop.OpBoolAnd,haxe_macro_Binop.OpBoolOr,haxe_macro_Binop.OpShl,haxe_macro_Binop.OpShr,haxe_macro_Binop.OpUShr,haxe_macro_Binop.OpMod,haxe_macro_Binop.OpAssignOp,haxe_macro_Binop.OpInterval,haxe_macro_Binop.OpArrow,haxe_macro_Binop.OpIn];
 haxe_macro_Binop.__empty_constructs__ = [haxe_macro_Binop.OpAdd,haxe_macro_Binop.OpMult,haxe_macro_Binop.OpDiv,haxe_macro_Binop.OpSub,haxe_macro_Binop.OpAssign,haxe_macro_Binop.OpEq,haxe_macro_Binop.OpNotEq,haxe_macro_Binop.OpGt,haxe_macro_Binop.OpGte,haxe_macro_Binop.OpLt,haxe_macro_Binop.OpLte,haxe_macro_Binop.OpAnd,haxe_macro_Binop.OpOr,haxe_macro_Binop.OpXor,haxe_macro_Binop.OpBoolAnd,haxe_macro_Binop.OpBoolOr,haxe_macro_Binop.OpShl,haxe_macro_Binop.OpShr,haxe_macro_Binop.OpUShr,haxe_macro_Binop.OpMod,haxe_macro_Binop.OpInterval,haxe_macro_Binop.OpArrow,haxe_macro_Binop.OpIn];
-var haxe_macro_Unop = $hxEnums["haxe.macro.Unop"] = { __ename__:"haxe.macro.Unop",__constructs__:null
+var haxe_macro_Unop = $hxEnums["haxe.macro.Unop"] = { __ename__:true,__constructs__:null
 	,OpIncrement: {_hx_name:"OpIncrement",_hx_index:0,__enum__:"haxe.macro.Unop",toString:$estr}
 	,OpDecrement: {_hx_name:"OpDecrement",_hx_index:1,__enum__:"haxe.macro.Unop",toString:$estr}
 	,OpNot: {_hx_name:"OpNot",_hx_index:2,__enum__:"haxe.macro.Unop",toString:$estr}
@@ -53548,20 +52191,6 @@ var haxe_macro_Unop = $hxEnums["haxe.macro.Unop"] = { __ename__:"haxe.macro.Unop
 };
 haxe_macro_Unop.__constructs__ = [haxe_macro_Unop.OpIncrement,haxe_macro_Unop.OpDecrement,haxe_macro_Unop.OpNot,haxe_macro_Unop.OpNeg,haxe_macro_Unop.OpNegBits,haxe_macro_Unop.OpSpread];
 haxe_macro_Unop.__empty_constructs__ = [haxe_macro_Unop.OpIncrement,haxe_macro_Unop.OpDecrement,haxe_macro_Unop.OpNot,haxe_macro_Unop.OpNeg,haxe_macro_Unop.OpNegBits,haxe_macro_Unop.OpSpread];
-var haxe_rtti_Meta = function() { };
-$hxClasses["haxe.rtti.Meta"] = haxe_rtti_Meta;
-haxe_rtti_Meta.__name__ = "haxe.rtti.Meta";
-haxe_rtti_Meta.getType = function(t) {
-	var meta = haxe_rtti_Meta.getMeta(t);
-	if(meta == null || meta.obj == null) {
-		return { };
-	} else {
-		return meta.obj;
-	}
-};
-haxe_rtti_Meta.getMeta = function(t) {
-	return t.__meta__;
-};
 var haxe_xml__$Access_NodeAccess = {};
 haxe_xml__$Access_NodeAccess.resolve = function(this1,name) {
 	var x = this1.elementsNamed(name).next();
@@ -54146,7 +52775,7 @@ haxe_zip_Compress.__name__ = "haxe.zip.Compress";
 haxe_zip_Compress.run = function(s,level) {
 	throw new haxe_exceptions_NotImplementedException("Not implemented for this platform",null,{ fileName : "haxe/zip/Compress.hx", lineNumber : 39, className : "haxe.zip.Compress", methodName : "run"});
 };
-var haxe_zip_Huffman = $hxEnums["haxe.zip.Huffman"] = { __ename__:"haxe.zip.Huffman",__constructs__:null
+var haxe_zip_Huffman = $hxEnums["haxe.zip.Huffman"] = { __ename__:true,__constructs__:null
 	,Found: ($_=function(i) { return {_hx_index:0,i:i,__enum__:"haxe.zip.Huffman",toString:$estr}; },$_._hx_name="Found",$_.__params__ = ["i"],$_)
 	,NeedBit: ($_=function(left,right) { return {_hx_index:1,left:left,right:right,__enum__:"haxe.zip.Huffman",toString:$estr}; },$_._hx_name="NeedBit",$_.__params__ = ["left","right"],$_)
 	,NeedBits: ($_=function(n,table) { return {_hx_index:2,n:n,table:table,__enum__:"haxe.zip.Huffman",toString:$estr}; },$_._hx_name="NeedBits",$_.__params__ = ["n","table"],$_)
@@ -54326,7 +52955,7 @@ haxe_zip__$InflateImpl_Window.prototype = {
 	}
 	,__class__: haxe_zip__$InflateImpl_Window
 };
-var haxe_zip__$InflateImpl_State = $hxEnums["haxe.zip._InflateImpl.State"] = { __ename__:"haxe.zip._InflateImpl.State",__constructs__:null
+var haxe_zip__$InflateImpl_State = $hxEnums["haxe.zip._InflateImpl.State"] = { __ename__:true,__constructs__:null
 	,Head: {_hx_name:"Head",_hx_index:0,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
 	,Block: {_hx_name:"Block",_hx_index:1,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
 	,CData: {_hx_name:"CData",_hx_index:2,__enum__:"haxe.zip._InflateImpl.State",toString:$estr}
@@ -54696,4854 +53325,6 @@ $hxClasses["haxe.zip.Uncompress"] = haxe_zip_Uncompress;
 haxe_zip_Uncompress.__name__ = "haxe.zip.Uncompress";
 haxe_zip_Uncompress.run = function(src,bufsize) {
 	return haxe_zip_InflateImpl.run(new haxe_io_BytesInput(src),bufsize);
-};
-var hxbit_ConvertField = function(path,from,to) {
-	this.path = path;
-	this.from = from;
-	this.to = to;
-};
-$hxClasses["hxbit.ConvertField"] = hxbit_ConvertField;
-hxbit_ConvertField.__name__ = "hxbit.ConvertField";
-hxbit_ConvertField.prototype = {
-	path: null
-	,index: null
-	,same: null
-	,defaultValue: null
-	,from: null
-	,to: null
-	,conv: null
-	,written: null
-	,__class__: hxbit_ConvertField
-};
-var hxbit_Convert = function(classPath,ourSchema,schema) {
-	var ourMap_h = Object.create(null);
-	var _g = 0;
-	var _g1 = ourSchema.fieldsNames.length;
-	while(_g < _g1) {
-		var i = _g++;
-		ourMap_h[ourSchema.fieldsNames[i]] = ourSchema.fieldsTypes[i];
-	}
-	this.read = [];
-	this.hadCID = !schema.isFinal;
-	this.hasCID = !ourSchema.isFinal;
-	var map_h = Object.create(null);
-	var _g = 0;
-	var _g1 = schema.fieldsNames.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var oldT = schema.fieldsTypes[i];
-		var newT = ourMap_h[schema.fieldsNames[i]];
-		var c = new hxbit_ConvertField(classPath + "." + schema.fieldsNames[i],oldT,newT);
-		if(newT != null) {
-			if(hxbit_Convert.sameType(oldT,newT)) {
-				c.same = true;
-			} else {
-				c.conv = hxbit_Convert.convFuns.h[c.path];
-				c.defaultValue = hxbit_Convert.getDefault(newT);
-			}
-		}
-		c.index = this.read.length;
-		this.read.push(c);
-		map_h[schema.fieldsNames[i]] = c;
-	}
-	this.write = [];
-	var _g = 0;
-	var _g1 = ourSchema.fieldsNames.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var newT = ourSchema.fieldsTypes[i];
-		var c = map_h[ourSchema.fieldsNames[i]];
-		if(c == null) {
-			c = new hxbit_ConvertField(null,null,newT);
-			c.defaultValue = hxbit_Convert.getDefault(newT);
-		} else {
-			c.written = true;
-		}
-		this.write.push(c);
-	}
-};
-$hxClasses["hxbit.Convert"] = hxbit_Convert;
-hxbit_Convert.__name__ = "hxbit.Convert";
-hxbit_Convert.sameType = function(a,b) {
-	switch(a._hx_index) {
-	case 0:
-		switch(b._hx_index) {
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		case 16:
-			var _g = b.t;
-			return true;
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	case 7:
-		var _g = a.k;
-		var _g1 = a.v;
-		switch(b._hx_index) {
-		case 7:
-			var bk = b.k;
-			var bv = b.v;
-			var av = _g1;
-			var ak = _g;
-			if(hxbit_Convert.sameType(ak,bk)) {
-				return hxbit_Convert.sameType(av,bv);
-			} else {
-				return false;
-			}
-			break;
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	case 8:
-		var _g = a.k;
-		switch(b._hx_index) {
-		case 8:
-			var b1 = b.k;
-			var a1 = _g;
-			return hxbit_Convert.sameType(a1,b1);
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	case 9:
-		var _g = a.fields;
-		switch(b._hx_index) {
-		case 9:
-			var fb = b.fields;
-			var fa = _g;
-			if(fa.length != fb.length) {
-				return false;
-			}
-			var _g = 0;
-			var _g1 = fa.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var a1 = fa[i];
-				var b1 = fb[i];
-				if(a1.name != b1.name || a1.opt != b1.opt || !hxbit_Convert.sameType(a1.type,b1.type)) {
-					return false;
-				}
-			}
-			return true;
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	case 10:
-		var _g = a.k;
-		if(b._hx_index == 10) {
-			var b1 = b.k;
-			var a1 = _g;
-			return hxbit_Convert.sameType(a1,b1);
-		} else {
-			var a1 = _g;
-			return hxbit_Convert.sameType(a1,b);
-		}
-		break;
-	case 11:
-		var _g = a.k;
-		switch(b._hx_index) {
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		case 11:
-			var b1 = b.k;
-			var a1 = _g;
-			return hxbit_Convert.sameType(a1,b1);
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	case 12:
-		var _g = a.t;
-		switch(b._hx_index) {
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		case 12:
-			var b1 = b.t;
-			var a1 = _g;
-			return hxbit_Convert.sameType(a1,b1);
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	case 16:
-		var _g = a.t;
-		switch(b._hx_index) {
-		case 0:
-			return true;
-		case 10:
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		default:
-			return Type.enumEq(a,b);
-		}
-		break;
-	default:
-		if(b._hx_index == 10) {
-			var b1 = b.k;
-			return hxbit_Convert.sameType(a,b1);
-		} else {
-			return Type.enumEq(a,b);
-		}
-	}
-};
-hxbit_Convert.getDefault = function(t) {
-	switch(t._hx_index) {
-	case 0:
-		return 0;
-	case 1:
-		return 0.;
-	case 2:
-		return false;
-	case 5:
-		var _g = t.name;
-		return null;
-	case 6:
-		var _g = t.name;
-		return null;
-	case 7:
-		var _g = t.v;
-		var k = t.k;
-		switch(k._hx_index) {
-		case 0:
-			return new haxe_ds_IntMap();
-		case 3:
-			return new haxe_ds_StringMap();
-		default:
-			return new haxe_ds_ObjectMap();
-		}
-		break;
-	case 8:
-		var _g = t.k;
-		return [];
-	case 9:
-		var _g = t.fields;
-		return null;
-	case 10:
-		var t1 = t.k;
-		return hxbit_Convert.getDefault(t1);
-	case 11:
-		var _g = t.k;
-		var this1 = new Array(0);
-		return this1;
-	case 12:
-		var _g = t.t;
-		return null;
-	case 3:case 4:case 13:case 14:case 17:
-		return null;
-	case 15:
-		var this1 = new haxe__$Int64__$_$_$Int64(0,0);
-		return this1;
-	case 16:
-		var _g = t.t;
-		return 0;
-	case 18:
-		var _g = t.name;
-		return null;
-	}
-};
-hxbit_Convert.registerConverter = function(path,f) {
-	hxbit_Convert.convFuns.h[path] = f;
-};
-hxbit_Convert.prototype = {
-	read: null
-	,write: null
-	,hasCID: null
-	,hadCID: null
-	,toString: function() {
-		var _g = [];
-		var _g1 = 0;
-		var _g2 = this.write.length;
-		while(_g1 < _g2) {
-			var i = _g1++;
-			var w = this.write[i];
-			if(w.from == null) {
-				_g.push("insert:" + Std.string(w.defaultValue));
-			} else if(w.same) {
-				_g.push(i == w.index ? "s" : "@" + w.index);
-			} else {
-				_g.push("@" + w.index + ":" + Std.string(w.to));
-			}
-		}
-		return _g.toString();
-	}
-	,__class__: hxbit_Convert
-};
-var hxbit_RpcMode = $hxEnums["hxbit.RpcMode"] = { __ename__:"hxbit.RpcMode",__constructs__:null
-	,All: {_hx_name:"All",_hx_index:0,__enum__:"hxbit.RpcMode",toString:$estr}
-	,Clients: {_hx_name:"Clients",_hx_index:1,__enum__:"hxbit.RpcMode",toString:$estr}
-	,Server: {_hx_name:"Server",_hx_index:2,__enum__:"hxbit.RpcMode",toString:$estr}
-	,Owner: {_hx_name:"Owner",_hx_index:3,__enum__:"hxbit.RpcMode",toString:$estr}
-	,Immediate: {_hx_name:"Immediate",_hx_index:4,__enum__:"hxbit.RpcMode",toString:$estr}
-};
-hxbit_RpcMode.__constructs__ = [hxbit_RpcMode.All,hxbit_RpcMode.Clients,hxbit_RpcMode.Server,hxbit_RpcMode.Owner,hxbit_RpcMode.Immediate];
-hxbit_RpcMode.__empty_constructs__ = [hxbit_RpcMode.All,hxbit_RpcMode.Clients,hxbit_RpcMode.Server,hxbit_RpcMode.Owner,hxbit_RpcMode.Immediate];
-var hxbit_PropTypeDesc = $hxEnums["hxbit.PropTypeDesc"] = { __ename__:"hxbit.PropTypeDesc",__constructs__:null
-	,PInt: {_hx_name:"PInt",_hx_index:0,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PFloat: {_hx_name:"PFloat",_hx_index:1,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PBool: {_hx_name:"PBool",_hx_index:2,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PString: {_hx_name:"PString",_hx_index:3,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PBytes: {_hx_name:"PBytes",_hx_index:4,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PSerializable: ($_=function(name) { return {_hx_index:5,name:name,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PSerializable",$_.__params__ = ["name"],$_)
-	,PEnum: ($_=function(name) { return {_hx_index:6,name:name,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PEnum",$_.__params__ = ["name"],$_)
-	,PMap: ($_=function(k,v) { return {_hx_index:7,k:k,v:v,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PMap",$_.__params__ = ["k","v"],$_)
-	,PArray: ($_=function(k) { return {_hx_index:8,k:k,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PArray",$_.__params__ = ["k"],$_)
-	,PObj: ($_=function(fields) { return {_hx_index:9,fields:fields,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PObj",$_.__params__ = ["fields"],$_)
-	,PAlias: ($_=function(k) { return {_hx_index:10,k:k,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PAlias",$_.__params__ = ["k"],$_)
-	,PVector: ($_=function(k) { return {_hx_index:11,k:k,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PVector",$_.__params__ = ["k"],$_)
-	,PNull: ($_=function(t) { return {_hx_index:12,t:t,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PNull",$_.__params__ = ["t"],$_)
-	,PUnknown: {_hx_name:"PUnknown",_hx_index:13,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PDynamic: {_hx_name:"PDynamic",_hx_index:14,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PInt64: {_hx_name:"PInt64",_hx_index:15,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PFlags: ($_=function(t) { return {_hx_index:16,t:t,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PFlags",$_.__params__ = ["t"],$_)
-	,PStruct: {_hx_name:"PStruct",_hx_index:17,__enum__:"hxbit.PropTypeDesc",toString:$estr}
-	,PSerInterface: ($_=function(name) { return {_hx_index:18,name:name,__enum__:"hxbit.PropTypeDesc",toString:$estr}; },$_._hx_name="PSerInterface",$_.__params__ = ["name"],$_)
-};
-hxbit_PropTypeDesc.__constructs__ = [hxbit_PropTypeDesc.PInt,hxbit_PropTypeDesc.PFloat,hxbit_PropTypeDesc.PBool,hxbit_PropTypeDesc.PString,hxbit_PropTypeDesc.PBytes,hxbit_PropTypeDesc.PSerializable,hxbit_PropTypeDesc.PEnum,hxbit_PropTypeDesc.PMap,hxbit_PropTypeDesc.PArray,hxbit_PropTypeDesc.PObj,hxbit_PropTypeDesc.PAlias,hxbit_PropTypeDesc.PVector,hxbit_PropTypeDesc.PNull,hxbit_PropTypeDesc.PUnknown,hxbit_PropTypeDesc.PDynamic,hxbit_PropTypeDesc.PInt64,hxbit_PropTypeDesc.PFlags,hxbit_PropTypeDesc.PStruct,hxbit_PropTypeDesc.PSerInterface];
-hxbit_PropTypeDesc.__empty_constructs__ = [hxbit_PropTypeDesc.PInt,hxbit_PropTypeDesc.PFloat,hxbit_PropTypeDesc.PBool,hxbit_PropTypeDesc.PString,hxbit_PropTypeDesc.PBytes,hxbit_PropTypeDesc.PUnknown,hxbit_PropTypeDesc.PDynamic,hxbit_PropTypeDesc.PInt64,hxbit_PropTypeDesc.PStruct];
-var hxbit_Macros = function() { };
-$hxClasses["hxbit.Macros"] = hxbit_Macros;
-hxbit_Macros.__name__ = "hxbit.Macros";
-var hxbit_NetworkClient = function(h) {
-	this.messageLength = -1;
-	this.host = h;
-	this.lastMessage = HxOverrides.now() / 1000;
-};
-$hxClasses["hxbit.NetworkClient"] = hxbit_NetworkClient;
-hxbit_NetworkClient.__name__ = "hxbit.NetworkClient";
-hxbit_NetworkClient.prototype = {
-	host: null
-	,resultID: null
-	,needAlive: null
-	,wasSync: null
-	,seqID: null
-	,ownerObject: null
-	,lastMessage: null
-	,sync: function() {
-		this.host.fullSync(this);
-	}
-	,send: function(bytes) {
-	}
-	,sendMessage: function(msg) {
-		if(this.host != null) {
-			this.host.sendMessage(msg,this);
-		}
-	}
-	,error: function(msg) {
-		throw haxe_Exception.thrown(msg);
-	}
-	,processMessage: function(bytes,pos) {
-		var _gthis = this;
-		var ctx = this.host.ctx;
-		ctx.setInput(bytes,pos);
-		ctx.errorPropId = -1;
-		if(ctx.get_error()) {
-			this.host.logError("Unhandled previous error");
-		}
-		var mid = ctx.input.b[ctx.inPos++];
-		if(this.needAlive && mid != 2) {
-			this.needAlive = false;
-			this.host.makeAlive();
-		}
-		if(!this.wasSync && !this.host.isAuth) {
-			switch(mid) {
-			case 4:case 8:case 9:case 10:case 11:
-				break;
-			default:
-				this.host.logError("Message " + mid + " was received before sync");
-			}
-		}
-		switch(mid) {
-		case 1:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var oid = v;
-			var o = ctx.refs.h[oid];
-			if(o == null) {
-				this.host.logError("Could not sync object",oid);
-				return -1;
-			}
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var rawBits = v;
-			var bits1;
-			var bits2;
-			switch(rawBits >>> 30) {
-			case 0:
-				bits1 = rawBits;
-				bits2 = 0;
-				break;
-			case 1:
-				bits1 = rawBits & 1073741823;
-				var v = ctx.input.b[ctx.inPos++];
-				if(v == 128) {
-					v = ctx.input.getInt32(ctx.inPos);
-					ctx.inPos += 4;
-				}
-				bits2 = v;
-				break;
-			default:
-				bits1 = 0;
-				bits2 = rawBits & 2147483647;
-			}
-			if(this.host.isAuth) {
-				var tmp;
-				var tmp1;
-				var tmp2;
-				var b = bits1 & 65535;
-				var offs = 0;
-				while(b != 0) {
-					var bit;
-					switch(b & -b) {
-					case 1:
-						bit = 0;
-						break;
-					case 2:
-						bit = 1;
-						break;
-					case 4:
-						bit = 2;
-						break;
-					case 8:
-						bit = 3;
-						break;
-					case 16:
-						bit = 4;
-						break;
-					case 32:
-						bit = 5;
-						break;
-					case 64:
-						bit = 6;
-						break;
-					case 128:
-						bit = 7;
-						break;
-					case 256:
-						bit = 8;
-						break;
-					case 512:
-						bit = 9;
-						break;
-					case 1024:
-						bit = 10;
-						break;
-					case 2048:
-						bit = 11;
-						break;
-					case 4096:
-						bit = 12;
-						break;
-					case 8192:
-						bit = 13;
-						break;
-					case 16384:
-						bit = 14;
-						break;
-					case 32768:
-						bit = 15;
-						break;
-					default:
-						throw haxe_Exception.thrown("assert");
-					}
-					offs += bit;
-					if(!o.networkAllow(3,offs,_gthis.ownerObject)) {
-						_gthis.host.logError("Client setting unallowed property " + o.networkGetName(offs) + " on " + Std.string(o),o.__uid);
-						break;
-					}
-					++offs;
-					b >>>= bit + 1;
-				}
-				if(b == 0) {
-					var b = bits1 >>> 16;
-					var offs = 16;
-					while(b != 0) {
-						var bit;
-						switch(b & -b) {
-						case 1:
-							bit = 0;
-							break;
-						case 2:
-							bit = 1;
-							break;
-						case 4:
-							bit = 2;
-							break;
-						case 8:
-							bit = 3;
-							break;
-						case 16:
-							bit = 4;
-							break;
-						case 32:
-							bit = 5;
-							break;
-						case 64:
-							bit = 6;
-							break;
-						case 128:
-							bit = 7;
-							break;
-						case 256:
-							bit = 8;
-							break;
-						case 512:
-							bit = 9;
-							break;
-						case 1024:
-							bit = 10;
-							break;
-						case 2048:
-							bit = 11;
-							break;
-						case 4096:
-							bit = 12;
-							break;
-						case 8192:
-							bit = 13;
-							break;
-						case 16384:
-							bit = 14;
-							break;
-						case 32768:
-							bit = 15;
-							break;
-						default:
-							throw haxe_Exception.thrown("assert");
-						}
-						offs += bit;
-						if(!o.networkAllow(3,offs,_gthis.ownerObject)) {
-							_gthis.host.logError("Client setting unallowed property " + o.networkGetName(offs) + " on " + Std.string(o),o.__uid);
-							break;
-						}
-						++offs;
-						b >>>= bit + 1;
-					}
-					tmp2 = b != 0;
-				} else {
-					tmp2 = true;
-				}
-				if(!tmp2) {
-					var b = bits2 & 65535;
-					var offs = 30;
-					while(b != 0) {
-						var bit;
-						switch(b & -b) {
-						case 1:
-							bit = 0;
-							break;
-						case 2:
-							bit = 1;
-							break;
-						case 4:
-							bit = 2;
-							break;
-						case 8:
-							bit = 3;
-							break;
-						case 16:
-							bit = 4;
-							break;
-						case 32:
-							bit = 5;
-							break;
-						case 64:
-							bit = 6;
-							break;
-						case 128:
-							bit = 7;
-							break;
-						case 256:
-							bit = 8;
-							break;
-						case 512:
-							bit = 9;
-							break;
-						case 1024:
-							bit = 10;
-							break;
-						case 2048:
-							bit = 11;
-							break;
-						case 4096:
-							bit = 12;
-							break;
-						case 8192:
-							bit = 13;
-							break;
-						case 16384:
-							bit = 14;
-							break;
-						case 32768:
-							bit = 15;
-							break;
-						default:
-							throw haxe_Exception.thrown("assert");
-						}
-						offs += bit;
-						if(!o.networkAllow(3,offs,_gthis.ownerObject)) {
-							_gthis.host.logError("Client setting unallowed property " + o.networkGetName(offs) + " on " + Std.string(o),o.__uid);
-							break;
-						}
-						++offs;
-						b >>>= bit + 1;
-					}
-					tmp1 = b != 0;
-				} else {
-					tmp1 = true;
-				}
-				if(!tmp1) {
-					var b = bits2 >>> 16;
-					var offs = 46;
-					while(b != 0) {
-						var bit;
-						switch(b & -b) {
-						case 1:
-							bit = 0;
-							break;
-						case 2:
-							bit = 1;
-							break;
-						case 4:
-							bit = 2;
-							break;
-						case 8:
-							bit = 3;
-							break;
-						case 16:
-							bit = 4;
-							break;
-						case 32:
-							bit = 5;
-							break;
-						case 64:
-							bit = 6;
-							break;
-						case 128:
-							bit = 7;
-							break;
-						case 256:
-							bit = 8;
-							break;
-						case 512:
-							bit = 9;
-							break;
-						case 1024:
-							bit = 10;
-							break;
-						case 2048:
-							bit = 11;
-							break;
-						case 4096:
-							bit = 12;
-							break;
-						case 8192:
-							bit = 13;
-							break;
-						case 16384:
-							bit = 14;
-							break;
-						case 32768:
-							bit = 15;
-							break;
-						default:
-							throw haxe_Exception.thrown("assert");
-						}
-						offs += bit;
-						if(!o.networkAllow(3,offs,_gthis.ownerObject)) {
-							_gthis.host.logError("Client setting unallowed property " + o.networkGetName(offs) + " on " + Std.string(o),o.__uid);
-							break;
-						}
-						++offs;
-						b >>>= bit + 1;
-					}
-					tmp = b != 0;
-				} else {
-					tmp = true;
-				}
-				if(tmp) {
-					return -1;
-				}
-			}
-			if(this.host.logger != null) {
-				var props = [];
-				var i = 0;
-				while(1 << i <= bits1) {
-					if((bits1 & 1 << i) != 0) {
-						props.push(o.networkGetName(i));
-					}
-					++i;
-				}
-				i = 0;
-				while(1 << i <= bits2) {
-					if((bits2 & 1 << i) != 0) {
-						props.push(o.networkGetName(i + 30));
-					}
-					++i;
-				}
-				this.host.logger("SYNC < " + Std.string(o) + "#" + o.__uid + " " + props.join("|"));
-			}
-			var old1 = o.__bits1;
-			var old2 = o.__bits2;
-			o.__bits1 = bits1;
-			o.__bits2 = bits2;
-			this.host.syncingProperties = true;
-			o.networkSync(ctx);
-			this.host.syncingProperties = false;
-			if(this.host.isAuth && (o.__next != null || this.host.mark(o))) {
-				o.__bits1 = old1 | bits1;
-				o.__bits2 = old2 | bits2;
-			} else {
-				o.__bits1 = old1 & ~bits1;
-				o.__bits2 = old2 & ~bits2;
-			}
-			if(ctx.get_error()) {
-				this.host.logError("Found unreferenced object while syncing " + Std.string(o) + "." + o.networkGetName(ctx.errorPropId));
-			}
-			break;
-		case 2:
-			var o = ctx.getAnyRef();
-			if(ctx.get_error()) {
-				this.host.logError("Found unreferenced object while registering " + Std.string(o) + "." + o.networkGetName(ctx.errorPropId));
-			}
-			this.needAlive = true;
-			break;
-		case 3:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var oid = v;
-			var o = ctx.refs.h[oid];
-			if(o == null) {
-				this.host.logError("Could not unregister object",oid);
-			} else {
-				o.__host = null;
-				ctx.refs.remove(o.__uid);
-				this.host.onUnregister(o);
-			}
-			break;
-		case 4:
-			this.wasSync = true;
-			ctx.refs = new haxe_ds_IntMap();
-			hxbit_Serializer.UID = 0;
-			hxbit_Serializer.SEQ = ctx.input.b[ctx.inPos++];
-			ctx.newObjects = [];
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var len = v;
-			var sign;
-			if(len == 0) {
-				sign = null;
-			} else {
-				--len;
-				var s = ctx.input.sub(ctx.inPos,len);
-				ctx.inPos += len;
-				sign = s;
-			}
-			if(sign.compare(hxbit_Serializer.getSignature()) != 0) {
-				this.host.logError("Network signature mismatch");
-			}
-			ctx.enableChecks = false;
-			while(true) {
-				var o = ctx.getAnyRef();
-				if(o == null) {
-					break;
-				}
-			}
-			ctx.enableChecks = true;
-			this.host.makeAlive();
-			break;
-		case 5:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var oid = v;
-			var o = ctx.refs.h[oid];
-			var v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-			var size = v;
-			var fid = ctx.input.b[ctx.inPos++];
-			if(o == null) {
-				if(size < 0) {
-					throw haxe_Exception.thrown("RPC on unreferenced object cannot be skip on this platform");
-				}
-				if(!this.host.isAuth) {
-					this.host.logError("RPC @" + fid + " on unreferenced object",oid);
-				}
-				ctx.inPos += size;
-			} else if(!this.host.isAuth) {
-				if(!o.networkRPC(ctx,fid,this)) {
-					this.host.logError("RPC @" + fid + " on " + Std.string(o) + " has unreferenced object parameter");
-				}
-			} else {
-				this.host.rpcClientValue = this;
-				o.networkRPC(ctx,fid,this);
-				this.host.rpcClientValue = null;
-			}
-			if(this.host.logger != null) {
-				this.host.logger("RPC < " + Std.string(o) + "#" + o.__uid + " " + o.networkGetName(fid,true));
-			}
-			break;
-		case 6:
-			var old = this.resultID;
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			this.resultID = v;
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var oid = v;
-			var o = ctx.refs.h[oid];
-			var v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-			var size = v;
-			var fid = ctx.input.b[ctx.inPos++];
-			if(o == null) {
-				if(size < 0) {
-					throw haxe_Exception.thrown("RPC on unreferenced object cannot be skip on this platform");
-				}
-				if(!this.host.isAuth) {
-					this.host.logError("RPC @" + fid + " on unreferenced object",oid);
-				}
-				ctx.inPos += size;
-				ctx.out.addByte(12);
-				var v = this.resultID;
-				if(v >= 0 && v < 128) {
-					ctx.out.addByte(v);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v);
-				}
-			} else if(!this.host.isAuth) {
-				var old1 = o.__host;
-				o.__host = null;
-				if(!o.networkRPC(ctx,fid,this)) {
-					this.host.logError("RPC @" + fid + " on " + Std.string(o) + " has unreferenced object parameter");
-					ctx.out.addByte(12);
-					var v = this.resultID;
-					if(v >= 0 && v < 128) {
-						ctx.out.addByte(v);
-					} else {
-						ctx.out.addByte(128);
-						ctx.out.addInt32(v);
-					}
-				}
-				o.__host = old1;
-			} else {
-				this.host.rpcClientValue = this;
-				if(!o.networkRPC(ctx,fid,this)) {
-					ctx.out.addByte(12);
-					var v = this.resultID;
-					if(v >= 0 && v < 128) {
-						ctx.out.addByte(v);
-					} else {
-						ctx.out.addByte(128);
-						ctx.out.addInt32(v);
-					}
-				}
-				this.host.rpcClientValue = null;
-			}
-			ctx.out.addByte(255);
-			this.host.doSend();
-			this.host.targetClient = null;
-			this.resultID = old;
-			break;
-		case 7:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var resultID = v;
-			var callb = this.host.rpcWaits.h[resultID];
-			this.host.rpcWaits.remove(resultID);
-			callb(ctx);
-			break;
-		case 8:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var len = v;
-			var msg;
-			if(len == 0) {
-				msg = null;
-			} else {
-				--len;
-				var s = ctx.input.getString(ctx.inPos,len);
-				ctx.inPos += len;
-				msg = s;
-			}
-			var msg1 = haxe_Unserializer.run(msg);
-			this.host.onMessage(this,msg1);
-			break;
-		case 9:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var len = v;
-			var msg;
-			if(len == 0) {
-				msg = null;
-			} else {
-				--len;
-				var s = ctx.input.sub(ctx.inPos,len);
-				ctx.inPos += len;
-				msg = s;
-			}
-			this.host.onMessage(this,msg);
-			break;
-		case 10:
-			var tmp = this.host;
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			tmp.onCustom(this,v,null);
-			break;
-		case 11:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var id = v;
-			var tmp = this.host;
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var len = v;
-			var tmp1;
-			if(len == 0) {
-				tmp1 = null;
-			} else {
-				--len;
-				var s = ctx.input.sub(ctx.inPos,len);
-				ctx.inPos += len;
-				tmp1 = s;
-			}
-			tmp.onCustom(this,id,tmp1);
-			break;
-		case 12:
-			var v = ctx.input.b[ctx.inPos++];
-			if(v == 128) {
-				v = ctx.input.getInt32(ctx.inPos);
-				ctx.inPos += 4;
-			}
-			var resultID = v;
-			this.host.rpcWaits.remove(resultID);
-			break;
-		default:
-			var x = mid;
-			this.error("Unknown message code " + x + " @" + pos + ":" + bytes.toHex());
-		}
-		return ctx.inPos;
-	}
-	,beginRPCResult: function() {
-		this.host.flush();
-		if(this.host.logger != null) {
-			this.host.logger("RPC RESULT #" + this.resultID);
-		}
-		var ctx = this.host.ctx;
-		this.host.targetClient = this;
-		ctx.out.addByte(7);
-		var v = this.resultID;
-		if(v >= 0 && v < 128) {
-			ctx.out.addByte(v);
-		} else {
-			ctx.out.addByte(128);
-			ctx.out.addInt32(v);
-		}
-	}
-	,pendingBuffer: null
-	,pendingPos: null
-	,messageLength: null
-	,readData: function(input,available) {
-		if(this.messageLength < 0) {
-			if(available < 4) {
-				return false;
-			}
-			this.messageLength = input.readInt32();
-			if(this.pendingBuffer == null || this.pendingBuffer.length < this.messageLength) {
-				this.pendingBuffer = new haxe_io_Bytes(new ArrayBuffer(this.messageLength));
-			}
-			this.pendingPos = 0;
-		}
-		var len = input.readBytes(this.pendingBuffer,this.pendingPos,this.messageLength - this.pendingPos);
-		this.pendingPos += len;
-		if(this.pendingPos == this.messageLength) {
-			this.processMessagesData(this.pendingBuffer,0,this.messageLength);
-			this.messageLength = -1;
-			return true;
-		}
-		return false;
-	}
-	,processMessagesData: function(data,pos,length) {
-		if(length > 0) {
-			this.lastMessage = HxOverrides.now() / 1000;
-		}
-		var end = pos + length;
-		while(pos < end) {
-			var oldPos = pos;
-			pos = this.processMessage(data,pos);
-			if(pos < 0) {
-				break;
-			}
-			if(data.b[pos] != 255) {
-				var len = end - oldPos;
-				if(len > 128) {
-					len = 128;
-				}
-				throw haxe_Exception.thrown("Message missing EOM @" + (pos - oldPos) + ":" + data.sub(oldPos,len).toHex());
-			}
-			++pos;
-		}
-		if(this.needAlive) {
-			this.needAlive = false;
-			this.host.makeAlive();
-		}
-	}
-	,stop: function() {
-		if(this.host == null) {
-			return;
-		}
-		HxOverrides.remove(this.host.clients,this);
-		HxOverrides.remove(this.host.pendingClients,this);
-		this.host = null;
-	}
-	,__class__: hxbit_NetworkClient
-};
-var hxbit_NetworkHost = function() {
-	this.rpcWaits = new haxe_ds_IntMap();
-	this.rpcUID = Std.random(16777216);
-	this.lastSentBytes = 0;
-	this.lastSentTime = 0.;
-	this.perPacketBytes = 20;
-	this.isSyncingProperty = -1;
-	this.syncingProperties = false;
-	this.totalSentBytes = 0;
-	this.sendRate = 0.;
-	hxbit_NetworkHost.current = this;
-	this.isAuth = true;
-	this.self = new hxbit_NetworkClient(this);
-	this.clients = [];
-	this.aliveEvents = [];
-	this.pendingClients = [];
-	this.resetState();
-};
-$hxClasses["hxbit.NetworkHost"] = hxbit_NetworkHost;
-hxbit_NetworkHost.__name__ = "hxbit.NetworkHost";
-hxbit_NetworkHost.sortByUID = function(o1,o2) {
-	return o1.__uid - o2.__uid;
-};
-hxbit_NetworkHost.sortByUIDDesc = function(o1,o2) {
-	return o2.__uid - o1.__uid;
-};
-hxbit_NetworkHost.enableReplication = function(o,b) {
-	if(b) {
-		if(o.__host != null) {
-			return;
-		}
-		if(hxbit_NetworkHost.current == null) {
-			throw haxe_Exception.thrown("No NetworkHost defined");
-		}
-		hxbit_NetworkHost.current.register(o);
-	} else {
-		if(o.__host == null) {
-			return;
-		}
-		o.__host.unregister(o);
-	}
-};
-hxbit_NetworkHost.prototype = {
-	get_checkEOM: function() {
-		return true;
-	}
-	,isAuth: null
-	,sendRate: null
-	,totalSentBytes: null
-	,syncingProperties: null
-	,isSyncingProperty: null
-	,perPacketBytes: null
-	,lastSentTime: null
-	,lastSentBytes: null
-	,markHead: null
-	,ctx: null
-	,pendingClients: null
-	,logger: null
-	,stats: null
-	,rpcUID: null
-	,rpcWaits: null
-	,targetClient: null
-	,rpcClientValue: null
-	,aliveEvents: null
-	,rpcPosition: null
-	,clients: null
-	,self: null
-	,dispose: function() {
-		if(hxbit_NetworkHost.current == this) {
-			hxbit_NetworkHost.current = null;
-		}
-	}
-	,isConnected: function(owner) {
-		return this.resolveClient(owner) != null;
-	}
-	,resolveClient: function(owner) {
-		if(this.self.ownerObject == owner) {
-			return this.self;
-		}
-		var _g = 0;
-		var _g1 = this.clients;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c.ownerObject == owner) {
-				return c;
-			}
-		}
-		return null;
-	}
-	,resetState: function() {
-		hxbit_Serializer.resetCounters();
-		this.ctx = new hxbit_NetworkSerializer(this);
-		this.ctx.newObjects = [];
-		this.ctx.begin();
-	}
-	,saveState: function() {
-		var s = new hxbit_Serializer();
-		s.beginSave();
-		var _g = [];
-		var r = this.ctx.refs.iterator();
-		while(r.hasNext()) {
-			var r1 = r.next();
-			_g.push(r1);
-		}
-		var refs = _g;
-		refs.sort(hxbit_NetworkHost.sortByUID);
-		var _g = 0;
-		while(_g < refs.length) {
-			var r = refs[_g];
-			++_g;
-			if(!s.refs.h.hasOwnProperty(r.__uid)) {
-				s.addAnyRef(r);
-			}
-		}
-		s.addAnyRef(null);
-		return s.endSave();
-	}
-	,loadSave: function(bytes) {
-		this.ctx.enableChecks = false;
-		this.ctx.refs = new haxe_ds_IntMap();
-		this.ctx.newObjects = [];
-		this.ctx.beginLoad(bytes);
-		while(true) {
-			var v = this.ctx.getAnyRef();
-			if(v == null) {
-				break;
-			}
-		}
-		this.ctx.endLoad();
-		this.ctx.enableChecks = true;
-	}
-	,checkWrite: function(o,vid) {
-		if(!this.isAuth && !o.networkAllow(3,vid,this.self.ownerObject)) {
-			this.logError("Setting a property on a not allowed object",o.__uid);
-			return false;
-		}
-		return true;
-	}
-	,checkSyncingProperty: function(b) {
-		if(this.isSyncingProperty == b) {
-			this.isSyncingProperty = -1;
-			return false;
-		}
-		return true;
-	}
-	,mark: function(o) {
-		o.__next = this.markHead;
-		this.markHead = o;
-		return true;
-	}
-	,get_rpcClient: function() {
-		if(this.rpcClientValue == null) {
-			return this.self;
-		} else {
-			return this.rpcClientValue;
-		}
-	}
-	,logError: function(msg,objectId) {
-		throw haxe_Exception.thrown(msg + (objectId == null ? "" : "(" + objectId + ")"));
-	}
-	,onMessage: function(from,msg) {
-	}
-	,onUnregister: function(o) {
-	}
-	,onCustom: function(from,id,data) {
-	}
-	,sendMessage: function(msg,to) {
-		this.flush();
-		var prev = this.targetClient;
-		this.targetClient = to;
-		if(((msg) instanceof haxe_io_Bytes)) {
-			this.ctx.out.addByte(9);
-			var _this = this.ctx;
-			var b = msg;
-			if(b == null) {
-				_this.out.addByte(0);
-			} else {
-				var v = b.length + 1;
-				if(v >= 0 && v < 128) {
-					_this.out.addByte(v);
-				} else {
-					_this.out.addByte(128);
-					_this.out.addInt32(v);
-				}
-				_this.out.add(b);
-			}
-		} else {
-			this.ctx.out.addByte(8);
-			var _this = this.ctx;
-			var s = haxe_Serializer.run(msg);
-			if(s == null) {
-				_this.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(s);
-				var v = b.length + 1;
-				if(v >= 0 && v < 128) {
-					_this.out.addByte(v);
-				} else {
-					_this.out.addByte(128);
-					_this.out.addInt32(v);
-				}
-				_this.out.add(b);
-			}
-		}
-		this.ctx.out.addByte(255);
-		this.doSend();
-		this.targetClient = prev;
-	}
-	,sendCustom: function(id,data,to) {
-		this.flush();
-		var prev = this.targetClient;
-		this.targetClient = to;
-		this.ctx.out.addByte(data == null ? 10 : 11);
-		var _this = this.ctx;
-		if(id >= 0 && id < 128) {
-			_this.out.addByte(id);
-		} else {
-			_this.out.addByte(128);
-			_this.out.addInt32(id);
-		}
-		if(data != null) {
-			var _this = this.ctx;
-			if(data == null) {
-				_this.out.addByte(0);
-			} else {
-				var v = data.length + 1;
-				if(v >= 0 && v < 128) {
-					_this.out.addByte(v);
-				} else {
-					_this.out.addByte(128);
-					_this.out.addInt32(v);
-				}
-				_this.out.add(data);
-			}
-		}
-		this.ctx.out.addByte(255);
-		this.doSend();
-		this.targetClient = prev;
-	}
-	,setTargetOwner: function(owner) {
-		if(!this.isAuth) {
-			return true;
-		}
-		if(owner == null) {
-			this.doSend();
-			this.targetClient = null;
-			return true;
-		}
-		this.flush();
-		this.targetClient = null;
-		var _g = 0;
-		var _g1 = this.clients;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c.ownerObject == owner) {
-				this.targetClient = c;
-				break;
-			}
-		}
-		return this.targetClient != null;
-	}
-	,beginRPC: function(o,id,onResult) {
-		this.flushProps();
-		if(this.ctx.refs.h[o.__uid] == null) {
-			throw haxe_Exception.thrown("Can't call RPC on an object not previously transferred");
-		}
-		if(onResult != null) {
-			var id1 = this.rpcUID++;
-			this.ctx.out.addByte(6);
-			var _this = this.ctx;
-			if(id1 >= 0 && id1 < 128) {
-				_this.out.addByte(id1);
-			} else {
-				_this.out.addByte(128);
-				_this.out.addInt32(id1);
-			}
-			this.rpcWaits.h[id1] = onResult;
-		} else {
-			this.ctx.out.addByte(5);
-		}
-		var _this = this.ctx;
-		var v = o.__uid;
-		if(v >= 0 && v < 128) {
-			_this.out.addByte(v);
-		} else {
-			_this.out.addByte(128);
-			_this.out.addInt32(v);
-		}
-		this.ctx.out.addInt32(-1);
-		this.ctx.out.addByte(id);
-		if(this.logger != null) {
-			this.logger("RPC > " + Std.string(o) + "#" + o.__uid + " " + o.networkGetName(id,true));
-		}
-		if(this.stats != null) {
-			this.stats.beginRPC(o,id);
-		}
-		return this.ctx;
-	}
-	,endRPC: function() {
-		this.ctx.out.addByte(255);
-	}
-	,fullSync: function(c) {
-		if(!HxOverrides.remove(this.pendingClients,c)) {
-			return;
-		}
-		this.flush();
-		var seq = this.clients.length + 1;
-		while(true) {
-			var found = false;
-			var _g = 0;
-			var _g1 = this.clients;
-			while(_g < _g1.length) {
-				var c1 = _g1[_g];
-				++_g;
-				if(c1.seqID == seq) {
-					found = true;
-					break;
-				}
-			}
-			if(!found) {
-				break;
-			}
-			++seq;
-		}
-		if(seq > 255) {
-			throw haxe_Exception.thrown("Out of sequence number");
-		}
-		this.ctx.out.addByte(seq);
-		c.seqID = seq;
-		this.clients.push(c);
-		var refs = this.ctx.refs;
-		this.ctx.enableChecks = false;
-		this.ctx.begin();
-		this.ctx.out.addByte(4);
-		this.ctx.out.addByte(c.seqID);
-		var _this = this.ctx;
-		var b = hxbit_Serializer.getSignature();
-		if(b == null) {
-			_this.out.addByte(0);
-		} else {
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				_this.out.addByte(v);
-			} else {
-				_this.out.addByte(128);
-				_this.out.addInt32(v);
-			}
-			_this.out.add(b);
-		}
-		var _g = [];
-		var o = refs.iterator();
-		while(o.hasNext()) {
-			var o1 = o.next();
-			if(o1 != null) {
-				_g.push(o1);
-			}
-		}
-		var objs = _g;
-		objs.sort(hxbit_NetworkHost.sortByUID);
-		var _g = 0;
-		while(_g < objs.length) {
-			var o = objs[_g];
-			++_g;
-			this.ctx.addAnyRef(o);
-		}
-		this.ctx.addAnyRef(null);
-		this.ctx.out.addByte(255);
-		this.ctx.enableChecks = true;
-		this.targetClient = c;
-		this.doSend();
-		this.targetClient = null;
-	}
-	,defaultLogger: function(filter) {
-		var _gthis = this;
-		var t0 = HxOverrides.now() / 1000;
-		this.setLogger(function(str) {
-			if(filter != null && !filter(str)) {
-				return;
-			}
-			str = (_gthis.isAuth ? "[S] " : "[C] ") + str;
-			str = ((HxOverrides.now() / 1000 - t0) * 100 | 0) / 100 + " " + str;
-			haxe_Log.trace(str,{ fileName : "hxbit/NetworkHost.hx", lineNumber : 647, className : "hxbit.NetworkHost", methodName : "defaultLogger"});
-		});
-	}
-	,addAliveEvent: function(f) {
-		this.aliveEvents.push(f);
-	}
-	,isAliveComplete: function() {
-		if(this.ctx.newObjects.length == 0) {
-			return this.aliveEvents.length == 0;
-		} else {
-			return false;
-		}
-	}
-	,makeAlive: function() {
-		var objs = this.ctx.newObjects;
-		if(objs.length == 0) {
-			return;
-		}
-		objs.sort(hxbit_NetworkHost.sortByUIDDesc);
-		var _g = 0;
-		while(_g < objs.length) {
-			var o = objs[_g];
-			++_g;
-			var n = js_Boot.__implements(o,hxbit_NetworkSerializable) ? o : null;
-			if(n == null) {
-				continue;
-			}
-			n.__host = this;
-		}
-		while(true) {
-			var o = objs.pop();
-			if(o == null) {
-				break;
-			}
-			var n = js_Boot.__implements(o,hxbit_NetworkSerializable) ? o : null;
-			if(n == null) {
-				continue;
-			}
-			n.alive();
-		}
-		while(this.aliveEvents.length > 0) (this.aliveEvents.shift())();
-	}
-	,setLogger: function(log) {
-		this.logger = log;
-	}
-	,setStats: function(stats) {
-		this.stats = stats;
-	}
-	,dispatchClients: function(callb) {
-		var old = this.targetClient;
-		var _g = 0;
-		var _g1 = this.clients;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			callb(c);
-		}
-		this.targetClient = old;
-	}
-	,register: function(o) {
-		o.__host = this;
-		var o2 = this.ctx.refs.h[o.__uid];
-		if(o2 != null) {
-			if(o2 != o) {
-				this.logError("Register conflict between objects",o.__uid);
-			}
-			return;
-		}
-		if(!this.isAuth && !o.networkAllow(4,0,this.self.ownerObject)) {
-			throw haxe_Exception.thrown("Can't register " + Std.string(o) + " without ownership");
-		}
-		if(this.logger != null) {
-			this.logger("Register " + Std.string(o) + "#" + o.__uid);
-		}
-		this.ctx.out.addByte(2);
-		this.ctx.addAnyRef(o);
-		this.ctx.out.addByte(255);
-	}
-	,unmark: function(o) {
-		if(o.__next == null) {
-			return;
-		}
-		var prev = null;
-		var h = this.markHead;
-		while(h != o) {
-			prev = h;
-			h = h.__next;
-		}
-		if(prev == null) {
-			this.markHead = o.__next;
-		} else {
-			prev.__next = o.__next;
-		}
-		o.__next = null;
-	}
-	,unregister: function(o) {
-		if(o.__host == null) {
-			return;
-		}
-		if(!this.isAuth && !o.networkAllow(5,0,this.self.ownerObject)) {
-			throw haxe_Exception.thrown("Can't unregister " + Std.string(o) + " without ownership");
-		}
-		this.flushProps();
-		o.__host = null;
-		o.__bits1 = 0;
-		o.__bits2 = 0;
-		this.unmark(o);
-		if(this.logger != null) {
-			this.logger("Unregister " + Std.string(o) + "#" + o.__uid);
-		}
-		this.ctx.out.addByte(3);
-		var _this = this.ctx;
-		var v = o.__uid;
-		if(v >= 0 && v < 128) {
-			_this.out.addByte(v);
-		} else {
-			_this.out.addByte(128);
-			_this.out.addInt32(v);
-		}
-		this.ctx.out.addByte(255);
-		this.ctx.refs.remove(o.__uid);
-	}
-	,doSend: function() {
-		var bytes;
-		bytes = this.ctx.out.getBytes();
-		this.ctx.out = new haxe_io_BytesBuffer();
-		this.send(bytes);
-	}
-	,send: function(bytes) {
-		if(this.targetClient != null) {
-			this.totalSentBytes += bytes.length + this.perPacketBytes;
-			this.targetClient.send(bytes);
-		} else {
-			this.totalSentBytes += (bytes.length + this.perPacketBytes) * this.clients.length;
-			if(this.clients.length == 0) {
-				this.totalSentBytes += bytes.length + this.perPacketBytes;
-			}
-			var _g = 0;
-			var _g1 = this.clients;
-			while(_g < _g1.length) {
-				var c = _g1[_g];
-				++_g;
-				c.send(bytes);
-			}
-		}
-	}
-	,flushProps: function() {
-		var o = this.markHead;
-		while(o != null) {
-			if((o.__bits1 | o.__bits2) != 0) {
-				if(this.logger != null) {
-					var props = [];
-					var i = 0;
-					while(1 << i <= o.__bits1) {
-						if((o.__bits1 & 1 << i) != 0) {
-							props.push(o.networkGetName(i));
-						}
-						++i;
-					}
-					i = 0;
-					while(1 << i <= o.__bits2) {
-						if((o.__bits1 & 1 << i) != 0) {
-							props.push(o.networkGetName(i + 30));
-						}
-						++i;
-					}
-					this.logger("SYNC > " + Std.string(o) + "#" + o.__uid + " " + props.join("|"));
-				}
-				if(this.stats != null) {
-					this.stats.sync(o);
-				}
-				this.ctx.out.addByte(1);
-				var _this = this.ctx;
-				var v = o.__uid;
-				if(v >= 0 && v < 128) {
-					_this.out.addByte(v);
-				} else {
-					_this.out.addByte(128);
-					_this.out.addInt32(v);
-				}
-				o.networkFlush(this.ctx);
-				this.ctx.out.addByte(255);
-			}
-			var n = o.__next;
-			o.__next = null;
-			o = n;
-		}
-		this.markHead = null;
-	}
-	,isCustomMessage: function(bytes,id,pos) {
-		if(pos == null) {
-			pos = 0;
-		}
-		if(bytes.length - pos < 2) {
-			return false;
-		}
-		this.ctx.setInput(bytes,pos);
-		var _this = this.ctx;
-		var k = _this.input.b[_this.inPos++];
-		if(k != 10 && k != 11) {
-			return false;
-		}
-		var _this = this.ctx;
-		var v = _this.input.b[_this.inPos++];
-		if(v == 128) {
-			v = _this.input.getInt32(_this.inPos);
-			_this.inPos += 4;
-		}
-		return v == id;
-	}
-	,flush: function() {
-		this.flushProps();
-		if(this.ctx.out.pos > 0) {
-			this.doSend();
-		}
-		var now = HxOverrides.now() / 1000;
-		var dt = now - this.lastSentTime;
-		if(dt < 1) {
-			return;
-		}
-		var db = this.totalSentBytes - this.lastSentBytes;
-		var rate = db / dt;
-		if(this.sendRate == 0 || rate == 0 || rate / this.sendRate > 3 || this.sendRate / rate > 3) {
-			this.sendRate = rate;
-		} else {
-			this.sendRate = this.sendRate * 0.8 + rate * 0.2;
-		}
-		this.lastSentTime = now;
-		this.lastSentBytes = this.totalSentBytes;
-		var _g = 0;
-		var _g1 = this.clients;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(now - c.lastMessage > hxbit_NetworkHost.CLIENT_TIMEOUT) {
-				c.stop();
-			}
-		}
-	}
-	,__class__: hxbit_NetworkHost
-};
-var hxbit_ProxyHost = function() { };
-$hxClasses["hxbit.ProxyHost"] = hxbit_ProxyHost;
-hxbit_ProxyHost.__name__ = "hxbit.ProxyHost";
-hxbit_ProxyHost.__isInterface__ = true;
-hxbit_ProxyHost.prototype = {
-	networkSetBit: null
-	,__class__: hxbit_ProxyHost
-};
-var hxbit_ProxyChild = function() { };
-$hxClasses["hxbit.ProxyChild"] = hxbit_ProxyChild;
-hxbit_ProxyChild.__name__ = "hxbit.ProxyChild";
-hxbit_ProxyChild.__isInterface__ = true;
-hxbit_ProxyChild.prototype = {
-	bindHost: null
-	,unbindHost: null
-	,__class__: hxbit_ProxyChild
-};
-var hxbit_Serializable = function() { };
-$hxClasses["hxbit.Serializable"] = hxbit_Serializable;
-hxbit_Serializable.__name__ = "hxbit.Serializable";
-hxbit_Serializable.__isInterface__ = true;
-hxbit_Serializable.prototype = {
-	__uid: null
-	,getCLID: null
-	,serialize: null
-	,unserializeInit: null
-	,unserialize: null
-	,getSerializeSchema: null
-	,__class__: hxbit_Serializable
-};
-var hxbit_NetworkSerializable = function() { };
-$hxClasses["hxbit.NetworkSerializable"] = hxbit_NetworkSerializable;
-hxbit_NetworkSerializable.__name__ = "hxbit.NetworkSerializable";
-hxbit_NetworkSerializable.__isInterface__ = true;
-hxbit_NetworkSerializable.__interfaces__ = [hxbit_ProxyHost,hxbit_Serializable];
-hxbit_NetworkSerializable.prototype = {
-	get_enableReplication: null
-	,set_enableReplication: null
-	,__host: null
-	,__bits1: null
-	,__bits2: null
-	,__next: null
-	,alive: null
-	,networkFlush: null
-	,networkSync: null
-	,networkRPC: null
-	,networkAllow: null
-	,networkGetName: null
-	,__class__: hxbit_NetworkSerializable
-};
-var hxbit_BaseProxy = function() { };
-$hxClasses["hxbit.BaseProxy"] = hxbit_BaseProxy;
-hxbit_BaseProxy.__name__ = "hxbit.BaseProxy";
-hxbit_BaseProxy.__interfaces__ = [hxbit_ProxyChild,hxbit_ProxyHost];
-hxbit_BaseProxy.objToString = function(o) {
-	var fl = Reflect.fields(o);
-	HxOverrides.remove(fl,"obj");
-	HxOverrides.remove(fl,"bit");
-	var _g = 0;
-	var _g1 = fl.slice();
-	while(_g < _g1.length) {
-		var f = _g1[_g];
-		++_g;
-		if(StringTools.startsWith(f,"__ref_") || Reflect.field(o,f) == null) {
-			HxOverrides.remove(fl,f);
-		}
-	}
-	var _g = [];
-	var _g1 = 0;
-	while(_g1 < fl.length) {
-		var f = fl[_g1];
-		++_g1;
-		_g.push(f + " : " + Std.string(Reflect.field(o,f)));
-	}
-	return "{" + _g.join(",") + "}";
-};
-hxbit_BaseProxy.prototype = {
-	obj: null
-	,bit: null
-	,networkSetBit: function(_) {
-		if(this.obj != null) {
-			this.obj.networkSetBit(this.bit);
-		}
-	}
-	,mark: function() {
-		if(this.obj != null) {
-			this.obj.networkSetBit(this.bit);
-		}
-	}
-	,bindHost: function(o,bit) {
-		this.obj = o;
-		this.bit = bit;
-	}
-	,unbindHost: function() {
-		this.obj = null;
-	}
-	,__class__: hxbit_BaseProxy
-};
-var hxbit_NetworkProperty = {};
-hxbit_NetworkProperty._new = function(x) {
-	var this1 = x;
-	return this1;
-};
-hxbit_NetworkProperty.toInt = function(this1) {
-	return this1;
-};
-hxbit_NetworkProperty.opOr = function(this1,a) {
-	var this2 = this1 | a;
-	return this2;
-};
-var hxbit_Serializer = function() {
-	this.usedClasses = [];
-	if(hxbit_Serializer.CLIDS == null) {
-		hxbit_Serializer.initClassIDS();
-	}
-};
-$hxClasses["hxbit.Serializer"] = hxbit_Serializer;
-hxbit_Serializer.__name__ = "hxbit.Serializer";
-hxbit_Serializer.resetCounters = function() {
-	hxbit_Serializer.UID = 0;
-	hxbit_Serializer.SEQ = 0;
-};
-hxbit_Serializer.allocUID = function() {
-	return hxbit_Serializer.SEQ << 24 | ++hxbit_Serializer.UID;
-};
-hxbit_Serializer.registerClass = function(c) {
-	if(hxbit_Serializer.CLIDS != null) {
-		throw haxe_Exception.thrown("Too late to register class");
-	}
-	var idx = hxbit_Serializer.CLASSES.length;
-	hxbit_Serializer.CLASSES.push(c);
-	return idx;
-};
-hxbit_Serializer.hash = function(name) {
-	var v = 1;
-	var _g = 0;
-	var _g1 = name.length;
-	while(_g < _g1) {
-		var i = _g++;
-		v = v * 223 + name.charCodeAt(i) | 0;
-	}
-	v = 1 + (v & 1073741823) % 65423;
-	return v;
-};
-hxbit_Serializer.initClassIDS = function() {
-	var cl = hxbit_Serializer.CLASSES;
-	var _g = [];
-	var _g1 = 0;
-	while(_g1 < cl.length) {
-		var c = cl[_g1];
-		++_g1;
-		_g.push([]);
-	}
-	var subClasses = _g;
-	var isSub = [];
-	var _g = 0;
-	var _g1 = cl.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var c = cl[i];
-		while(true) {
-			c = c.__super__;
-			if(c == null) {
-				break;
-			}
-			var idx = cl.indexOf(c);
-			if(idx < 0) {
-				break;
-			}
-			subClasses[idx].push(i);
-			isSub[i] = true;
-		}
-	}
-	var _g = [];
-	var _g1 = 0;
-	var _g2 = hxbit_Serializer.CLASSES.length;
-	while(_g1 < _g2) {
-		var i = _g1++;
-		if(subClasses[i].length == 0 && !isSub[i]) {
-			_g.push(0);
-		} else {
-			var name = cl[i].__name__;
-			var v = 1;
-			var _g3 = 0;
-			var _g4 = name.length;
-			while(_g3 < _g4) {
-				var i1 = _g3++;
-				v = v * 223 + name.charCodeAt(i1) | 0;
-			}
-			v = 1 + (v & 1073741823) % 65423;
-			_g.push(v);
-		}
-	}
-	hxbit_Serializer.CLIDS = _g;
-	hxbit_Serializer.CL_BYID = [];
-	var _g = 0;
-	var _g1 = hxbit_Serializer.CLIDS.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var cid = hxbit_Serializer.CLIDS[i];
-		if(cid == 0) {
-			continue;
-		}
-		if(hxbit_Serializer.CL_BYID[cid] != null) {
-			var c = hxbit_Serializer.CL_BYID[cid];
-			throw haxe_Exception.thrown("Conflicting CLID between " + c.__name__ + " and " + cl[i].__name__);
-		}
-		hxbit_Serializer.CL_BYID[cid] = cl[i];
-	}
-};
-hxbit_Serializer.getSignature = function() {
-	if(hxbit_Serializer.__SIGN != null) {
-		return hxbit_Serializer.__SIGN;
-	}
-	var s = new hxbit_Serializer();
-	s.begin();
-	var v = hxbit_Serializer.CLASSES.length;
-	if(v >= 0 && v < 128) {
-		s.out.addByte(v);
-	} else {
-		s.out.addByte(128);
-		s.out.addInt32(v);
-	}
-	var _g = 0;
-	var _g1 = hxbit_Serializer.CLASSES.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var v = hxbit_Serializer.CLIDS[i];
-		if(v >= 0 && v < 128) {
-			s.out.addByte(v);
-		} else {
-			s.out.addByte(128);
-			s.out.addInt32(v);
-		}
-		var v1 = Object.create(hxbit_Serializer.CLASSES[i].prototype).getSerializeSchema().get_checkSum();
-		s.out.addInt32(v1);
-	}
-	return hxbit_Serializer.__SIGN = haxe_crypto_Md5.make(s.end());
-};
-hxbit_Serializer.isClassFinal = function(index) {
-	return hxbit_Serializer.CLIDS[index] == 0;
-};
-hxbit_Serializer.save = function(value) {
-	var s = new hxbit_Serializer();
-	s.beginSave();
-	s.addKnownRef(value);
-	return s.endSave();
-};
-hxbit_Serializer.load = function(bytes,cl,iterObjects) {
-	var s = new hxbit_Serializer();
-	s.beginLoad(bytes);
-	var value = s.getRef(cl,cl.__clid);
-	s.endLoad();
-	if(iterObjects != null) {
-		var _g = [];
-		var o = s.refs.iterator();
-		while(o.hasNext()) {
-			var o1 = o.next();
-			_g.push(o1);
-		}
-		var objects = _g;
-		objects.sort(function(o1,o2) {
-			return o1.__uid - o2.__uid;
-		});
-		var _g = 0;
-		while(_g < objects.length) {
-			var o = objects[_g];
-			++_g;
-			iterObjects(o);
-		}
-	}
-	return value;
-};
-hxbit_Serializer.prototype = {
-	refs: null
-	,remapObjs: null
-	,newObjects: null
-	,out: null
-	,input: null
-	,inPos: null
-	,usedClasses: null
-	,convert: null
-	,mapIndexes: null
-	,knownStructs: null
-	,set_remapIds: function(b) {
-		this.remapObjs = b ? new haxe_ds_ObjectMap() : null;
-		return b;
-	}
-	,get_remapIds: function() {
-		return this.remapObjs != null;
-	}
-	,remap: function(s) {
-		if(this.remapObjs.h.__keys__[s.__id__] != null) {
-			return;
-		}
-		this.remapObjs.set(s,s.__uid);
-		s.__uid = hxbit_Serializer.SEQ << 24 | ++hxbit_Serializer.UID;
-	}
-	,begin: function() {
-		this.out = new haxe_io_BytesBuffer();
-		this.refs = new haxe_ds_IntMap();
-		this.knownStructs = [];
-	}
-	,end: function() {
-		var bytes = this.out.getBytes();
-		this.out = null;
-		this.refs = null;
-		this.knownStructs = null;
-		return bytes;
-	}
-	,setInput: function(data,pos) {
-		this.input = data;
-		this.inPos = pos;
-		if(this.refs == null) {
-			this.refs = new haxe_ds_IntMap();
-		}
-		if(this.knownStructs == null) {
-			this.knownStructs = [];
-		}
-	}
-	,serialize: function(s) {
-		this.begin();
-		this.addKnownRef(s);
-		return this.out.getBytes();
-	}
-	,unserialize: function(data,c,startPos) {
-		if(startPos == null) {
-			startPos = 0;
-		}
-		this.refs = new haxe_ds_IntMap();
-		this.knownStructs = [];
-		this.setInput(data,startPos);
-		return this.getRef(c,c.__clid);
-	}
-	,getByte: function() {
-		return this.input.b[this.inPos++];
-	}
-	,addByte: function(v) {
-		this.out.addByte(v);
-	}
-	,addInt: function(v) {
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-	}
-	,addInt32: function(v) {
-		this.out.addInt32(v);
-	}
-	,addInt64: function(v) {
-		this.out.addInt64(v);
-	}
-	,addFloat: function(v) {
-		this.out.addFloat(v);
-	}
-	,addDouble: function(v) {
-		this.out.addDouble(v);
-	}
-	,addBool: function(v) {
-		this.out.addByte(v ? 1 : 0);
-	}
-	,addArray: function(a,f) {
-		if(a == null) {
-			this.out.addByte(0);
-			return;
-		}
-		var v = a.length + 1;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var _g = 0;
-		while(_g < a.length) {
-			var v = a[_g];
-			++_g;
-			f(v);
-		}
-	}
-	,addVector: function(a,f) {
-		if(a == null) {
-			this.out.addByte(0);
-			return;
-		}
-		var v = a.length + 1;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var _g = 0;
-		while(_g < a.length) {
-			var v = a[_g];
-			++_g;
-			f(v);
-		}
-	}
-	,getArray: function(f) {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			return null;
-		}
-		--len;
-		var a = [];
-		var _g = 0;
-		var _g1 = len;
-		while(_g < _g1) {
-			var i = _g++;
-			a[i] = f();
-		}
-		return a;
-	}
-	,getVector: function(f) {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			return null;
-		}
-		--len;
-		var this1 = new Array(len);
-		var a = this1;
-		var _g = 0;
-		var _g1 = len;
-		while(_g < _g1) {
-			var i = _g++;
-			a[i] = f();
-		}
-		return a;
-	}
-	,addMap: function(a,fk,ft) {
-		if(a == null) {
-			this.out.addByte(0);
-			return;
-		}
-		var _g = [];
-		var k = a.keys();
-		while(k.hasNext()) {
-			var k1 = k.next();
-			_g.push(k1);
-		}
-		var keys = _g;
-		var v = keys.length + 1;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var _g = 0;
-		while(_g < keys.length) {
-			var k = keys[_g];
-			++_g;
-			fk(k);
-			ft(a.get(k));
-		}
-	}
-	,getBool: function() {
-		return this.input.b[this.inPos++] != 0;
-	}
-	,getInt: function() {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		return v;
-	}
-	,skip: function(size) {
-		this.inPos += size;
-	}
-	,getInt32: function() {
-		var v = this.input.getInt32(this.inPos);
-		this.inPos += 4;
-		return v;
-	}
-	,getInt64: function() {
-		var v = this.input.getInt64(this.inPos);
-		this.inPos += 8;
-		return v;
-	}
-	,getDouble: function() {
-		var v = this.input.getDouble(this.inPos);
-		this.inPos += 8;
-		return v;
-	}
-	,getFloat: function() {
-		var v = this.input.getFloat(this.inPos);
-		this.inPos += 4;
-		return v;
-	}
-	,addString: function(s) {
-		if(s == null) {
-			this.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-	}
-	,addBytes: function(b) {
-		if(b == null) {
-			this.out.addByte(0);
-		} else {
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-	}
-	,addBytesSub: function(b,pos,len) {
-		if(b == null) {
-			this.out.addByte(0);
-		} else {
-			var v = len + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.addBytes(b,pos,len);
-		}
-	}
-	,getString: function() {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			return null;
-		}
-		--len;
-		var s = this.input.getString(this.inPos,len);
-		this.inPos += len;
-		return s;
-	}
-	,getBytes: function() {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			return null;
-		}
-		--len;
-		var s = this.input.sub(this.inPos,len);
-		this.inPos += len;
-		return s;
-	}
-	,getDynamic: function() {
-		var _g = this.input.b[this.inPos++];
-		switch(_g) {
-		case 0:
-			return null;
-		case 1:
-			return false;
-		case 2:
-			return true;
-		case 3:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			return v;
-		case 4:
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			return v;
-		case 5:
-			var o = { };
-			var _g1 = 0;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var _g2 = v;
-			while(_g1 < _g2) {
-				var i = _g1++;
-				var v = this.input.b[this.inPos++];
-				if(v == 128) {
-					v = this.input.getInt32(this.inPos);
-					this.inPos += 4;
-				}
-				var len = v;
-				var field;
-				if(len == 0) {
-					field = null;
-				} else {
-					--len;
-					var s = this.input.getString(this.inPos,len);
-					this.inPos += len;
-					field = s;
-				}
-				o[field] = this.getDynamic();
-			}
-			return o;
-		case 6:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				return null;
-			} else {
-				--len;
-				var s = this.input.getString(this.inPos,len);
-				this.inPos += len;
-				return s;
-			}
-			break;
-		case 7:
-			var _g1 = [];
-			var _g2 = 0;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var _g3 = v;
-			while(_g2 < _g3) {
-				var i = _g2++;
-				_g1.push(this.getDynamic());
-			}
-			return _g1;
-		case 8:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				return null;
-			} else {
-				--len;
-				var s = this.input.sub(this.inPos,len);
-				this.inPos += len;
-				return s;
-			}
-			break;
-		case 9:
-			return this.getAnyRef();
-		default:
-			var x = _g;
-			throw haxe_Exception.thrown("Invalid dynamic prefix " + x);
-		}
-	}
-	,addDynamic: function(v) {
-		if(v == null) {
-			this.out.addByte(0);
-			return;
-		}
-		var _g = Type.typeof(v);
-		switch(_g._hx_index) {
-		case 1:
-			this.out.addByte(3);
-			var v1 = v;
-			if(v1 >= 0 && v1 < 128) {
-				this.out.addByte(v1);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v1);
-			}
-			break;
-		case 2:
-			this.out.addByte(4);
-			this.out.addFloat(v);
-			break;
-		case 3:
-			this.out.addByte(v ? 2 : 1);
-			break;
-		case 4:
-			var fields = Reflect.fields(v);
-			this.out.addByte(5);
-			var v1 = fields.length;
-			if(v1 >= 0 && v1 < 128) {
-				this.out.addByte(v1);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v1);
-			}
-			var _g1 = 0;
-			while(_g1 < fields.length) {
-				var f = fields[_g1];
-				++_g1;
-				if(f == null) {
-					this.out.addByte(0);
-				} else {
-					var b = haxe_io_Bytes.ofString(f);
-					var v1 = b.length + 1;
-					if(v1 >= 0 && v1 < 128) {
-						this.out.addByte(v1);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v1);
-					}
-					this.out.add(b);
-				}
-				this.addDynamic(Reflect.field(v,f));
-			}
-			break;
-		case 6:
-			var c = _g.c;
-			switch(c) {
-			case Array:
-				this.out.addByte(7);
-				var a = v;
-				var v1 = a.length;
-				if(v1 >= 0 && v1 < 128) {
-					this.out.addByte(v1);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v1);
-				}
-				var _g1 = 0;
-				while(_g1 < a.length) {
-					var v1 = a[_g1];
-					++_g1;
-					this.addDynamic(v1);
-				}
-				break;
-			case String:
-				this.out.addByte(6);
-				var s = v;
-				if(s == null) {
-					this.out.addByte(0);
-				} else {
-					var b = haxe_io_Bytes.ofString(s);
-					var v1 = b.length + 1;
-					if(v1 >= 0 && v1 < 128) {
-						this.out.addByte(v1);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v1);
-					}
-					this.out.add(b);
-				}
-				break;
-			case haxe_io_Bytes:
-				this.out.addByte(8);
-				var b = v;
-				if(b == null) {
-					this.out.addByte(0);
-				} else {
-					var v1 = b.length + 1;
-					if(v1 >= 0 && v1 < 128) {
-						this.out.addByte(v1);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v1);
-					}
-					this.out.add(b);
-				}
-				break;
-			default:
-				if(js_Boot.__implements(v,hxbit_Serializable)) {
-					this.out.addByte(9);
-					this.addAnyRef(v);
-				} else {
-					throw haxe_Exception.thrown("Unsupported dynamic " + Std.string(c));
-				}
-			}
-			break;
-		default:
-			var t = _g;
-			throw haxe_Exception.thrown("Unsupported dynamic " + Std.string(t));
-		}
-	}
-	,addCLID: function(clid) {
-		this.out.addByte(clid >> 8);
-		this.out.addByte(clid & 255);
-	}
-	,getCLID: function() {
-		return this.input.b[this.inPos++] << 8 | this.input.b[this.inPos++];
-	}
-	,addStruct: function(s) {
-		if(s == null) {
-			this.out.addByte(0);
-			return;
-		}
-		var c = js_Boot.__implements(s,hxbit_Serializable) ? s : null;
-		if(c != null) {
-			this.out.addByte(1);
-			this.addAnyRef(c);
-			return;
-		}
-		var index = this.knownStructs.indexOf(s);
-		if(index >= 0) {
-			this.out.addByte(2);
-			if(index >= 0 && index < 128) {
-				this.out.addByte(index);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(index);
-			}
-			return;
-		}
-		this.knownStructs.push(s);
-		this.out.addByte(3);
-		var c = js_Boot.getClass(s);
-		if(c == null) {
-			throw haxe_Exception.thrown(Std.string(s) + " does not have a class ?");
-		}
-		var s1 = c.__name__;
-		if(s1 == null) {
-			this.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s1);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-		s.customSerialize(this);
-		this.out.addByte(255);
-	}
-	,getStruct: function() {
-		switch(this.input.b[this.inPos++]) {
-		case 0:
-			return null;
-		case 1:
-			return this.getAnyRef();
-		case 2:
-			var tmp = this.knownStructs;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			return tmp[v];
-		case 3:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			var cname;
-			if(len == 0) {
-				cname = null;
-			} else {
-				--len;
-				var s = this.input.getString(this.inPos,len);
-				this.inPos += len;
-				cname = s;
-			}
-			var cl = $hxClasses[cname];
-			if(cl == null) {
-				throw haxe_Exception.thrown("Missing struct class " + cname);
-			}
-			var s = Object.create(cl.prototype);
-			this.knownStructs.push(s);
-			s.customUnserialize(this);
-			if(this.input.b[this.inPos++] != 255) {
-				throw haxe_Exception.thrown("Invalid customUnserialize for " + Std.string(s));
-			}
-			return s;
-		default:
-			throw haxe_Exception.thrown("assert");
-		}
-	}
-	,addObjRef: function(s) {
-		var v = s.__uid;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-	}
-	,getObjRef: function() {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		return v;
-	}
-	,addAnyRef: function(s) {
-		if(s == null) {
-			this.out.addByte(0);
-			return;
-		}
-		if(this.remapObjs != null) {
-			this.remap(s);
-		}
-		this.addObjRef(s);
-		if(this.refs.h[s.__uid] != null) {
-			return;
-		}
-		this.refs.h[s.__uid] = s;
-		var index = s.getCLID();
-		this.usedClasses[index] = true;
-		this.out.addByte(index >> 8);
-		this.out.addByte(index & 255);
-		s.serialize(this);
-	}
-	,addKnownRef: function(s) {
-		if(s == null) {
-			this.out.addByte(0);
-			return;
-		}
-		if(this.remapObjs != null) {
-			this.remap(s);
-		}
-		this.addObjRef(s);
-		if(this.refs.h[s.__uid] != null) {
-			return;
-		}
-		this.refs.h[s.__uid] = s;
-		var index = s.getCLID();
-		this.usedClasses[index] = true;
-		var clid = hxbit_Serializer.CLIDS[index];
-		if(clid != 0) {
-			this.out.addByte(clid >> 8);
-			this.out.addByte(clid & 255);
-		}
-		s.serialize(this);
-	}
-	,getAnyRef: function() {
-		var id = this.getObjRef();
-		if(id == 0) {
-			return null;
-		}
-		if(this.refs.h[id] != null) {
-			return this.refs.h[id];
-		}
-		var rid = id & 16777215;
-		if(hxbit_Serializer.UID < rid) {
-			hxbit_Serializer.UID = rid;
-		}
-		var clidx = this.input.b[this.inPos++] << 8 | this.input.b[this.inPos++];
-		if(this.mapIndexes != null) {
-			clidx = this.mapIndexes[clidx];
-		}
-		var i = Object.create(hxbit_Serializer.CLASSES[clidx].prototype);
-		if(this.newObjects != null) {
-			this.newObjects.push(i);
-		}
-		i.__uid = id;
-		i.unserializeInit();
-		this.refs.h[id] = i;
-		if(this.convert != null && this.convert[clidx] != null) {
-			this.convertRef(i,this.convert[clidx]);
-		} else {
-			i.unserialize(this);
-		}
-		return i;
-	}
-	,getRef: function(c,clidx) {
-		var id = this.getObjRef();
-		if(id == 0) {
-			return null;
-		}
-		if(this.refs.h[id] != null) {
-			return this.refs.h[id];
-		}
-		var rid = id & 16777215;
-		if(hxbit_Serializer.UID < rid) {
-			hxbit_Serializer.UID = rid;
-		}
-		if(this.convert != null && this.convert[clidx] != null) {
-			var conv = this.convert[clidx];
-			if(conv.hadCID) {
-				var realIdx = this.input.b[this.inPos++] << 8 | this.input.b[this.inPos++];
-				if(conv.hasCID) {
-					c = hxbit_Serializer.CL_BYID[realIdx];
-					clidx = c.__clid;
-				}
-			}
-		} else if(hxbit_Serializer.CLIDS[clidx] != 0) {
-			var realIdx = this.input.b[this.inPos++] << 8 | this.input.b[this.inPos++];
-			c = hxbit_Serializer.CL_BYID[realIdx];
-			if(this.convert != null) {
-				clidx = c.__clid;
-			}
-		}
-		var i = Object.create(c.prototype);
-		if(this.newObjects != null) {
-			this.newObjects.push(i);
-		}
-		i.__uid = id;
-		i.unserializeInit();
-		this.refs.h[id] = i;
-		if(this.convert != null && this.convert[clidx] != null) {
-			this.convertRef(i,this.convert[clidx]);
-		} else {
-			i.unserialize(this);
-		}
-		return i;
-	}
-	,getKnownRef: function(c) {
-		return this.getRef(c,c.__clid);
-	}
-	,beginSave: function() {
-		this.begin();
-		this.usedClasses = [];
-	}
-	,endSave: function(savePosition) {
-		if(savePosition == null) {
-			savePosition = 0;
-		}
-		var content = this.end();
-		this.begin();
-		var classes = [];
-		var schemas = [];
-		var sidx = hxbit_Serializer.CLASSES.indexOf(hxbit_Schema);
-		var _g = 0;
-		var _g1 = this.usedClasses.length;
-		while(_g < _g1) {
-			var i = _g++;
-			if(!this.usedClasses[i] || i == sidx) {
-				continue;
-			}
-			var c = hxbit_Serializer.CLASSES[i];
-			var schema = Object.create(c.prototype).getSerializeSchema();
-			schemas.push(schema);
-			classes.push(i);
-			this.addKnownRef(schema);
-			this.refs.remove(schema.__uid);
-		}
-		var schemaData = this.end();
-		this.begin();
-		this.out.addBytes(content,0,savePosition);
-		var b = haxe_io_Bytes.ofString("HXS");
-		var v = b.length + 1;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		this.out.add(b);
-		this.out.addByte(1);
-		var _g = 0;
-		var _g1 = classes.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var index = classes[i];
-			var c = hxbit_Serializer.CLASSES[index];
-			var s = c.__name__;
-			if(s == null) {
-				this.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(s);
-				var v = b.length + 1;
-				if(v >= 0 && v < 128) {
-					this.out.addByte(v);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v);
-				}
-				this.out.add(b);
-			}
-			this.out.addByte(index >> 8);
-			this.out.addByte(index & 255);
-			var v1 = schemas[i].get_checkSum();
-			this.out.addInt32(v1);
-		}
-		var s = null;
-		if(s == null) {
-			this.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-		var v = schemaData.length;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		this.out.add(schemaData);
-		this.out.addBytes(content,savePosition,content.length - savePosition);
-		return this.end();
-	}
-	,beginLoad: function(bytes,position) {
-		if(position == null) {
-			position = 0;
-		}
-		this.setInput(bytes,position);
-		var classByName_h = Object.create(null);
-		var schemas = [];
-		var mapIndexes = [];
-		var indexes = [];
-		var needConvert = false;
-		var needReindex = false;
-		var _g = 0;
-		var _g1 = hxbit_Serializer.CLASSES.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var c = hxbit_Serializer.CLASSES[i];
-			classByName_h[c.__name__] = i;
-			mapIndexes[i] = i;
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		var tmp;
-		if(len == 0) {
-			tmp = null;
-		} else {
-			--len;
-			var s = this.input.getString(this.inPos,len);
-			this.inPos += len;
-			tmp = s;
-		}
-		if(tmp != "HXS") {
-			throw haxe_Exception.thrown("Invalid HXS data");
-		}
-		var version = this.input.b[this.inPos++];
-		if(version != 1) {
-			throw haxe_Exception.thrown("Unsupported HXS version " + version);
-		}
-		while(true) {
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			var clname;
-			if(len == 0) {
-				clname = null;
-			} else {
-				--len;
-				var s = this.input.getString(this.inPos,len);
-				this.inPos += len;
-				clname = s;
-			}
-			if(clname == null) {
-				break;
-			}
-			var index = this.input.b[this.inPos++] << 8 | this.input.b[this.inPos++];
-			var v1 = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-			var crc = v1;
-			var ourClassIndex = classByName_h[clname];
-			if(ourClassIndex == null) {
-				throw haxe_Exception.thrown("Missing class " + clname + " found in HXS data");
-			}
-			var ourSchema = Object.create(hxbit_Serializer.CLASSES[ourClassIndex].prototype).getSerializeSchema();
-			if(ourSchema.get_checkSum() != crc) {
-				needConvert = true;
-				schemas[index] = ourSchema;
-			}
-			if(index != ourClassIndex) {
-				needReindex = true;
-				mapIndexes[index] = ourClassIndex;
-			}
-			indexes.push(index);
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var schemaDataSize = v;
-		if(needConvert) {
-			this.convert = [];
-			var _g = 0;
-			while(_g < indexes.length) {
-				var index = indexes[_g];
-				++_g;
-				var ourSchema = schemas[index];
-				var c = hxbit_Schema;
-				var schema = this.getRef(c,c.__clid);
-				this.refs.remove(schema.__uid);
-				if(ourSchema != null) {
-					var c1 = hxbit_Serializer.CLASSES[mapIndexes[index]];
-					this.convert[mapIndexes[index]] = new hxbit_Convert(c1.__name__,ourSchema,schema);
-				}
-			}
-		} else {
-			this.inPos += schemaDataSize;
-		}
-		if(needReindex) {
-			this.mapIndexes = mapIndexes;
-		}
-	}
-	,endLoad: function() {
-		this.convert = null;
-		this.mapIndexes = null;
-		this.setInput(null,0);
-	}
-	,convertRef: function(i,c) {
-		var this1 = new Array(c.read.length);
-		var values = this1;
-		var writePos = 0;
-		var _g = 0;
-		var _g1 = c.read;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			values[r.index] = this.readValue(r.from);
-		}
-		var oldOut = this.out;
-		this.out = new haxe_io_BytesBuffer();
-		var _g = 0;
-		var _g1 = c.write;
-		while(_g < _g1.length) {
-			var w = _g1[_g];
-			++_g;
-			var v;
-			if(w.from == null) {
-				v = w.defaultValue;
-			} else {
-				v = values[w.index];
-				if(!w.same) {
-					if(v == null) {
-						v = w.defaultValue;
-					} else if(w.conv != null) {
-						v = w.conv(v);
-					} else {
-						v = this.convertValue(w.path,v,w.from,w.to);
-					}
-				}
-			}
-			this.writeValue(v,w.to);
-		}
-		var bytes = this.out.getBytes();
-		this.out = oldOut;
-		var oldIn = this.input;
-		var oldPos = this.inPos;
-		this.setInput(bytes,0);
-		var obj = Reflect.field(i,"oldHxBitFields");
-		if(obj != null) {
-			var _g = 0;
-			var _g1 = c.read;
-			while(_g < _g1.length) {
-				var r = _g1[_g];
-				++_g;
-				if(!r.written) {
-					obj[r.path.split(".").pop()] = values[r.index];
-				}
-			}
-		}
-		i.unserialize(this);
-		this.setInput(oldIn,oldPos);
-	}
-	,isNullable: function(t) {
-		switch(t._hx_index) {
-		case 0:case 1:case 2:
-			return false;
-		default:
-			return true;
-		}
-	}
-	,convertValue: function(path,v,from,to) {
-		if(v == null) {
-			return hxbit_Convert.getDefault(to);
-		}
-		if(hxbit_Convert.sameType(from,to)) {
-			return v;
-		}
-		var conv = hxbit_Convert.convFuns.h[path];
-		if(conv != null) {
-			return conv(v);
-		}
-		switch(from._hx_index) {
-		case 0:
-			switch(to._hx_index) {
-			case 1:
-				return v * 1.0;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 1:
-			switch(to._hx_index) {
-			case 0:
-				return v | 0;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 2:
-			switch(to._hx_index) {
-			case 0:
-				if(v) {
-					return 1;
-				} else {
-					return 0;
-				}
-				break;
-			case 1:
-				if(v) {
-					return 1.;
-				} else {
-					return 0.;
-				}
-				break;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 5:
-			var _g = from.name;
-			switch(to._hx_index) {
-			case 5:
-				var to1 = to.name;
-				var cl = $hxClasses[to1];
-				if(cl == null) {
-					throw haxe_Exception.thrown("Missing target class " + to1);
-				}
-				var value = v;
-				var v2 = js_Boot.__downcastCheck(value,cl) ? value : null;
-				if(v2 != null) {
-					return v2;
-				}
-				break;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 7:
-			var _g = from.k;
-			var _g1 = from.v;
-			switch(to._hx_index) {
-			case 7:
-				var tt = to.k;
-				var tv = to.v;
-				var fv = _g1;
-				var ft = _g;
-				if(hxbit_Convert.sameType(ft,tt)) {
-					var path1 = path + "[]";
-					switch(ft._hx_index) {
-					case 0:
-						var v1 = v;
-						var v2 = new haxe_ds_IntMap();
-						var k = v1.iterator();
-						while(k.hasNext()) {
-							var k1 = k.next();
-							var value = this.convertValue(path1,v1.h[k1],fv,tv);
-							v2.h[k1] = value;
-						}
-						return v2;
-					case 3:
-						var v1 = v;
-						var v2 = new haxe_ds_StringMap();
-						var h = v1.h;
-						var k_h = h;
-						var k_keys = Object.keys(h);
-						var k_length = k_keys.length;
-						var k_current = 0;
-						while(k_current < k_length) {
-							var k = k_h[k_keys[k_current++]];
-							var value = this.convertValue(path1,v1.h[k],fv,tv);
-							v2.h[k] = value;
-						}
-						return v2;
-					default:
-					}
-				}
-				break;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 8:
-			var _g = from.k;
-			switch(to._hx_index) {
-			case 8:
-				var to1 = to.k;
-				var from1 = _g;
-				var arr = v;
-				var path1 = path + "[]";
-				var _g = [];
-				var _g1 = 0;
-				while(_g1 < arr.length) {
-					var v1 = arr[_g1];
-					++_g1;
-					_g.push(this.convertValue(path1,v1,from1,to1));
-				}
-				return _g;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 9:
-			var _g = from.fields;
-			switch(to._hx_index) {
-			case 9:
-				var obj2 = to.fields;
-				var obj1 = _g;
-				var v2 = { };
-				var _g = 0;
-				while(_g < obj2.length) {
-					var f = obj2[_g];
-					++_g;
-					var found = false;
-					var field = null;
-					var _g1 = 0;
-					while(_g1 < obj1.length) {
-						var f2 = obj1[_g1];
-						++_g1;
-						if(f2.name == f.name) {
-							found = true;
-							field = this.convertValue(path + "." + f2.name,Reflect.field(v,f2.name),f2.type,f.type);
-							break;
-						}
-					}
-					if(!found) {
-						if(f.opt) {
-							continue;
-						}
-						field = hxbit_Convert.getDefault(f.type);
-					} else if(field == null && f.opt) {
-						continue;
-					}
-					v2[f.name] = field;
-				}
-				return v2;
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-			break;
-		case 10:
-			var _g = from.k;
-			switch(to._hx_index) {
-			case 10:
-				var _g1 = to.k;
-				var from1 = _g;
-				return this.convertValue(path,v,from1,to);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-				var from1 = _g;
-				return this.convertValue(path,v,from1,to);
-			}
-			break;
-		case 12:
-			var from1 = from.t;
-			return this.convertValue(path,v,from1,to);
-		default:
-			switch(to._hx_index) {
-			case 10:
-				var to1 = to.k;
-				return this.convertValue(path,v,from,to1);
-			case 12:
-				var to1 = to.t;
-				return this.convertValue(path,v,from,to1);
-			default:
-			}
-		}
-		throw haxe_Exception.thrown("Cannot convert " + path + "(" + Std.string(v) + ") from " + Std.string(from) + " to " + Std.string(to));
-	}
-	,getEnumClass: function(name) {
-		var cl = hxbit_Serializer.ENUM_CLASSES.h[name];
-		if(cl != null) {
-			return cl;
-		}
-		var path = name.split(".").join("_");
-		path = path.charAt(0).toUpperCase() + HxOverrides.substr(path,1,null);
-		cl = $hxClasses["hxbit.enumSer." + path];
-		if(cl != null) {
-			hxbit_Serializer.ENUM_CLASSES.h[name] = cl;
-		}
-		return cl;
-	}
-	,readValue: function(t) {
-		var _gthis = this;
-		switch(t._hx_index) {
-		case 0:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			return v;
-		case 1:
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			return v;
-		case 2:
-			return this.input.b[this.inPos++] != 0;
-		case 3:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				return null;
-			} else {
-				--len;
-				var s = this.input.getString(this.inPos,len);
-				this.inPos += len;
-				return s;
-			}
-			break;
-		case 4:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				return null;
-			} else {
-				--len;
-				var s = this.input.sub(this.inPos,len);
-				this.inPos += len;
-				return s;
-			}
-			break;
-		case 5:
-			var name = t.name;
-			var c = $hxClasses[name];
-			return this.getRef(c,c.__clid);
-		case 6:
-			var name = t.name;
-			var ser = this.getEnumClass(name);
-			if(ser == null) {
-				var e = $hxEnums[name];
-				var tmp;
-				if(e != null) {
-					var o = haxe_rtti_Meta.getType(e);
-					tmp = Object.prototype.hasOwnProperty.call(o,"skipSerialize");
-				} else {
-					tmp = false;
-				}
-				if(tmp) {
-					var v = this.input.b[this.inPos++];
-					if(v == 128) {
-						v = this.input.getInt32(this.inPos);
-						this.inPos += 4;
-					}
-					return null;
-				}
-				throw haxe_Exception.thrown("No enum unserializer found for " + name);
-			}
-			return ser.doUnserialize(this);
-		case 7:
-			var k = t.k;
-			var v = t.v;
-			switch(k._hx_index) {
-			case 0:
-				var v1 = this.input.b[this.inPos++];
-				if(v1 == 128) {
-					v1 = this.input.getInt32(this.inPos);
-					this.inPos += 4;
-				}
-				var len = v1;
-				var tmp;
-				if(len == 0) {
-					tmp = null;
-				} else {
-					var m = new haxe_ds_IntMap();
-					while(--len > 0) {
-						var k1 = _gthis.readValue(k);
-						var v1 = _gthis.readValue(v);
-						m.h[k1] = v1;
-					}
-					tmp = m;
-				}
-				return tmp;
-			case 3:
-				var v1 = this.input.b[this.inPos++];
-				if(v1 == 128) {
-					v1 = this.input.getInt32(this.inPos);
-					this.inPos += 4;
-				}
-				var len = v1;
-				var tmp;
-				if(len == 0) {
-					tmp = null;
-				} else {
-					var m = new haxe_ds_StringMap();
-					while(--len > 0) {
-						var k1 = _gthis.readValue(k);
-						var v1 = _gthis.readValue(v);
-						m.h[k1] = v1;
-					}
-					tmp = m;
-				}
-				return tmp;
-			case 6:
-				var _g = k.name;
-				var v1 = this.input.b[this.inPos++];
-				if(v1 == 128) {
-					v1 = this.input.getInt32(this.inPos);
-					this.inPos += 4;
-				}
-				var len = v1;
-				if(len == 0) {
-					return null;
-				}
-				var m = new haxe_ds_EnumValueMap();
-				while(--len > 0) {
-					var k1 = this.readValue(k);
-					var v1 = this.readValue(v);
-					m.set(k1,v1);
-				}
-				return m;
-			default:
-				var v1 = this.input.b[this.inPos++];
-				if(v1 == 128) {
-					v1 = this.input.getInt32(this.inPos);
-					this.inPos += 4;
-				}
-				var len = v1;
-				var tmp;
-				if(len == 0) {
-					tmp = null;
-				} else {
-					var m = new haxe_ds_ObjectMap();
-					while(--len > 0) {
-						var k1 = _gthis.readValue(k);
-						var v1 = _gthis.readValue(v);
-						m.set(k1,v1);
-					}
-					tmp = m;
-				}
-				return tmp;
-			}
-			break;
-		case 8:
-			var t1 = t.k;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				return null;
-			} else {
-				--len;
-				var a = [];
-				var _g = 0;
-				var _g1 = len;
-				while(_g < _g1) {
-					var i = _g++;
-					a[i] = _gthis.readValue(t1);
-				}
-				return a;
-			}
-			break;
-		case 9:
-			var fields = t.fields;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var bits = v;
-			if(bits == 0) {
-				return null;
-			}
-			var o = { };
-			--bits;
-			var _g = [];
-			var _g1 = 0;
-			while(_g1 < fields.length) {
-				var f = fields[_g1];
-				++_g1;
-				if(this.isNullable(f.type)) {
-					_g.push(f);
-				}
-			}
-			var nullables = _g;
-			var _g = 0;
-			while(_g < fields.length) {
-				var f = fields[_g];
-				++_g;
-				var nidx = nullables.indexOf(f);
-				if(nidx >= 0 && (bits & 1 << nidx) == 0) {
-					continue;
-				}
-				o[f.name] = this.readValue(f.type);
-			}
-			return o;
-		case 10:
-			var t1 = t.k;
-			return this.readValue(t1);
-		case 11:
-			var t1 = t.k;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				return null;
-			} else {
-				--len;
-				var this1 = new Array(len);
-				var a = this1;
-				var _g = 0;
-				var _g1 = len;
-				while(_g < _g1) {
-					var i = _g++;
-					a[i] = _gthis.readValue(t1);
-				}
-				return a;
-			}
-			break;
-		case 12:
-			var t1 = t.t;
-			if(this.input.b[this.inPos++] == 0) {
-				return null;
-			} else {
-				return this.readValue(t1);
-			}
-			break;
-		case 13:
-			throw haxe_Exception.thrown("assert");
-		case 14:
-			return this.getDynamic();
-		case 15:
-			var v = this.input.getInt64(this.inPos);
-			this.inPos += 8;
-			return v;
-		case 16:
-			var _g = t.t;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			return v;
-		case 17:
-			return this.getStruct();
-		case 18:
-			var _g = t.name;
-			return this.getAnyRef();
-		}
-	}
-	,writeValue: function(v,t) {
-		var _gthis = this;
-		switch(t._hx_index) {
-		case 0:
-			var v1 = v;
-			if(v1 >= 0 && v1 < 128) {
-				this.out.addByte(v1);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v1);
-			}
-			break;
-		case 1:
-			this.out.addFloat(v);
-			break;
-		case 2:
-			this.out.addByte(v ? 1 : 0);
-			break;
-		case 3:
-			var s = v;
-			if(s == null) {
-				this.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(s);
-				var v1 = b.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					this.out.addByte(v1);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v1);
-				}
-				this.out.add(b);
-			}
-			break;
-		case 4:
-			var b = v;
-			if(b == null) {
-				this.out.addByte(0);
-			} else {
-				var v1 = b.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					this.out.addByte(v1);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v1);
-				}
-				this.out.add(b);
-			}
-			break;
-		case 5:
-			var _g = t.name;
-			this.addKnownRef(v);
-			break;
-		case 6:
-			var name = t.name;
-			var ser = this.getEnumClass(name);
-			if(ser == null) {
-				throw haxe_Exception.thrown("No enum unserializer found for " + name);
-			}
-			ser.doSerialize(this,v);
-			break;
-		case 7:
-			var k = t.k;
-			var t1 = t.v;
-			switch(k._hx_index) {
-			case 0:
-				var v1 = v;
-				if(v1 == null) {
-					this.out.addByte(0);
-				} else {
-					var _g = [];
-					var k1 = v1.keys();
-					while(k1.hasNext()) {
-						var k2 = k1.next();
-						_g.push(k2);
-					}
-					var keys = _g;
-					var v2 = keys.length + 1;
-					if(v2 >= 0 && v2 < 128) {
-						this.out.addByte(v2);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v2);
-					}
-					var _g = 0;
-					while(_g < keys.length) {
-						var k1 = keys[_g];
-						++_g;
-						_gthis.writeValue(k1,k);
-						_gthis.writeValue(v1.h[k1],t1);
-					}
-				}
-				break;
-			case 3:
-				var v1 = v;
-				if(v1 == null) {
-					this.out.addByte(0);
-				} else {
-					var _g = [];
-					var h = v1.h;
-					var k_h = h;
-					var k_keys = Object.keys(h);
-					var k_length = k_keys.length;
-					var k_current = 0;
-					while(k_current < k_length) {
-						var k1 = k_keys[k_current++];
-						_g.push(k1);
-					}
-					var keys = _g;
-					var v2 = keys.length + 1;
-					if(v2 >= 0 && v2 < 128) {
-						this.out.addByte(v2);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v2);
-					}
-					var _g = 0;
-					while(_g < keys.length) {
-						var k1 = keys[_g];
-						++_g;
-						_gthis.writeValue(k1,k);
-						_gthis.writeValue(v1.h[k1],t1);
-					}
-				}
-				break;
-			case 6:
-				var _g = k.name;
-				var v1 = v;
-				if(v1 == null) {
-					this.out.addByte(0);
-					return;
-				}
-				var _g = [];
-				var k1 = v1.keys();
-				while(k1.hasNext()) {
-					var k2 = k1.next();
-					_g.push(k2);
-				}
-				var keys = _g;
-				var v2 = keys.length + 1;
-				if(v2 >= 0 && v2 < 128) {
-					this.out.addByte(v2);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v2);
-				}
-				var _g = 0;
-				while(_g < keys.length) {
-					var vk = keys[_g];
-					++_g;
-					this.writeValue(vk,k);
-					this.writeValue(v1.get(vk),t1);
-				}
-				break;
-			default:
-				var v1 = v;
-				if(v1 == null) {
-					this.out.addByte(0);
-				} else {
-					var _g = [];
-					var k1 = v1.keys();
-					while(k1.hasNext()) {
-						var k2 = k1.next();
-						_g.push(k2);
-					}
-					var keys = _g;
-					var v2 = keys.length + 1;
-					if(v2 >= 0 && v2 < 128) {
-						this.out.addByte(v2);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v2);
-					}
-					var _g = 0;
-					while(_g < keys.length) {
-						var k1 = keys[_g];
-						++_g;
-						_gthis.writeValue(k1,k);
-						_gthis.writeValue(v1.h[k1.__id__],t1);
-					}
-				}
-			}
-			break;
-		case 8:
-			var t1 = t.k;
-			var a = v;
-			if(a == null) {
-				this.out.addByte(0);
-			} else {
-				var v1 = a.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					this.out.addByte(v1);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v1);
-				}
-				var _g = 0;
-				while(_g < a.length) {
-					var v1 = a[_g];
-					++_g;
-					_gthis.writeValue(v1,t1);
-				}
-			}
-			break;
-		case 9:
-			var fields = t.fields;
-			if(v == null) {
-				this.out.addByte(0);
-			} else {
-				var fbits = 0;
-				var _g = [];
-				var _g1 = 0;
-				while(_g1 < fields.length) {
-					var f = fields[_g1];
-					++_g1;
-					if(this.isNullable(f.type)) {
-						_g.push(f);
-					}
-				}
-				var nullables = _g;
-				var _g = 0;
-				var _g1 = nullables.length;
-				while(_g < _g1) {
-					var i = _g++;
-					if(Reflect.field(v,nullables[i].name) != null) {
-						fbits |= 1 << i;
-					}
-				}
-				var v1 = fbits + 1;
-				if(v1 >= 0 && v1 < 128) {
-					this.out.addByte(v1);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v1);
-				}
-				var _g = 0;
-				while(_g < fields.length) {
-					var f = fields[_g];
-					++_g;
-					var nidx = nullables.indexOf(f);
-					if(nidx >= 0 && (fbits & 1 << nidx) == 0) {
-						continue;
-					}
-					this.writeValue(Reflect.field(v,f.name),f.type);
-				}
-			}
-			break;
-		case 10:
-			var t1 = t.k;
-			this.writeValue(v,t1);
-			break;
-		case 11:
-			var t1 = t.k;
-			var a = v;
-			if(a == null) {
-				this.out.addByte(0);
-			} else {
-				var v1 = a.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					this.out.addByte(v1);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v1);
-				}
-				var _g = 0;
-				while(_g < a.length) {
-					var v1 = a[_g];
-					++_g;
-					_gthis.writeValue(v1,t1);
-				}
-			}
-			break;
-		case 12:
-			var t1 = t.t;
-			if(v == null) {
-				this.out.addByte(0);
-			} else {
-				this.out.addByte(1);
-				this.writeValue(v,t1);
-			}
-			break;
-		case 13:
-			throw haxe_Exception.thrown("assert");
-		case 14:
-			this.addDynamic(v);
-			break;
-		case 15:
-			this.out.addInt64(v);
-			break;
-		case 16:
-			var _g = t.t;
-			var v1 = v;
-			if(v1 >= 0 && v1 < 128) {
-				this.out.addByte(v1);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v1);
-			}
-			break;
-		case 17:
-			this.addStruct(v);
-			break;
-		case 18:
-			var _g = t.name;
-			this.addAnyRef(v);
-			break;
-		}
-	}
-	,__class__: hxbit_Serializer
-};
-var hxbit_NetworkSerializer = function(host) {
-	this.errorPropId = -1;
-	this.enableChecks = true;
-	this.hasError = false;
-	hxbit_Serializer.call(this);
-	this.host = host;
-};
-$hxClasses["hxbit.NetworkSerializer"] = hxbit_NetworkSerializer;
-hxbit_NetworkSerializer.__name__ = "hxbit.NetworkSerializer";
-hxbit_NetworkSerializer.__super__ = hxbit_Serializer;
-hxbit_NetworkSerializer.prototype = $extend(hxbit_Serializer.prototype,{
-	hasError: null
-	,enableChecks: null
-	,errorPropId: null
-	,host: null
-	,get_error: function() {
-		if(!this.hasError) {
-			return false;
-		}
-		this.hasError = false;
-		return true;
-	}
-	,addObjRef: function(s) {
-		if(!this.enableChecks) {
-			hxbit_Serializer.prototype.addObjRef.call(this,s);
-			return;
-		}
-		var v = s.__uid;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var ns = js_Boot.__implements(s,hxbit_NetworkSerializable) ? s : null;
-		if(ns != null && ns.__host == null) {
-			this.out = new haxe_io_BytesBuffer();
-			throw haxe_Exception.thrown("Can't send unbound object " + Std.string(s) + " over network");
-		}
-		var tmp = this.refs.h.hasOwnProperty(s.__uid) ? 1 : 0;
-		this.out.addByte(tmp);
-	}
-	,getObjRef: function() {
-		if(!this.enableChecks) {
-			return hxbit_Serializer.prototype.getObjRef.call(this);
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var id = v;
-		if(id == 0) {
-			return 0;
-		}
-		var b = this.input.b[this.inPos++] != 0;
-		if(b && !this.refs.h.hasOwnProperty(id)) {
-			this.hasError = true;
-			this.errorPropId = this.host == null ? -1 : this.host.isSyncingProperty;
-			return 0;
-		}
-		return id;
-	}
-	,__class__: hxbit_NetworkSerializer
-});
-var hxbit__$NetworkStats_EmptyEnum = $hxEnums["hxbit._NetworkStats.EmptyEnum"] = { __ename__:"hxbit._NetworkStats.EmptyEnum",__constructs__:null
-};
-hxbit__$NetworkStats_EmptyEnum.__constructs__ = [];
-hxbit__$NetworkStats_EmptyEnum.__empty_constructs__ = [];
-var hxbit_NetworkStats = function() {
-	this.classes = new haxe_ds_IntMap();
-};
-$hxClasses["hxbit.NetworkStats"] = hxbit_NetworkStats;
-hxbit_NetworkStats.__name__ = "hxbit.NetworkStats";
-hxbit_NetworkStats.prototype = {
-	classes: null
-	,curRPC: null
-	,getClass: function(o) {
-		var cid = o.getCLID();
-		var c = this.classes.h[cid];
-		if(c == null) {
-			var c1 = js_Boot.getClass(o);
-			c = { name : c1.__name__, props : [], rpcs : [], schema : o.getSerializeSchema()};
-			this.classes.h[cid] = c;
-		}
-		return c;
-	}
-	,intSize: function(v) {
-		if(v >= 0 && v < 128) {
-			return 1;
-		} else {
-			return 5;
-		}
-	}
-	,isNullable: function(t) {
-		switch(t._hx_index) {
-		case 0:case 1:case 2:
-			return false;
-		default:
-			return true;
-		}
-	}
-	,calcPropSize: function(t,v) {
-		var size = 0;
-		switch(t._hx_index) {
-		case 0:
-			var v1 = v;
-			size += v1 >= 0 && v1 < 128 ? 1 : 5;
-			break;
-		case 1:
-			size += 4;
-			break;
-		case 2:
-			++size;
-			break;
-		case 3:
-			if(v == null) {
-				++size;
-			} else {
-				var b = haxe_io_Bytes.ofString(v);
-				var v1 = b.length + 1;
-				size += (v1 >= 0 && v1 < 128 ? 1 : 5) + b.length;
-			}
-			break;
-		case 4:
-			if(v == null) {
-				++size;
-			} else {
-				var b = v;
-				var v1 = b.length + 1;
-				size += (v1 >= 0 && v1 < 128 ? 1 : 5) + b.length;
-			}
-			break;
-		case 5:
-			var _g = t.name;
-			var size1;
-			if(v == null) {
-				size1 = 1;
-			} else {
-				var v1 = v.__uid;
-				size1 = v1 >= 0 && v1 < 128 ? 1 : 5;
-			}
-			size += size1;
-			break;
-		case 6:
-			var _g = t.name;
-			var size1;
-			if(v == null) {
-				size1 = 1;
-			} else {
-				var v1 = v._hx_index + 1;
-				size1 = v1 >= 0 && v1 < 128 ? 1 : 5;
-			}
-			size += size1;
-			break;
-		case 7:
-			var kt = t.k;
-			var vt = t.v;
-			if(v == null) {
-				++size;
-			} else {
-				if(((v) instanceof hxbit_BaseProxy)) {
-					v = v.map;
-				}
-				switch(kt._hx_index) {
-				case 0:
-					var m = v;
-					var _g = [];
-					var k = m.keys();
-					while(k.hasNext()) {
-						var k1 = k.next();
-						_g.push(k1);
-					}
-					var keys = _g;
-					var v1 = keys.length + 1;
-					size += v1 >= 0 && v1 < 128 ? 1 : 5;
-					var _g = 0;
-					while(_g < keys.length) {
-						var v1 = keys[_g];
-						++_g;
-						size += (v1 >= 0 && v1 < 128 ? 1 : 5) + this.calcPropSize(vt,m.h[v1]);
-					}
-					break;
-				case 3:
-					var m = v;
-					var _g = [];
-					var h = m.h;
-					var k_h = h;
-					var k_keys = Object.keys(h);
-					var k_length = k_keys.length;
-					var k_current = 0;
-					while(k_current < k_length) {
-						var k = k_keys[k_current++];
-						_g.push(k);
-					}
-					var keys = _g;
-					var v1 = keys.length + 1;
-					size += v1 >= 0 && v1 < 128 ? 1 : 5;
-					var _g = 0;
-					while(_g < keys.length) {
-						var v1 = keys[_g];
-						++_g;
-						size += this.calcPropSize(kt,v1) + this.calcPropSize(vt,m.h[v1]);
-					}
-					break;
-				default:
-					var m = v;
-					var _g = [];
-					var k = m.keys();
-					while(k.hasNext()) {
-						var k1 = k.next();
-						_g.push(k1);
-					}
-					var keys = _g;
-					var v1 = keys.length + 1;
-					size += v1 >= 0 && v1 < 128 ? 1 : 5;
-					var _g = 0;
-					while(_g < keys.length) {
-						var v1 = keys[_g];
-						++_g;
-						size += this.calcPropSize(kt,v1) + this.calcPropSize(vt,m.get(v1));
-					}
-				}
-			}
-			break;
-		case 8:
-			var at = t.k;
-			if(((v) instanceof hxbit_BaseProxy)) {
-				v = v.array;
-			}
-			var a = v;
-			if(a == null) {
-				++size;
-			} else {
-				var v1 = a.length + 1;
-				size += v1 >= 0 && v1 < 128 ? 1 : 5;
-				var _g = 0;
-				while(_g < a.length) {
-					var v1 = a[_g];
-					++_g;
-					size += this.calcPropSize(at,v1);
-				}
-			}
-			break;
-		case 9:
-			var fields = t.fields;
-			if(v == null) {
-				++size;
-			} else {
-				var fbits = 0;
-				var _g = [];
-				var _g1 = 0;
-				while(_g1 < fields.length) {
-					var f = fields[_g1];
-					++_g1;
-					if(this.isNullable(f.type)) {
-						_g.push(f);
-					}
-				}
-				var nullables = _g;
-				var _g = 0;
-				var _g1 = nullables.length;
-				while(_g < _g1) {
-					var i = _g++;
-					if(Reflect.field(v,nullables[i].name) != null) {
-						fbits |= 1 << i;
-					}
-				}
-				var v1 = fbits + 1;
-				size += v1 >= 0 && v1 < 128 ? 1 : 5;
-				var _g = 0;
-				while(_g < fields.length) {
-					var f = fields[_g];
-					++_g;
-					var nidx = nullables.indexOf(f);
-					if(nidx >= 0 && (fbits & 1 << nidx) == 0) {
-						continue;
-					}
-					size += this.calcPropSize(f.type,Reflect.field(v,f.name));
-				}
-			}
-			break;
-		case 10:
-			var t1 = t.k;
-			return this.calcPropSize(t1,v);
-		case 11:
-			var t1 = t.k;
-			if(v == null) {
-				++size;
-			} else {
-				var v1 = v;
-				var v2 = v1.length + 1;
-				size += v2 >= 0 && v2 < 128 ? 1 : 5;
-				var _g = 0;
-				while(_g < v1.length) {
-					var e = v1[_g];
-					++_g;
-					size += this.calcPropSize(t1,e);
-				}
-			}
-			break;
-		case 12:
-			var t1 = t.t;
-			size += 1 + this.calcPropSize(t1,v);
-			break;
-		case 13:
-			throw haxe_Exception.thrown("assert");
-		case 14:
-			var s = new hxbit_Serializer();
-			s.begin();
-			s.addDynamic(v);
-			size += s.out.pos;
-			break;
-		case 15:
-			size += 8;
-			break;
-		case 16:
-			var _g = t.t;
-			if(((v) instanceof hxbit_BaseProxy)) {
-				v = v.value;
-			}
-			var v1 = v;
-			size += v1 >= 0 && v1 < 128 ? 1 : 5;
-			break;
-		case 17:
-			break;
-		case 18:
-			var _g = t.name;
-			var size1;
-			if(v == null) {
-				size1 = 1;
-			} else {
-				var v1 = v.__uid;
-				size1 = v1 >= 0 && v1 < 128 ? 1 : 5;
-			}
-			size += size1;
-			break;
-		}
-		return size;
-	}
-	,sync: function(o) {
-		var c = this.getClass(o);
-		var i = 0;
-		while(1 << i <= o.__bits1) {
-			if((o.__bits1 & 1 << i) != 0) {
-				var p = c.props[i];
-				if(p == null) {
-					p = { cl : c, name : o.networkGetName(i), count : 0, bytes : 0, size : 0};
-					c.props[i] = p;
-				}
-				p.count++;
-				p.bytes += this.calcPropSize(c.schema.fieldsTypes[i],Reflect.field(o,p.name));
-			}
-			++i;
-		}
-		if(o.__bits2 != 0) {
-			throw haxe_Exception.thrown("TODO");
-		}
-	}
-	,beginRPC: function(o,id) {
-		var c = this.getClass(o);
-		var r = c.rpcs[id];
-		if(r == null) {
-			r = { cl : c, name : o.networkGetName(id,true), count : 0, bytes : 0, size : 0};
-			c.rpcs[id] = r;
-		}
-		this.curRPC = r;
-		r.count++;
-		return r;
-	}
-	,endRPC: function(size) {
-		this.curRPC.bytes += size;
-		this.curRPC = null;
-	}
-	,scoreSort: function(p) {
-		return p.count * 4 + p.bytes;
-	}
-	,dump: function(print) {
-		var _gthis = this;
-		var all = [];
-		var c = this.classes.iterator();
-		while(c.hasNext()) {
-			var c1 = c.next();
-			var _g = 0;
-			var _g1 = c1.props.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var p = c1.props[i];
-				if(p != null && p.count > 0) {
-					all.push(p);
-				}
-			}
-			var _g2 = 0;
-			var _g3 = c1.rpcs.length;
-			while(_g2 < _g3) {
-				var i1 = _g2++;
-				var p1 = c1.rpcs[i1];
-				if(p1 != null && p1.count > 0) {
-					all.push(p1);
-				}
-			}
-		}
-		all.sort(function(p1,p2) {
-			return _gthis.scoreSort(p1) - _gthis.scoreSort(p2);
-		});
-		var tot = 0;
-		var _g = 0;
-		while(_g < all.length) {
-			var p = all[_g];
-			++_g;
-			tot += p.bytes;
-		}
-		if(print == null) {
-			print = function(str) {
-				haxe_Log.trace(str,{ fileName : "hxbit/NetworkStats.hx", lineNumber : 221, className : "hxbit.NetworkStats", methodName : "dump"});
-			};
-		}
-		print("Stats\tClass name\tCount\tBytes\t%");
-		var _g = 0;
-		while(_g < all.length) {
-			var p = all[_g];
-			++_g;
-			print("\t" + p.cl.name + "." + p.name + "\t" + p.count + "\t" + p.bytes + "\t" + (p.bytes * 1000.0 / tot | 0) / 10);
-		}
-	}
-	,reset: function() {
-		this.classes = new haxe_ds_IntMap();
-	}
-	,__class__: hxbit_NetworkStats
-};
-var hxbit_Schema = function() {
-	this.__uid = hxbit_Serializer.SEQ << 24 | ++hxbit_Serializer.UID;
-	this.fieldsNames = [];
-	this.fieldsTypes = [];
-};
-$hxClasses["hxbit.Schema"] = hxbit_Schema;
-hxbit_Schema.__name__ = "hxbit.Schema";
-hxbit_Schema.__interfaces__ = [hxbit_Serializable];
-hxbit_Schema.doSerialize = function(__ctx,__this) {
-	__ctx.out.addByte(__this.isFinal ? 1 : 0);
-	var a = __this.fieldsNames;
-	if(a == null) {
-		__ctx.out.addByte(0);
-	} else {
-		var v = a.length + 1;
-		if(v >= 0 && v < 128) {
-			__ctx.out.addByte(v);
-		} else {
-			__ctx.out.addByte(128);
-			__ctx.out.addInt32(v);
-		}
-		var _g = 0;
-		while(_g < a.length) {
-			var v = a[_g];
-			++_g;
-			if(v == null) {
-				__ctx.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(v);
-				var v1 = b.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					__ctx.out.addByte(v1);
-				} else {
-					__ctx.out.addByte(128);
-					__ctx.out.addInt32(v1);
-				}
-				__ctx.out.add(b);
-			}
-		}
-	}
-	var a = __this.fieldsTypes;
-	if(a == null) {
-		__ctx.out.addByte(0);
-	} else {
-		var v = a.length + 1;
-		if(v >= 0 && v < 128) {
-			__ctx.out.addByte(v);
-		} else {
-			__ctx.out.addByte(128);
-			__ctx.out.addInt32(v);
-		}
-		var _g = 0;
-		while(_g < a.length) {
-			var v = a[_g];
-			++_g;
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(__ctx,v);
-		}
-	}
-};
-hxbit_Schema.doUnserialize = function(__ctx,__this) {
-	__this.isFinal = __ctx.input.b[__ctx.inPos++] != 0;
-	var e0;
-	var v = __ctx.input.b[__ctx.inPos++];
-	if(v == 128) {
-		v = __ctx.input.getInt32(__ctx.inPos);
-		__ctx.inPos += 4;
-	}
-	var len = v;
-	var tmp;
-	if(len == 0) {
-		tmp = null;
-	} else {
-		--len;
-		var a = [];
-		var _g = 0;
-		var _g1 = len;
-		while(_g < _g1) {
-			var i = _g++;
-			var v = __ctx.input.b[__ctx.inPos++];
-			if(v == 128) {
-				v = __ctx.input.getInt32(__ctx.inPos);
-				__ctx.inPos += 4;
-			}
-			var len = v;
-			if(len == 0) {
-				e0 = null;
-			} else {
-				--len;
-				var s = __ctx.input.getString(__ctx.inPos,len);
-				__ctx.inPos += len;
-				e0 = s;
-			}
-			a[i] = e0;
-		}
-		tmp = a;
-	}
-	__this.fieldsNames = tmp;
-	var e0;
-	var v = __ctx.input.b[__ctx.inPos++];
-	if(v == 128) {
-		v = __ctx.input.getInt32(__ctx.inPos);
-		__ctx.inPos += 4;
-	}
-	var len = v;
-	var tmp;
-	if(len == 0) {
-		tmp = null;
-	} else {
-		--len;
-		var a = [];
-		var _g = 0;
-		var _g1 = len;
-		while(_g < _g1) {
-			var i = _g++;
-			var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(__ctx);
-			e0 = __e;
-			a[i] = e0;
-		}
-		tmp = a;
-	}
-	__this.fieldsTypes = tmp;
-};
-hxbit_Schema.prototype = {
-	isFinal: null
-	,fieldsNames: null
-	,fieldsTypes: null
-	,get_checkSum: function() {
-		var s = new hxbit_Serializer();
-		s.begin();
-		var old = this.__uid;
-		this.__uid = 0;
-		s.addKnownRef(this);
-		this.__uid = old;
-		var bytes = s.end();
-		return haxe_crypto_Crc32.make(bytes);
-	}
-	,__uid: null
-	,getCLID: function() {
-		return hxbit_Schema.__clid;
-	}
-	,serialize: function(__ctx) {
-		hxbit_Schema.doSerialize(__ctx,this);
-	}
-	,getSerializeSchema: function() {
-		var schema = new hxbit_Schema();
-		schema.fieldsNames.push("isFinal");
-		schema.fieldsTypes.push(hxbit_PropTypeDesc.PBool);
-		schema.fieldsNames.push("fieldsNames");
-		schema.fieldsTypes.push(hxbit_PropTypeDesc.PArray(hxbit_PropTypeDesc.PString));
-		schema.fieldsNames.push("fieldsTypes");
-		schema.fieldsTypes.push(hxbit_PropTypeDesc.PArray(hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc")));
-		schema.isFinal = hxbit_Serializer.isClassFinal(hxbit_Schema.__clid);
-		return schema;
-	}
-	,unserializeInit: function() {
-	}
-	,unserialize: function(__ctx) {
-		hxbit_Schema.doUnserialize(__ctx,this);
-	}
-	,__class__: hxbit_Schema
-};
-var hxbit_SerializableEnum = function() { };
-$hxClasses["hxbit.SerializableEnum"] = hxbit_SerializableEnum;
-hxbit_SerializableEnum.__name__ = "hxbit.SerializableEnum";
-var hxbit_StructSerializable = function() { };
-$hxClasses["hxbit.StructSerializable"] = hxbit_StructSerializable;
-hxbit_StructSerializable.__name__ = "hxbit.StructSerializable";
-hxbit_StructSerializable.__isInterface__ = true;
-hxbit_StructSerializable.prototype = {
-	customSerialize: null
-	,customUnserialize: null
-	,__class__: hxbit_StructSerializable
-};
-var hxbit_enumSer_Hxbit_$PropTypeDesc = function() { };
-$hxClasses["hxbit.enumSer.Hxbit_PropTypeDesc"] = hxbit_enumSer_Hxbit_$PropTypeDesc;
-hxbit_enumSer_Hxbit_$PropTypeDesc.__name__ = "hxbit.enumSer.Hxbit_PropTypeDesc";
-hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize = function(ctx,v) {
-	if(v == null) {
-		ctx.out.addByte(0);
-	} else {
-		switch(v._hx_index) {
-		case 0:
-			ctx.out.addByte(1);
-			break;
-		case 1:
-			ctx.out.addByte(2);
-			break;
-		case 2:
-			ctx.out.addByte(3);
-			break;
-		case 3:
-			ctx.out.addByte(4);
-			break;
-		case 4:
-			ctx.out.addByte(5);
-			break;
-		case 5:
-			var _name = v.name;
-			ctx.out.addByte(6);
-			if(_name == null) {
-				ctx.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(_name);
-				var v1 = b.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					ctx.out.addByte(v1);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v1);
-				}
-				ctx.out.add(b);
-			}
-			break;
-		case 6:
-			var _name = v.name;
-			ctx.out.addByte(7);
-			if(_name == null) {
-				ctx.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(_name);
-				var v1 = b.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					ctx.out.addByte(v1);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v1);
-				}
-				ctx.out.add(b);
-			}
-			break;
-		case 7:
-			var _k = v.k;
-			var _v = v.v;
-			ctx.out.addByte(8);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_k);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_v);
-			break;
-		case 8:
-			var _k = v.k;
-			ctx.out.addByte(9);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_k);
-			break;
-		case 9:
-			var _fields = v.fields;
-			ctx.out.addByte(10);
-			if(_fields == null) {
-				ctx.out.addByte(0);
-			} else {
-				var v1 = _fields.length + 1;
-				if(v1 >= 0 && v1 < 128) {
-					ctx.out.addByte(v1);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v1);
-				}
-				var _g = 0;
-				while(_g < _fields.length) {
-					var v1 = _fields[_g];
-					++_g;
-					var v2 = v1;
-					if(v2 == null) {
-						ctx.out.addByte(0);
-					} else {
-						var fbits = 0;
-						if(v2.name != null) {
-							fbits |= 1;
-						}
-						if(v2.type != null) {
-							fbits |= 2;
-						}
-						var v3 = fbits + 1;
-						if(v3 >= 0 && v3 < 128) {
-							ctx.out.addByte(v3);
-						} else {
-							ctx.out.addByte(128);
-							ctx.out.addInt32(v3);
-						}
-						if((fbits & 1) != 0) {
-							var s = v2.name;
-							if(s == null) {
-								ctx.out.addByte(0);
-							} else {
-								var b = haxe_io_Bytes.ofString(s);
-								var v4 = b.length + 1;
-								if(v4 >= 0 && v4 < 128) {
-									ctx.out.addByte(v4);
-								} else {
-									ctx.out.addByte(128);
-									ctx.out.addInt32(v4);
-								}
-								ctx.out.add(b);
-							}
-						}
-						ctx.out.addByte(v2.opt ? 1 : 0);
-						if((fbits & 2) != 0) {
-							hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,v2.type);
-						}
-					}
-				}
-			}
-			break;
-		case 10:
-			var _k = v.k;
-			ctx.out.addByte(11);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_k);
-			break;
-		case 11:
-			var _k = v.k;
-			ctx.out.addByte(12);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_k);
-			break;
-		case 12:
-			var _t = v.t;
-			ctx.out.addByte(13);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_t);
-			break;
-		case 13:
-			ctx.out.addByte(14);
-			break;
-		case 14:
-			ctx.out.addByte(15);
-			break;
-		case 15:
-			ctx.out.addByte(16);
-			break;
-		case 16:
-			var _t = v.t;
-			ctx.out.addByte(17);
-			hxbit_enumSer_Hxbit_$PropTypeDesc.doSerialize(ctx,_t);
-			break;
-		case 17:
-			ctx.out.addByte(18);
-			break;
-		case 18:
-			var _name = v.name;
-			ctx.out.addByte(19);
-			if(_name == null) {
-				ctx.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(_name);
-				var v = b.length + 1;
-				if(v >= 0 && v < 128) {
-					ctx.out.addByte(v);
-				} else {
-					ctx.out.addByte(128);
-					ctx.out.addInt32(v);
-				}
-				ctx.out.add(b);
-			}
-			break;
-		}
-	}
-};
-hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize = function(ctx) {
-	var b = ctx.input.b[ctx.inPos++];
-	if(b == 0) {
-		return null;
-	}
-	switch(b) {
-	case 1:
-		return hxbit_PropTypeDesc.PInt;
-	case 2:
-		return hxbit_PropTypeDesc.PFloat;
-	case 3:
-		return hxbit_PropTypeDesc.PBool;
-	case 4:
-		return hxbit_PropTypeDesc.PString;
-	case 5:
-		return hxbit_PropTypeDesc.PBytes;
-	case 6:
-		var _name;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			_name = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			_name = s;
-		}
-		return hxbit_PropTypeDesc.PSerializable(_name);
-	case 7:
-		var _name;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			_name = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			_name = s;
-		}
-		return hxbit_PropTypeDesc.PEnum(_name);
-	case 8:
-		var _k;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_k = __e;
-		var _v;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_v = __e;
-		return hxbit_PropTypeDesc.PMap(_k,_v);
-	case 9:
-		var _k;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_k = __e;
-		return hxbit_PropTypeDesc.PArray(_k);
-	case 10:
-		var _fields;
-		var e0;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			_fields = null;
-		} else {
-			--len;
-			var a = [];
-			var _g = 0;
-			var _g1 = len;
-			while(_g < _g1) {
-				var i = _g++;
-				var v = ctx.input.b[ctx.inPos++];
-				if(v == 128) {
-					v = ctx.input.getInt32(ctx.inPos);
-					ctx.inPos += 4;
-				}
-				var fbits = v;
-				if(fbits == 0) {
-					e0 = null;
-				} else {
-					--fbits;
-					var type = null;
-					var name = null;
-					if((fbits & 1) != 0) {
-						var v1 = ctx.input.b[ctx.inPos++];
-						if(v1 == 128) {
-							v1 = ctx.input.getInt32(ctx.inPos);
-							ctx.inPos += 4;
-						}
-						var len = v1;
-						if(len == 0) {
-							name = null;
-						} else {
-							--len;
-							var s = ctx.input.getString(ctx.inPos,len);
-							ctx.inPos += len;
-							name = s;
-						}
-					}
-					var opt = ctx.input.b[ctx.inPos++] != 0;
-					if((fbits & 2) != 0) {
-						var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-						type = __e;
-					}
-					e0 = { name : name, opt : opt, type : type};
-				}
-				a[i] = e0;
-			}
-			_fields = a;
-		}
-		return hxbit_PropTypeDesc.PObj(_fields);
-	case 11:
-		var _k;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_k = __e;
-		return hxbit_PropTypeDesc.PAlias(_k);
-	case 12:
-		var _k;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_k = __e;
-		return hxbit_PropTypeDesc.PVector(_k);
-	case 13:
-		var _t;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_t = __e;
-		return hxbit_PropTypeDesc.PNull(_t);
-	case 14:
-		return hxbit_PropTypeDesc.PUnknown;
-	case 15:
-		return hxbit_PropTypeDesc.PDynamic;
-	case 16:
-		return hxbit_PropTypeDesc.PInt64;
-	case 17:
-		var _t;
-		var __e = hxbit_enumSer_Hxbit_$PropTypeDesc.doUnserialize(ctx);
-		_t = __e;
-		return hxbit_PropTypeDesc.PFlags(_t);
-	case 18:
-		return hxbit_PropTypeDesc.PStruct;
-	case 19:
-		var _name;
-		var v = ctx.input.b[ctx.inPos++];
-		if(v == 128) {
-			v = ctx.input.getInt32(ctx.inPos);
-			ctx.inPos += 4;
-		}
-		var len = v;
-		if(len == 0) {
-			_name = null;
-		} else {
-			--len;
-			var s = ctx.input.getString(ctx.inPos,len);
-			ctx.inPos += len;
-			_name = s;
-		}
-		return hxbit_PropTypeDesc.PSerInterface(_name);
-	default:
-		throw haxe_Exception.thrown("Invalid enum index " + b);
-	}
-};
-hxbit_enumSer_Hxbit_$PropTypeDesc.getSchema = function() {
-	var s = new hxbit_Schema();
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PInt");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PFloat");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PBool");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PString");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PBytes");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PString;
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PSerializable");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PString;
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PEnum");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var v;
-	var t = hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc");
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PMap");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc");
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PArray");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PArray(hxbit_PropTypeDesc.PObj([{ name : "name", opt : false, type : hxbit_PropTypeDesc.PString},{ name : "opt", opt : false, type : hxbit_PropTypeDesc.PBool},{ name : "type", opt : false, type : hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc")}]));
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PObj");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc");
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PAlias");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc");
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PVector");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc");
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PNull");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PUnknown");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PDynamic");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PInt64");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PEnum("hxbit.PropTypeDesc");
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PFlags");
-	s.fieldsTypes.push(null);
-	s.fieldsNames.push("PStruct");
-	var s1 = s.fieldsTypes;
-	var _g = [];
-	var v;
-	var t = hxbit_PropTypeDesc.PString;
-	_g.push({ name : "", type : t, opt : false});
-	s1.push(hxbit_PropTypeDesc.PObj(_g));
-	s.fieldsNames.push("PSerInterface");
-	return s;
 };
 var hxd_BitmapData = function(width,height) {
 	if(!(width == -101 && height == -102)) {
@@ -60057,7 +53838,7 @@ hxd_Charset.prototype = {
 	}
 	,__class__: hxd_Charset
 };
-var hxd_Cursor = $hxEnums["hxd.Cursor"] = { __ename__:"hxd.Cursor",__constructs__:null
+var hxd_Cursor = $hxEnums["hxd.Cursor"] = { __ename__:true,__constructs__:null
 	,Default: {_hx_name:"Default",_hx_index:0,__enum__:"hxd.Cursor",toString:$estr}
 	,Button: {_hx_name:"Button",_hx_index:1,__enum__:"hxd.Cursor",toString:$estr}
 	,Move: {_hx_name:"Move",_hx_index:2,__enum__:"hxd.Cursor",toString:$estr}
@@ -60131,7 +53912,7 @@ hxd_CustomCursor.prototype = {
 	}
 	,__class__: hxd_CustomCursor
 };
-var hxd_EventKind = $hxEnums["hxd.EventKind"] = { __ename__:"hxd.EventKind",__constructs__:null
+var hxd_EventKind = $hxEnums["hxd.EventKind"] = { __ename__:true,__constructs__:null
 	,EPush: {_hx_name:"EPush",_hx_index:0,__enum__:"hxd.EventKind",toString:$estr}
 	,ERelease: {_hx_name:"ERelease",_hx_index:1,__enum__:"hxd.EventKind",toString:$estr}
 	,EMove: {_hx_name:"EMove",_hx_index:2,__enum__:"hxd.EventKind",toString:$estr}
@@ -60850,7 +54631,7 @@ hxd_Math.degToRad = function(deg) {
 hxd_Math.radToDeg = function(rad) {
 	return rad * 180.0 / 3.14159265358979323;
 };
-var hxd_Flags = $hxEnums["hxd.Flags"] = { __ename__:"hxd.Flags",__constructs__:null
+var hxd_Flags = $hxEnums["hxd.Flags"] = { __ename__:true,__constructs__:null
 	,ReadOnly: {_hx_name:"ReadOnly",_hx_index:0,__enum__:"hxd.Flags",toString:$estr}
 	,AlphaPremultiplied: {_hx_name:"AlphaPremultiplied",_hx_index:1,__enum__:"hxd.Flags",toString:$estr}
 	,FlipY: {_hx_name:"FlipY",_hx_index:2,__enum__:"hxd.Flags",toString:$estr}
@@ -62490,7 +56271,7 @@ hxd_SceneEvents.prototype = {
 	}
 	,__class__: hxd_SceneEvents
 };
-var hxd_Platform = $hxEnums["hxd.Platform"] = { __ename__:"hxd.Platform",__constructs__:null
+var hxd_Platform = $hxEnums["hxd.Platform"] = { __ename__:true,__constructs__:null
 	,IOS: {_hx_name:"IOS",_hx_index:0,__enum__:"hxd.Platform",toString:$estr}
 	,Android: {_hx_name:"Android",_hx_index:1,__enum__:"hxd.Platform",toString:$estr}
 	,WebGL: {_hx_name:"WebGL",_hx_index:2,__enum__:"hxd.Platform",toString:$estr}
@@ -62500,7 +56281,7 @@ var hxd_Platform = $hxEnums["hxd.Platform"] = { __ename__:"hxd.Platform",__const
 };
 hxd_Platform.__constructs__ = [hxd_Platform.IOS,hxd_Platform.Android,hxd_Platform.WebGL,hxd_Platform.PC,hxd_Platform.Console,hxd_Platform.FlashPlayer];
 hxd_Platform.__empty_constructs__ = [hxd_Platform.IOS,hxd_Platform.Android,hxd_Platform.WebGL,hxd_Platform.PC,hxd_Platform.Console,hxd_Platform.FlashPlayer];
-var hxd_SystemValue = $hxEnums["hxd.SystemValue"] = { __ename__:"hxd.SystemValue",__constructs__:null
+var hxd_SystemValue = $hxEnums["hxd.SystemValue"] = { __ename__:true,__constructs__:null
 	,IsTouch: {_hx_name:"IsTouch",_hx_index:0,__enum__:"hxd.SystemValue",toString:$estr}
 	,IsWindowed: {_hx_name:"IsWindowed",_hx_index:1,__enum__:"hxd.SystemValue",toString:$estr}
 	,IsMobile: {_hx_name:"IsMobile",_hx_index:2,__enum__:"hxd.SystemValue",toString:$estr}
@@ -63104,7 +56885,7 @@ hxd_System.get_allowTimeout = function() {
 hxd_System.set_allowTimeout = function(b) {
 	return false;
 };
-var hxd_DisplayMode = $hxEnums["hxd.DisplayMode"] = { __ename__:"hxd.DisplayMode",__constructs__:null
+var hxd_DisplayMode = $hxEnums["hxd.DisplayMode"] = { __ename__:true,__constructs__:null
 	,Windowed: {_hx_name:"Windowed",_hx_index:0,__enum__:"hxd.DisplayMode",toString:$estr}
 	,Borderless: {_hx_name:"Borderless",_hx_index:1,__enum__:"hxd.DisplayMode",toString:$estr}
 	,Fullscreen: {_hx_name:"Fullscreen",_hx_index:2,__enum__:"hxd.DisplayMode",toString:$estr}
@@ -63112,7 +56893,7 @@ var hxd_DisplayMode = $hxEnums["hxd.DisplayMode"] = { __ename__:"hxd.DisplayMode
 };
 hxd_DisplayMode.__constructs__ = [hxd_DisplayMode.Windowed,hxd_DisplayMode.Borderless,hxd_DisplayMode.Fullscreen,hxd_DisplayMode.FullscreenResize];
 hxd_DisplayMode.__empty_constructs__ = [hxd_DisplayMode.Windowed,hxd_DisplayMode.Borderless,hxd_DisplayMode.Fullscreen,hxd_DisplayMode.FullscreenResize];
-var hxd_clipper_ClipType = $hxEnums["hxd.clipper.ClipType"] = { __ename__:"hxd.clipper.ClipType",__constructs__:null
+var hxd_clipper_ClipType = $hxEnums["hxd.clipper.ClipType"] = { __ename__:true,__constructs__:null
 	,Intersection: {_hx_name:"Intersection",_hx_index:0,__enum__:"hxd.clipper.ClipType",toString:$estr}
 	,Union: {_hx_name:"Union",_hx_index:1,__enum__:"hxd.clipper.ClipType",toString:$estr}
 	,Difference: {_hx_name:"Difference",_hx_index:2,__enum__:"hxd.clipper.ClipType",toString:$estr}
@@ -63120,13 +56901,13 @@ var hxd_clipper_ClipType = $hxEnums["hxd.clipper.ClipType"] = { __ename__:"hxd.c
 };
 hxd_clipper_ClipType.__constructs__ = [hxd_clipper_ClipType.Intersection,hxd_clipper_ClipType.Union,hxd_clipper_ClipType.Difference,hxd_clipper_ClipType.Xor];
 hxd_clipper_ClipType.__empty_constructs__ = [hxd_clipper_ClipType.Intersection,hxd_clipper_ClipType.Union,hxd_clipper_ClipType.Difference,hxd_clipper_ClipType.Xor];
-var hxd_clipper__$Clipper_EdgeSide = $hxEnums["hxd.clipper._Clipper.EdgeSide"] = { __ename__:"hxd.clipper._Clipper.EdgeSide",__constructs__:null
+var hxd_clipper__$Clipper_EdgeSide = $hxEnums["hxd.clipper._Clipper.EdgeSide"] = { __ename__:true,__constructs__:null
 	,Left: {_hx_name:"Left",_hx_index:0,__enum__:"hxd.clipper._Clipper.EdgeSide",toString:$estr}
 	,Right: {_hx_name:"Right",_hx_index:1,__enum__:"hxd.clipper._Clipper.EdgeSide",toString:$estr}
 };
 hxd_clipper__$Clipper_EdgeSide.__constructs__ = [hxd_clipper__$Clipper_EdgeSide.Left,hxd_clipper__$Clipper_EdgeSide.Right];
 hxd_clipper__$Clipper_EdgeSide.__empty_constructs__ = [hxd_clipper__$Clipper_EdgeSide.Left,hxd_clipper__$Clipper_EdgeSide.Right];
-var hxd_clipper__$Clipper_Direction = $hxEnums["hxd.clipper._Clipper.Direction"] = { __ename__:"hxd.clipper._Clipper.Direction",__constructs__:null
+var hxd_clipper__$Clipper_Direction = $hxEnums["hxd.clipper._Clipper.Direction"] = { __ename__:true,__constructs__:null
 	,RightToLeft: {_hx_name:"RightToLeft",_hx_index:0,__enum__:"hxd.clipper._Clipper.Direction",toString:$estr}
 	,LeftToRight: {_hx_name:"LeftToRight",_hx_index:1,__enum__:"hxd.clipper._Clipper.Direction",toString:$estr}
 };
@@ -63929,14 +57710,14 @@ hxd_clipper__$Clipper_ClipperBase.prototype = {
 	}
 	,__class__: hxd_clipper__$Clipper_ClipperBase
 };
-var hxd_clipper_NodeType = $hxEnums["hxd.clipper.NodeType"] = { __ename__:"hxd.clipper.NodeType",__constructs__:null
+var hxd_clipper_NodeType = $hxEnums["hxd.clipper.NodeType"] = { __ename__:true,__constructs__:null
 	,Any: {_hx_name:"Any",_hx_index:0,__enum__:"hxd.clipper.NodeType",toString:$estr}
 	,Open: {_hx_name:"Open",_hx_index:1,__enum__:"hxd.clipper.NodeType",toString:$estr}
 	,Closed: {_hx_name:"Closed",_hx_index:2,__enum__:"hxd.clipper.NodeType",toString:$estr}
 };
 hxd_clipper_NodeType.__constructs__ = [hxd_clipper_NodeType.Any,hxd_clipper_NodeType.Open,hxd_clipper_NodeType.Closed];
 hxd_clipper_NodeType.__empty_constructs__ = [hxd_clipper_NodeType.Any,hxd_clipper_NodeType.Open,hxd_clipper_NodeType.Closed];
-var hxd_clipper_ResultKind = $hxEnums["hxd.clipper.ResultKind"] = { __ename__:"hxd.clipper.ResultKind",__constructs__:null
+var hxd_clipper_ResultKind = $hxEnums["hxd.clipper.ResultKind"] = { __ename__:true,__constructs__:null
 	,All: {_hx_name:"All",_hx_index:0,__enum__:"hxd.clipper.ResultKind",toString:$estr}
 	,NoHoles: {_hx_name:"NoHoles",_hx_index:1,__enum__:"hxd.clipper.ResultKind",toString:$estr}
 	,HolesOnly: {_hx_name:"HolesOnly",_hx_index:2,__enum__:"hxd.clipper.ResultKind",toString:$estr}
@@ -67308,7 +61089,7 @@ hxd_clipper_ClipperOffset.prototype = {
 	}
 	,__class__: hxd_clipper_ClipperOffset
 };
-var hxd_clipper_EndType = $hxEnums["hxd.clipper.EndType"] = { __ename__:"hxd.clipper.EndType",__constructs__:null
+var hxd_clipper_EndType = $hxEnums["hxd.clipper.EndType"] = { __ename__:true,__constructs__:null
 	,ClosedPol: {_hx_name:"ClosedPol",_hx_index:0,__enum__:"hxd.clipper.EndType",toString:$estr}
 	,ClosedLine: {_hx_name:"ClosedLine",_hx_index:1,__enum__:"hxd.clipper.EndType",toString:$estr}
 	,OpenButt: {_hx_name:"OpenButt",_hx_index:2,__enum__:"hxd.clipper.EndType",toString:$estr}
@@ -67317,14 +61098,14 @@ var hxd_clipper_EndType = $hxEnums["hxd.clipper.EndType"] = { __ename__:"hxd.cli
 };
 hxd_clipper_EndType.__constructs__ = [hxd_clipper_EndType.ClosedPol,hxd_clipper_EndType.ClosedLine,hxd_clipper_EndType.OpenButt,hxd_clipper_EndType.OpenSquare,hxd_clipper_EndType.OpenRound];
 hxd_clipper_EndType.__empty_constructs__ = [hxd_clipper_EndType.ClosedPol,hxd_clipper_EndType.ClosedLine,hxd_clipper_EndType.OpenButt,hxd_clipper_EndType.OpenSquare,hxd_clipper_EndType.OpenRound];
-var hxd_clipper_JoinType = $hxEnums["hxd.clipper.JoinType"] = { __ename__:"hxd.clipper.JoinType",__constructs__:null
+var hxd_clipper_JoinType = $hxEnums["hxd.clipper.JoinType"] = { __ename__:true,__constructs__:null
 	,Square: {_hx_name:"Square",_hx_index:0,__enum__:"hxd.clipper.JoinType",toString:$estr}
 	,Round: {_hx_name:"Round",_hx_index:1,__enum__:"hxd.clipper.JoinType",toString:$estr}
 	,Miter: {_hx_name:"Miter",_hx_index:2,__enum__:"hxd.clipper.JoinType",toString:$estr}
 };
 hxd_clipper_JoinType.__constructs__ = [hxd_clipper_JoinType.Square,hxd_clipper_JoinType.Round,hxd_clipper_JoinType.Miter];
 hxd_clipper_JoinType.__empty_constructs__ = [hxd_clipper_JoinType.Square,hxd_clipper_JoinType.Round,hxd_clipper_JoinType.Miter];
-var hxd_clipper_PolyFillType = $hxEnums["hxd.clipper.PolyFillType"] = { __ename__:"hxd.clipper.PolyFillType",__constructs__:null
+var hxd_clipper_PolyFillType = $hxEnums["hxd.clipper.PolyFillType"] = { __ename__:true,__constructs__:null
 	,EvenOdd: {_hx_name:"EvenOdd",_hx_index:0,__enum__:"hxd.clipper.PolyFillType",toString:$estr}
 	,NonZero: {_hx_name:"NonZero",_hx_index:1,__enum__:"hxd.clipper.PolyFillType",toString:$estr}
 	,Positive: {_hx_name:"Positive",_hx_index:2,__enum__:"hxd.clipper.PolyFillType",toString:$estr}
@@ -67332,7 +61113,7 @@ var hxd_clipper_PolyFillType = $hxEnums["hxd.clipper.PolyFillType"] = { __ename_
 };
 hxd_clipper_PolyFillType.__constructs__ = [hxd_clipper_PolyFillType.EvenOdd,hxd_clipper_PolyFillType.NonZero,hxd_clipper_PolyFillType.Positive,hxd_clipper_PolyFillType.Negative];
 hxd_clipper_PolyFillType.__empty_constructs__ = [hxd_clipper_PolyFillType.EvenOdd,hxd_clipper_PolyFillType.NonZero,hxd_clipper_PolyFillType.Positive,hxd_clipper_PolyFillType.Negative];
-var hxd_clipper_PolyType = $hxEnums["hxd.clipper.PolyType"] = { __ename__:"hxd.clipper.PolyType",__constructs__:null
+var hxd_clipper_PolyType = $hxEnums["hxd.clipper.PolyType"] = { __ename__:true,__constructs__:null
 	,Subject: {_hx_name:"Subject",_hx_index:0,__enum__:"hxd.clipper.PolyType",toString:$estr}
 	,Clip: {_hx_name:"Clip",_hx_index:1,__enum__:"hxd.clipper.PolyType",toString:$estr}
 };
@@ -69014,7 +62795,7 @@ hxd_fmt_hmd_GeometryDataFormat.fromInt = function(v) {
 	var this1 = v;
 	return this1;
 };
-var hxd_fmt_hmd_Property = $hxEnums["hxd.fmt.hmd.Property"] = { __ename__:"hxd.fmt.hmd.Property",__constructs__:null
+var hxd_fmt_hmd_Property = $hxEnums["hxd.fmt.hmd.Property"] = { __ename__:true,__constructs__:null
 	,CameraFOVY: ($_=function(v) { return {_hx_index:0,v:v,__enum__:"hxd.fmt.hmd.Property",toString:$estr}; },$_._hx_name="CameraFOVY",$_.__params__ = ["v"],$_)
 	,Unused_HasMaterialFlags: {_hx_name:"Unused_HasMaterialFlags",_hx_index:1,__enum__:"hxd.fmt.hmd.Property",toString:$estr}
 	,HasExtraTextures: {_hx_name:"HasExtraTextures",_hx_index:2,__enum__:"hxd.fmt.hmd.Property",toString:$estr}
@@ -69177,7 +62958,7 @@ hxd_fmt_hmd_Model.prototype = {
 	,skin: null
 	,__class__: hxd_fmt_hmd_Model
 };
-var hxd_fmt_hmd_AnimationFlag = $hxEnums["hxd.fmt.hmd.AnimationFlag"] = { __ename__:"hxd.fmt.hmd.AnimationFlag",__constructs__:null
+var hxd_fmt_hmd_AnimationFlag = $hxEnums["hxd.fmt.hmd.AnimationFlag"] = { __ename__:true,__constructs__:null
 	,HasPosition: {_hx_name:"HasPosition",_hx_index:0,__enum__:"hxd.fmt.hmd.AnimationFlag",toString:$estr}
 	,HasRotation: {_hx_name:"HasRotation",_hx_index:1,__enum__:"hxd.fmt.hmd.AnimationFlag",toString:$estr}
 	,HasScale: {_hx_name:"HasScale",_hx_index:2,__enum__:"hxd.fmt.hmd.AnimationFlag",toString:$estr}
@@ -70770,899 +64551,6 @@ hxd_fmt_hmd_Reader.prototype = {
 	}
 	,__class__: hxd_fmt_hmd_Reader
 };
-var hxd_fmt_hsd_Serializer = function() {
-	this.texOutputFormat = hxd_PixelFormat.RGBA;
-	this.cachedTextures = new haxe_ds_IntMap();
-	this.cachedShaders = [];
-	this.shaderIndexes = new haxe_ds_ObjectMap();
-	this.shaderUID = 0;
-	this.modelCache = new h3d_prim_ModelCache();
-	this.resPath = "res";
-	this.version = 0;
-	hxbit_Serializer.call(this);
-};
-$hxClasses["hxd.fmt.hsd.Serializer"] = hxd_fmt_hsd_Serializer;
-hxd_fmt_hsd_Serializer.__name__ = "hxd.fmt.hsd.Serializer";
-hxd_fmt_hsd_Serializer.__super__ = hxbit_Serializer;
-hxd_fmt_hsd_Serializer.prototype = $extend(hxbit_Serializer.prototype,{
-	version: null
-	,resPath: null
-	,modelCache: null
-	,shaderVarIndex: null
-	,shaderUID: null
-	,shaderIndexes: null
-	,cachedShaders: null
-	,cachedTextures: null
-	,texOutputFormat: null
-	,addTexture: function(t) {
-		if(t == null) {
-			this.out.addByte(0);
-			return true;
-		}
-		var v = t.id;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		if(this.cachedTextures.h.hasOwnProperty(t.id)) {
-			return true;
-		}
-		var v = t.filter._hx_index;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var v = t.mipMap._hx_index;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var v = t.wrap._hx_index;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		this.cachedTextures.h[t.id] = t;
-		if(t.name != null && hxd_res_Loader.currentInstance.exists(t.name)) {
-			this.out.addByte(1);
-			var s = t.name;
-			if(s == null) {
-				this.out.addByte(0);
-			} else {
-				var b = haxe_io_Bytes.ofString(s);
-				var v = b.length + 1;
-				if(v >= 0 && v < 128) {
-					this.out.addByte(v);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v);
-				}
-				this.out.add(b);
-			}
-			return true;
-		}
-		if((t.flags & 1 << h3d_mat_TextureFlags.Serialize._hx_index) != 0) {
-			this.out.addByte(2);
-			var v = t.width;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var v = t.height;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var v = t.flags;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var v = t.format._hx_index;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var fmt = this.texOutputFormat;
-			var v = fmt._hx_index;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var _g = 0;
-			var _g1 = (t.flags & 1 << h3d_mat_TextureFlags.Cube._hx_index) != 0 ? 6 : 1;
-			while(_g < _g1) {
-				var face = _g++;
-				var pix = t.capturePixels(face);
-				pix.convert(fmt);
-				var b = pix.bytes;
-				var len = pix.dataSize;
-				if(b == null) {
-					this.out.addByte(0);
-				} else {
-					var v = len + 1;
-					if(v >= 0 && v < 128) {
-						this.out.addByte(v);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v);
-					}
-					this.out.addBytes(b,0,len);
-				}
-			}
-			return true;
-		}
-		var tch = ((t) instanceof h3d_mat_TextureChannels) ? t : null;
-		if(tch != null) {
-			this.out.addByte(3);
-			var channels = tch.channels;
-			var v = t.width;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var v = t.height;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var v = t.flags;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var v = t.format._hx_index;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			var _g = 0;
-			while(_g < 4) {
-				var i = _g++;
-				var c = channels[i];
-				if(c == null) {
-					var s = null;
-					if(s == null) {
-						this.out.addByte(0);
-					} else {
-						var b = haxe_io_Bytes.ofString(s);
-						var v = b.length + 1;
-						if(v >= 0 && v < 128) {
-							this.out.addByte(v);
-						} else {
-							this.out.addByte(128);
-							this.out.addInt32(v);
-						}
-						this.out.add(b);
-					}
-					continue;
-				}
-				if(c.r == null) {
-					return false;
-				}
-				var s1 = c.r.entry.get_path();
-				if(s1 == null) {
-					this.out.addByte(0);
-				} else {
-					var b1 = haxe_io_Bytes.ofString(s1);
-					var v1 = b1.length + 1;
-					if(v1 >= 0 && v1 < 128) {
-						this.out.addByte(v1);
-					} else {
-						this.out.addByte(128);
-						this.out.addInt32(v1);
-					}
-					this.out.add(b1);
-				}
-				var v2 = c.c;
-				if(v2 >= 0 && v2 < 128) {
-					this.out.addByte(v2);
-				} else {
-					this.out.addByte(128);
-					this.out.addInt32(v2);
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-	,getTexture: function() {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var tid = v;
-		if(tid == 0) {
-			return null;
-		}
-		var t = this.cachedTextures.h[tid];
-		if(t != null) {
-			return t;
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var filter = Type.createEnumIndex(h3d_mat_Filter,v,null);
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var mipmap = Type.createEnumIndex(h3d_mat_MipMap,v,null);
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var wrap = Type.createEnumIndex(h3d_mat_Wrap,v,null);
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var kind = v;
-		switch(kind) {
-		case 1:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var len = v;
-			var t1;
-			if(len == 0) {
-				t1 = null;
-			} else {
-				--len;
-				var s = this.input.getString(this.inPos,len);
-				this.inPos += len;
-				t1 = s;
-			}
-			t = this.resolveTexture(t1);
-			break;
-		case 2:case 3:
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var width = v;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var height = v;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var i = v;
-			if(i == null) {
-				i = 0;
-			}
-			var this1 = i;
-			var flags = this1;
-			var v = this.input.b[this.inPos++];
-			if(v == 128) {
-				v = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			var format = Type.createEnumIndex(hxd_PixelFormat,v,null);
-			var _g = [];
-			var _g1 = 0;
-			var _g2 = h3d_mat_TextureFlags.__empty_constructs__.slice();
-			while(_g1 < _g2.length) {
-				var f = _g2[_g1];
-				++_g1;
-				if((flags & 1 << f._hx_index) != 0) {
-					_g.push(f);
-				}
-			}
-			var flags = _g;
-			if(kind == 2) {
-				var v = this.input.b[this.inPos++];
-				if(v == 128) {
-					v = this.input.getInt32(this.inPos);
-					this.inPos += 4;
-				}
-				var pixFormat = Type.createEnumIndex(hxd_PixelFormat,v,null);
-				t = new h3d_mat_Texture(width,height,flags,format);
-				var _g = 0;
-				var _g1 = (t.flags & 1 << h3d_mat_TextureFlags.Cube._hx_index) != 0 ? 6 : 1;
-				while(_g < _g1) {
-					var face = _g++;
-					var v = this.input.b[this.inPos++];
-					if(v == 128) {
-						v = this.input.getInt32(this.inPos);
-						this.inPos += 4;
-					}
-					var len = v;
-					var tmp;
-					if(len == 0) {
-						tmp = null;
-					} else {
-						--len;
-						var s = this.input.sub(this.inPos,len);
-						this.inPos += len;
-						tmp = s;
-					}
-					t.uploadPixels(new hxd_Pixels(width,height,tmp,pixFormat),0,face);
-				}
-			} else {
-				var ct = new h3d_mat_TextureChannels(width,height,flags,format);
-				ct.allowAsync = false;
-				var _g = 0;
-				while(_g < 4) {
-					var i = _g++;
-					var v = this.input.b[this.inPos++];
-					if(v == 128) {
-						v = this.input.getInt32(this.inPos);
-						this.inPos += 4;
-					}
-					var len = v;
-					var resPath;
-					if(len == 0) {
-						resPath = null;
-					} else {
-						--len;
-						var s = this.input.getString(this.inPos,len);
-						this.inPos += len;
-						resPath = s;
-					}
-					if(resPath == null) {
-						continue;
-					}
-					var v1 = this.input.b[this.inPos++];
-					if(v1 == 128) {
-						v1 = this.input.getInt32(this.inPos);
-						this.inPos += 4;
-					}
-					var c = v1;
-					ct.setResource(i,hxd_res_Loader.currentInstance.load(resPath).toImage(),c);
-				}
-				t = ct;
-			}
-			break;
-		default:
-			throw haxe_Exception.thrown("assert");
-		}
-		t.set_filter(filter);
-		t.set_mipMap(mipmap);
-		t.set_wrap(wrap);
-		this.cachedTextures.h[tid] = t;
-		return t;
-	}
-	,resolveTexture: function(path) {
-		return hxd_res_Loader.currentInstance.load(path).toTexture();
-	}
-	,loadHMD: function(path) {
-		return this.modelCache.loadLibrary(hxd_res_Loader.currentInstance.load(path).toModel());
-	}
-	,addShader: function(s) {
-		if(s == null) {
-			this.out.addByte(0);
-			return;
-		}
-		var id = this.shaderIndexes.h[s.__id__];
-		if(id != null) {
-			if(id >= 0 && id < 128) {
-				this.out.addByte(id);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(id);
-			}
-			return;
-		}
-		id = ++this.shaderUID;
-		this.shaderIndexes.set(s,id);
-		if(id >= 0 && id < 128) {
-			this.out.addByte(id);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(id);
-		}
-		var c = js_Boot.getClass(s);
-		var s1 = c.__name__;
-		if(s1 == null) {
-			this.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s1);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-		this.shaderVarIndex = 0;
-		var _g = 0;
-		var _g1 = s.shader.data.vars;
-		while(_g < _g1.length) {
-			var v = _g1[_g];
-			++_g;
-			this.addShaderVar(v,s);
-		}
-	}
-	,loadShader: function(name) {
-		return null;
-	}
-	,getShader: function() {
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var id = v;
-		if(id == 0) {
-			return null;
-		}
-		var s = this.cachedShaders[id];
-		if(s != null) {
-			return s;
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		var sname;
-		if(len == 0) {
-			sname = null;
-		} else {
-			--len;
-			var s1 = this.input.getString(this.inPos,len);
-			this.inPos += len;
-			sname = s1;
-		}
-		var cl = $hxClasses[sname];
-		if(cl == null) {
-			s = this.loadShader(sname);
-			if(s == null) {
-				throw haxe_Exception.thrown("Missing shader " + sname);
-			}
-		} else {
-			s = Object.create(cl.prototype);
-		}
-		s.initialize();
-		var sdyn = ((s) instanceof hxsl_DynamicShader) ? s : null;
-		var _g = 0;
-		var _g1 = s.shader.data.vars;
-		while(_g < _g1.length) {
-			var v = _g1[_g];
-			++_g;
-			if(!this.canSerializeVar(v)) {
-				continue;
-			}
-			var val = this.getShaderVar(v,s);
-			if(sdyn != null) {
-				sdyn.setParamValue(v,val);
-			} else {
-				s[v.name + "__"] = val;
-			}
-		}
-		this.cachedShaders[id] = s;
-		return s;
-	}
-	,canSerializeVar: function(v) {
-		if(v.kind == hxsl_VarKind.Param) {
-			if(v.qualifiers != null) {
-				return v.qualifiers.indexOf(hxsl_VarQualifier.Ignore) < 0;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}
-	,addShaderVar: function(v,s) {
-		if(v.kind != hxsl_VarKind.Param) {
-			return;
-		}
-		var _g = v.type;
-		if(_g._hx_index == 13) {
-			var vl = _g.vl;
-			var _g = 0;
-			while(_g < vl.length) {
-				var v1 = vl[_g];
-				++_g;
-				this.addShaderVar(v1,s);
-			}
-			return;
-		}
-		if(!this.canSerializeVar(v)) {
-			this.shaderVarIndex++;
-			return;
-		}
-		var val = s.getParamValue(this.shaderVarIndex++);
-		var _g = v.type;
-		switch(_g._hx_index) {
-		case 1:
-			var v1 = val;
-			if(v1 >= 0 && v1 < 128) {
-				this.out.addByte(v1);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v1);
-			}
-			break;
-		case 2:
-			this.out.addByte(val ? 1 : 0);
-			break;
-		case 3:
-			this.out.addFloat(val);
-			break;
-		case 5:
-			if(_g.t._hx_index == 1) {
-				var n = _g.size;
-				var v1 = val;
-				this.out.addFloat(v1.x);
-				this.out.addFloat(v1.y);
-				if(n >= 3) {
-					this.out.addFloat(v1.z);
-				}
-				if(n >= 4) {
-					this.out.addFloat(v1.w);
-				}
-			} else {
-				throw haxe_Exception.thrown("Cannot serialize macro var " + v.name + ":" + hxsl_Tools.toString(v.type) + " in " + Std.string(s));
-			}
-			break;
-		case 10:case 12:
-			if(!this.addTexture(val)) {
-				throw haxe_Exception.thrown("Cannot serialize unnamed texture " + Std.string(s) + "." + v.name + " = " + Std.string(val));
-			}
-			break;
-		default:
-			throw haxe_Exception.thrown("Cannot serialize macro var " + v.name + ":" + hxsl_Tools.toString(v.type) + " in " + Std.string(s));
-		}
-	}
-	,getShaderVar: function(v,s) {
-		var _g = v.type;
-		if(_g._hx_index == 13) {
-			var vl = _g.vl;
-			var obj = { };
-			var _g = 0;
-			while(_g < vl.length) {
-				var v1 = vl[_g];
-				++_g;
-				if(!this.canSerializeVar(v1)) {
-					continue;
-				}
-				obj[v1.name] = this.getShaderVar(v1,s);
-			}
-			return obj;
-		}
-		var _g = v.type;
-		switch(_g._hx_index) {
-		case 1:
-			var v1 = this.input.b[this.inPos++];
-			if(v1 == 128) {
-				v1 = this.input.getInt32(this.inPos);
-				this.inPos += 4;
-			}
-			return v1;
-		case 2:
-			return this.input.b[this.inPos++] != 0;
-		case 3:
-			var v1 = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			return v1;
-		case 5:
-			if(_g.t._hx_index == 1) {
-				var n = _g.size;
-				var v1 = this.input.getFloat(this.inPos);
-				this.inPos += 4;
-				var v2 = this.input.getFloat(this.inPos);
-				this.inPos += 4;
-				var v3 = new h3d_Vector(v1,v2);
-				if(n >= 3) {
-					var v1 = this.input.getFloat(this.inPos);
-					this.inPos += 4;
-					v3.z = v1;
-				}
-				if(n >= 4) {
-					var v1 = this.input.getFloat(this.inPos);
-					this.inPos += 4;
-					v3.w = v1;
-				}
-				return v3;
-			} else {
-				throw haxe_Exception.thrown("Cannot unserialize macro var " + v.name + ":" + hxsl_Tools.toString(v.type));
-			}
-			break;
-		case 10:case 12:
-			return this.getTexture();
-		default:
-			throw haxe_Exception.thrown("Cannot unserialize macro var " + v.name + ":" + hxsl_Tools.toString(v.type));
-		}
-	}
-	,initHSDPaths: function(resPath,projectPath) {
-		this.resPath = resPath;
-	}
-	,loadAnimation: function(resPath) {
-		return this.loadHMD(resPath).loadAnimation();
-	}
-	,loadHSD: function(bytes) {
-		this.setInput(bytes,0);
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		var tmp;
-		if(len == 0) {
-			tmp = null;
-		} else {
-			--len;
-			var s = this.input.getString(this.inPos,len);
-			this.inPos += len;
-			tmp = s;
-		}
-		if(tmp != "HSD") {
-			throw haxe_Exception.thrown("Invalid HSD file");
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		this.version = v;
-		this.beginLoad(bytes,this.inPos);
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		var tmp;
-		if(len == 0) {
-			tmp = null;
-		} else {
-			--len;
-			var s = this.input.getString(this.inPos,len);
-			this.inPos += len;
-			tmp = s;
-		}
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var len = v;
-		var tmp1;
-		if(len == 0) {
-			tmp1 = null;
-		} else {
-			--len;
-			var s = this.input.getString(this.inPos,len);
-			this.inPos += len;
-			tmp1 = s;
-		}
-		this.initHSDPaths(tmp,tmp1);
-		var objs = [];
-		var _g = 0;
-		var v = this.input.b[this.inPos++];
-		if(v == 128) {
-			v = this.input.getInt32(this.inPos);
-			this.inPos += 4;
-		}
-		var _g1 = v;
-		while(_g < _g1) {
-			var i = _g++;
-			var obj = this.getAnyRef();
-			objs.push(obj);
-		}
-		var _g = 0;
-		while(_g < objs.length) {
-			var o = objs[_g];
-			++_g;
-			var _g1 = 0;
-			var _g2 = o.getMeshes();
-			while(_g1 < _g2.length) {
-				var m = _g2[_g1];
-				++_g1;
-				h3d_mat_MaterialSetup.current.customMeshInit(m);
-			}
-		}
-		var camera = null;
-		if(this.input.b[this.inPos++] != 0) {
-			camera = new h3d_Camera();
-			var _this = camera.pos;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var x = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var y = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var z = v;
-			if(z == null) {
-				z = 0.;
-			}
-			if(y == null) {
-				y = 0.;
-			}
-			if(x == null) {
-				x = 0.;
-			}
-			_this.x = x;
-			_this.y = y;
-			_this.z = z;
-			_this.w = 1.;
-			var _this = camera.target;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var x = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var y = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var z = v;
-			if(z == null) {
-				z = 0.;
-			}
-			if(y == null) {
-				y = 0.;
-			}
-			if(x == null) {
-				x = 0.;
-			}
-			_this.x = x;
-			_this.y = y;
-			_this.z = z;
-			_this.w = 1.;
-			var _this = camera.up;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var x = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var y = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			var z = v;
-			if(z == null) {
-				z = 0.;
-			}
-			if(y == null) {
-				y = 0.;
-			}
-			if(x == null) {
-				x = 0.;
-			}
-			_this.x = x;
-			_this.y = y;
-			_this.z = z;
-			_this.w = 1.;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			camera.fovY = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			camera.zNear = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			camera.zFar = v;
-			var v = this.input.getFloat(this.inPos);
-			this.inPos += 4;
-			camera.zoom = v;
-			camera.update();
-		}
-		this.endLoad();
-		return { content : objs, camera : camera};
-	}
-	,saveHSD: function(obj,includeRoot,camera) {
-		this.begin();
-		var b = haxe_io_Bytes.ofString("HSD");
-		var v = b.length + 1;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		this.out.add(b);
-		var v = this.version;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		var pos = this.out.pos;
-		this.usedClasses = [];
-		var s = this.resPath;
-		if(s == null) {
-			this.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-		var s = null;
-		if(s == null) {
-			this.out.addByte(0);
-		} else {
-			var b = haxe_io_Bytes.ofString(s);
-			var v = b.length + 1;
-			if(v >= 0 && v < 128) {
-				this.out.addByte(v);
-			} else {
-				this.out.addByte(128);
-				this.out.addInt32(v);
-			}
-			this.out.add(b);
-		}
-		var objs;
-		if(includeRoot) {
-			objs = [obj];
-		} else {
-			var _g = [];
-			var _g1_i = 0;
-			var _g1_a = obj.children;
-			var _g1_l = _g1_a.length;
-			while(_g1_i < _g1_l) {
-				var o = _g1_a[_g1_i++];
-				if((o.flags & 256) == 0) {
-					_g.push(o);
-				}
-			}
-			objs = _g;
-		}
-		var v = objs.length;
-		if(v >= 0 && v < 128) {
-			this.out.addByte(v);
-		} else {
-			this.out.addByte(128);
-			this.out.addInt32(v);
-		}
-		throw haxe_Exception.thrown("HSD support requires -D heaps_enable_serialize");
-	}
-	,__class__: hxd_fmt_hsd_Serializer
-});
 var hxd_fs_FileEntry = function() { };
 $hxClasses["hxd.fs.FileEntry"] = hxd_fs_FileEntry;
 hxd_fs_FileEntry.__name__ = "hxd.fs.FileEntry";
@@ -72425,174 +65313,6 @@ hxd_impl_UncheckedBytes.fromBytes = function(b) {
 	var this1 = b.b;
 	return this1;
 };
-var hxd_net__$Socket_SocketOutput = function() {
-};
-$hxClasses["hxd.net._Socket.SocketOutput"] = hxd_net__$Socket_SocketOutput;
-hxd_net__$Socket_SocketOutput.__name__ = "hxd.net._Socket.SocketOutput";
-hxd_net__$Socket_SocketOutput.__super__ = haxe_io_Output;
-hxd_net__$Socket_SocketOutput.prototype = $extend(haxe_io_Output.prototype,{
-	wait: function() {
-	}
-	,writeByte: function(c) {
-	}
-	,writeBytes: function(s,pos,len) {
-		return len;
-	}
-	,__class__: hxd_net__$Socket_SocketOutput
-});
-var hxd_net__$Socket_SocketInput = function() { };
-$hxClasses["hxd.net._Socket.SocketInput"] = hxd_net__$Socket_SocketInput;
-hxd_net__$Socket_SocketInput.__name__ = "hxd.net._Socket.SocketInput";
-hxd_net__$Socket_SocketInput.__super__ = haxe_io_Input;
-hxd_net__$Socket_SocketInput.prototype = $extend(haxe_io_Input.prototype,{
-	get_available: function() {
-		return 0;
-	}
-	,__class__: hxd_net__$Socket_SocketInput
-});
-var hxd_net_Socket = function() {
-	this.out = new hxd_net__$Socket_SocketOutput();
-};
-$hxClasses["hxd.net.Socket"] = hxd_net_Socket;
-hxd_net_Socket.__name__ = "hxd.net.Socket";
-hxd_net_Socket.prototype = {
-	out: null
-	,input: null
-	,timeout: null
-	,set_timeout: function(t) {
-		return this.timeout = t;
-	}
-	,connect: function(host,port,onConnect) {
-		this.close();
-		hxd_net_Socket.openedSocks.push(this);
-		throw haxe_Exception.thrown("Not implemented");
-	}
-	,bind: function(host,port,onConnect,listenCount) {
-		if(listenCount == null) {
-			listenCount = 5;
-		}
-		this.close();
-		hxd_net_Socket.openedSocks.push(this);
-		throw haxe_Exception.thrown("Not implemented");
-	}
-	,close: function() {
-		HxOverrides.remove(hxd_net_Socket.openedSocks,this);
-	}
-	,onError: function(msg) {
-		throw haxe_Exception.thrown("Socket Error " + msg);
-	}
-	,onData: function() {
-	}
-	,__class__: hxd_net_Socket
-};
-var hxd_net_SocketClient = function(host,s) {
-	var _gthis = this;
-	hxbit_NetworkClient.call(this,host);
-	this.socket = s;
-	if(s != null) {
-		s.onData = function() {
-			while(_gthis.socket != null && _gthis.readData(_gthis.socket.input,_gthis.socket.input.get_available())) {
-			}
-		};
-	}
-};
-$hxClasses["hxd.net.SocketClient"] = hxd_net_SocketClient;
-hxd_net_SocketClient.__name__ = "hxd.net.SocketClient";
-hxd_net_SocketClient.__super__ = hxbit_NetworkClient;
-hxd_net_SocketClient.prototype = $extend(hxbit_NetworkClient.prototype,{
-	socket: null
-	,error: function(msg) {
-		this.socket.close();
-		hxbit_NetworkClient.prototype.error.call(this,msg);
-	}
-	,send: function(bytes) {
-		this.socket.out.wait();
-		this.socket.out.writeInt32(bytes.length);
-		this.socket.out.write(bytes);
-		this.socket.out.flush();
-	}
-	,stop: function() {
-		hxbit_NetworkClient.prototype.stop.call(this);
-		if(this.socket != null) {
-			this.socket.close();
-			this.socket = null;
-		}
-	}
-	,__class__: hxd_net_SocketClient
-});
-var hxd_net_SocketHost = function() {
-	this.enableSound = true;
-	this.connected = false;
-	hxbit_NetworkHost.call(this);
-	this.isAuth = false;
-};
-$hxClasses["hxd.net.SocketHost"] = hxd_net_SocketHost;
-hxd_net_SocketHost.__name__ = "hxd.net.SocketHost";
-hxd_net_SocketHost.__super__ = hxbit_NetworkHost;
-hxd_net_SocketHost.prototype = $extend(hxbit_NetworkHost.prototype,{
-	connected: null
-	,socket: null
-	,enableSound: null
-	,dispose: function() {
-		hxbit_NetworkHost.prototype.dispose.call(this);
-		this.close();
-	}
-	,close: function() {
-		if(this.socket != null) {
-			this.socket.close();
-			this.socket = null;
-		}
-		this.connected = false;
-	}
-	,connect: function(host,port,onConnect) {
-		var _gthis = this;
-		this.close();
-		this.isAuth = false;
-		this.socket = new hxd_net_Socket();
-		this.socket.onError = function(msg) {
-			if(!_gthis.connected) {
-				_gthis.socket.onError = function(_) {
-				};
-				onConnect(false);
-			} else {
-				throw haxe_Exception.thrown(msg);
-			}
-		};
-		this.self = new hxd_net_SocketClient(this,this.socket);
-		this.socket.connect(host,port,function() {
-			_gthis.connected = true;
-			if(host == "127.0.0.1") {
-				_gthis.enableSound = false;
-			}
-			_gthis.clients = [_gthis.self];
-			onConnect(true);
-		});
-	}
-	,wait: function(host,port,onConnected) {
-		var _gthis = this;
-		this.close();
-		this.isAuth = false;
-		this.socket = new hxd_net_Socket();
-		this.self = new hxd_net_SocketClient(this,null);
-		this.socket.bind(host,port,function(s) {
-			var c = new hxd_net_SocketClient(_gthis,s);
-			_gthis.pendingClients.push(c);
-			s.onError = function(_) {
-				c.stop();
-			};
-			if(onConnected != null) {
-				onConnected(c);
-			}
-		});
-		this.isAuth = true;
-	}
-	,offlineServer: function() {
-		this.close();
-		this.self = new hxd_net_SocketClient(this,null);
-		this.isAuth = true;
-	}
-	,__class__: hxd_net_SocketHost
-});
 var hxd_poly2tri_Edge = function(p1,p2) {
 	if(p1 == null || p2 == null) {
 		throw haxe_Exception.thrown("Edge::new p1 or p2 is null");
@@ -72850,7 +65570,7 @@ hxd_res_ImageFormat.get_useAsyncDecode = function(this1) {
 hxd_res_ImageFormat.toInt = function(this1) {
 	return this1;
 };
-var hxd_res_ImageInfoFlag = $hxEnums["hxd.res.ImageInfoFlag"] = { __ename__:"hxd.res.ImageInfoFlag",__constructs__:null
+var hxd_res_ImageInfoFlag = $hxEnums["hxd.res.ImageInfoFlag"] = { __ename__:true,__constructs__:null
 	,IsCube: {_hx_name:"IsCube",_hx_index:0,__enum__:"hxd.res.ImageInfoFlag",toString:$estr}
 	,Dxt10Header: {_hx_name:"Dxt10Header",_hx_index:1,__enum__:"hxd.res.ImageInfoFlag",toString:$estr}
 };
@@ -73591,7 +66311,7 @@ hxd_res_Model.prototype = $extend(hxd_res_Resource.prototype,{
 	}
 	,__class__: hxd_res_Model
 });
-var hxd_res_Filter = $hxEnums["hxd.res.Filter"] = { __ename__:"hxd.res.Filter",__constructs__:null
+var hxd_res_Filter = $hxEnums["hxd.res.Filter"] = { __ename__:true,__constructs__:null
 	,Fast: {_hx_name:"Fast",_hx_index:0,__enum__:"hxd.res.Filter",toString:$estr}
 	,Chromatic: {_hx_name:"Chromatic",_hx_index:1,__enum__:"hxd.res.Filter",toString:$estr}
 };
@@ -75819,7 +68539,7 @@ hxd_res_NanoJpeg.prototype = {
 	}
 	,__class__: hxd_res_NanoJpeg
 };
-var hxd_res_SoundFormat = $hxEnums["hxd.res.SoundFormat"] = { __ename__:"hxd.res.SoundFormat",__constructs__:null
+var hxd_res_SoundFormat = $hxEnums["hxd.res.SoundFormat"] = { __ename__:true,__constructs__:null
 	,Wav: {_hx_name:"Wav",_hx_index:0,__enum__:"hxd.res.SoundFormat",toString:$estr}
 	,Mp3: {_hx_name:"Mp3",_hx_index:1,__enum__:"hxd.res.SoundFormat",toString:$estr}
 	,OggVorbis: {_hx_name:"OggVorbis",_hx_index:2,__enum__:"hxd.res.SoundFormat",toString:$estr}
@@ -76112,7 +68832,7 @@ hxd_snd_ChannelGroup.prototype = $extend(hxd_snd_ChannelBase.prototype,{
 	name: null
 	,__class__: hxd_snd_ChannelGroup
 });
-var hxd_snd_SampleFormat = $hxEnums["hxd.snd.SampleFormat"] = { __ename__:"hxd.snd.SampleFormat",__constructs__:null
+var hxd_snd_SampleFormat = $hxEnums["hxd.snd.SampleFormat"] = { __ename__:true,__constructs__:null
 	,UI8: {_hx_name:"UI8",_hx_index:0,__enum__:"hxd.snd.SampleFormat",toString:$estr}
 	,I16: {_hx_name:"I16",_hx_index:1,__enum__:"hxd.snd.SampleFormat",toString:$estr}
 	,F32: {_hx_name:"F32",_hx_index:2,__enum__:"hxd.snd.SampleFormat",toString:$estr}
@@ -76360,7 +69080,7 @@ hxd_snd_EffectDriver.prototype = {
 	}
 	,__class__: hxd_snd_EffectDriver
 };
-var hxd_snd_DriverFeature = $hxEnums["hxd.snd.DriverFeature"] = { __ename__:"hxd.snd.DriverFeature",__constructs__:null
+var hxd_snd_DriverFeature = $hxEnums["hxd.snd.DriverFeature"] = { __ename__:true,__constructs__:null
 	,MasterVolume: {_hx_name:"MasterVolume",_hx_index:0,__enum__:"hxd.snd.DriverFeature",toString:$estr}
 };
 hxd_snd_DriverFeature.__constructs__ = [hxd_snd_DriverFeature.MasterVolume];
@@ -78394,7 +71114,7 @@ hxd_snd_webaudio_SpatializationDriver.prototype = $extend(hxd_snd_EffectDriver.p
 	}
 	,__class__: hxd_snd_webaudio_SpatializationDriver
 });
-var hxsl_Type = $hxEnums["hxsl.Type"] = { __ename__:"hxsl.Type",__constructs__:null
+var hxsl_Type = $hxEnums["hxsl.Type"] = { __ename__:true,__constructs__:null
 	,TVoid: {_hx_name:"TVoid",_hx_index:0,__enum__:"hxsl.Type",toString:$estr}
 	,TInt: {_hx_name:"TInt",_hx_index:1,__enum__:"hxsl.Type",toString:$estr}
 	,TBool: {_hx_name:"TBool",_hx_index:2,__enum__:"hxsl.Type",toString:$estr}
@@ -78417,14 +71137,14 @@ var hxsl_Type = $hxEnums["hxsl.Type"] = { __ename__:"hxsl.Type",__constructs__:n
 };
 hxsl_Type.__constructs__ = [hxsl_Type.TVoid,hxsl_Type.TInt,hxsl_Type.TBool,hxsl_Type.TFloat,hxsl_Type.TString,hxsl_Type.TVec,hxsl_Type.TMat3,hxsl_Type.TMat4,hxsl_Type.TMat3x4,hxsl_Type.TBytes,hxsl_Type.TSampler2D,hxsl_Type.TSampler2DArray,hxsl_Type.TSamplerCube,hxsl_Type.TStruct,hxsl_Type.TFun,hxsl_Type.TArray,hxsl_Type.TBuffer,hxsl_Type.TChannel,hxsl_Type.TMat2];
 hxsl_Type.__empty_constructs__ = [hxsl_Type.TVoid,hxsl_Type.TInt,hxsl_Type.TBool,hxsl_Type.TFloat,hxsl_Type.TString,hxsl_Type.TMat3,hxsl_Type.TMat4,hxsl_Type.TMat3x4,hxsl_Type.TSampler2D,hxsl_Type.TSampler2DArray,hxsl_Type.TSamplerCube,hxsl_Type.TMat2];
-var hxsl_VecType = $hxEnums["hxsl.VecType"] = { __ename__:"hxsl.VecType",__constructs__:null
+var hxsl_VecType = $hxEnums["hxsl.VecType"] = { __ename__:true,__constructs__:null
 	,VInt: {_hx_name:"VInt",_hx_index:0,__enum__:"hxsl.VecType",toString:$estr}
 	,VFloat: {_hx_name:"VFloat",_hx_index:1,__enum__:"hxsl.VecType",toString:$estr}
 	,VBool: {_hx_name:"VBool",_hx_index:2,__enum__:"hxsl.VecType",toString:$estr}
 };
 hxsl_VecType.__constructs__ = [hxsl_VecType.VInt,hxsl_VecType.VFloat,hxsl_VecType.VBool];
 hxsl_VecType.__empty_constructs__ = [hxsl_VecType.VInt,hxsl_VecType.VFloat,hxsl_VecType.VBool];
-var hxsl_SizeDecl = $hxEnums["hxsl.SizeDecl"] = { __ename__:"hxsl.SizeDecl",__constructs__:null
+var hxsl_SizeDecl = $hxEnums["hxsl.SizeDecl"] = { __ename__:true,__constructs__:null
 	,SConst: ($_=function(v) { return {_hx_index:0,v:v,__enum__:"hxsl.SizeDecl",toString:$estr}; },$_._hx_name="SConst",$_.__params__ = ["v"],$_)
 	,SVar: ($_=function(v) { return {_hx_index:1,v:v,__enum__:"hxsl.SizeDecl",toString:$estr}; },$_._hx_name="SVar",$_.__params__ = ["v"],$_)
 };
@@ -78447,7 +71167,7 @@ hxsl_Error.prototype = {
 	}
 	,__class__: hxsl_Error
 };
-var hxsl_VarKind = $hxEnums["hxsl.VarKind"] = { __ename__:"hxsl.VarKind",__constructs__:null
+var hxsl_VarKind = $hxEnums["hxsl.VarKind"] = { __ename__:true,__constructs__:null
 	,Global: {_hx_name:"Global",_hx_index:0,__enum__:"hxsl.VarKind",toString:$estr}
 	,Input: {_hx_name:"Input",_hx_index:1,__enum__:"hxsl.VarKind",toString:$estr}
 	,Param: {_hx_name:"Param",_hx_index:2,__enum__:"hxsl.VarKind",toString:$estr}
@@ -78458,7 +71178,7 @@ var hxsl_VarKind = $hxEnums["hxsl.VarKind"] = { __ename__:"hxsl.VarKind",__const
 };
 hxsl_VarKind.__constructs__ = [hxsl_VarKind.Global,hxsl_VarKind.Input,hxsl_VarKind.Param,hxsl_VarKind.Var,hxsl_VarKind.Local,hxsl_VarKind.Output,hxsl_VarKind.Function];
 hxsl_VarKind.__empty_constructs__ = [hxsl_VarKind.Global,hxsl_VarKind.Input,hxsl_VarKind.Param,hxsl_VarKind.Var,hxsl_VarKind.Local,hxsl_VarKind.Output,hxsl_VarKind.Function];
-var hxsl_VarQualifier = $hxEnums["hxsl.VarQualifier"] = { __ename__:"hxsl.VarQualifier",__constructs__:null
+var hxsl_VarQualifier = $hxEnums["hxsl.VarQualifier"] = { __ename__:true,__constructs__:null
 	,Const: ($_=function(max) { return {_hx_index:0,max:max,__enum__:"hxsl.VarQualifier",toString:$estr}; },$_._hx_name="Const",$_.__params__ = ["max"],$_)
 	,Private: {_hx_name:"Private",_hx_index:1,__enum__:"hxsl.VarQualifier",toString:$estr}
 	,Nullable: {_hx_name:"Nullable",_hx_index:2,__enum__:"hxsl.VarQualifier",toString:$estr}
@@ -78475,14 +71195,14 @@ var hxsl_VarQualifier = $hxEnums["hxsl.VarQualifier"] = { __ename__:"hxsl.VarQua
 };
 hxsl_VarQualifier.__constructs__ = [hxsl_VarQualifier.Const,hxsl_VarQualifier.Private,hxsl_VarQualifier.Nullable,hxsl_VarQualifier.PerObject,hxsl_VarQualifier.Name,hxsl_VarQualifier.Shared,hxsl_VarQualifier.Precision,hxsl_VarQualifier.Range,hxsl_VarQualifier.Ignore,hxsl_VarQualifier.PerInstance,hxsl_VarQualifier.Doc,hxsl_VarQualifier.Borrow,hxsl_VarQualifier.Sampler];
 hxsl_VarQualifier.__empty_constructs__ = [hxsl_VarQualifier.Private,hxsl_VarQualifier.Nullable,hxsl_VarQualifier.PerObject,hxsl_VarQualifier.Shared,hxsl_VarQualifier.Ignore];
-var hxsl_Prec = $hxEnums["hxsl.Prec"] = { __ename__:"hxsl.Prec",__constructs__:null
+var hxsl_Prec = $hxEnums["hxsl.Prec"] = { __ename__:true,__constructs__:null
 	,Low: {_hx_name:"Low",_hx_index:0,__enum__:"hxsl.Prec",toString:$estr}
 	,Medium: {_hx_name:"Medium",_hx_index:1,__enum__:"hxsl.Prec",toString:$estr}
 	,High: {_hx_name:"High",_hx_index:2,__enum__:"hxsl.Prec",toString:$estr}
 };
 hxsl_Prec.__constructs__ = [hxsl_Prec.Low,hxsl_Prec.Medium,hxsl_Prec.High];
 hxsl_Prec.__empty_constructs__ = [hxsl_Prec.Low,hxsl_Prec.Medium,hxsl_Prec.High];
-var hxsl_Const = $hxEnums["hxsl.Const"] = { __ename__:"hxsl.Const",__constructs__:null
+var hxsl_Const = $hxEnums["hxsl.Const"] = { __ename__:true,__constructs__:null
 	,CNull: {_hx_name:"CNull",_hx_index:0,__enum__:"hxsl.Const",toString:$estr}
 	,CBool: ($_=function(b) { return {_hx_index:1,b:b,__enum__:"hxsl.Const",toString:$estr}; },$_._hx_name="CBool",$_.__params__ = ["b"],$_)
 	,CInt: ($_=function(v) { return {_hx_index:2,v:v,__enum__:"hxsl.Const",toString:$estr}; },$_._hx_name="CInt",$_.__params__ = ["v"],$_)
@@ -78491,7 +71211,7 @@ var hxsl_Const = $hxEnums["hxsl.Const"] = { __ename__:"hxsl.Const",__constructs_
 };
 hxsl_Const.__constructs__ = [hxsl_Const.CNull,hxsl_Const.CBool,hxsl_Const.CInt,hxsl_Const.CFloat,hxsl_Const.CString];
 hxsl_Const.__empty_constructs__ = [hxsl_Const.CNull];
-var hxsl_ExprDef = $hxEnums["hxsl.ExprDef"] = { __ename__:"hxsl.ExprDef",__constructs__:null
+var hxsl_ExprDef = $hxEnums["hxsl.ExprDef"] = { __ename__:true,__constructs__:null
 	,EConst: ($_=function(c) { return {_hx_index:0,c:c,__enum__:"hxsl.ExprDef",toString:$estr}; },$_._hx_name="EConst",$_.__params__ = ["c"],$_)
 	,EIdent: ($_=function(i) { return {_hx_index:1,i:i,__enum__:"hxsl.ExprDef",toString:$estr}; },$_._hx_name="EIdent",$_.__params__ = ["i"],$_)
 	,EParenthesis: ($_=function(e) { return {_hx_index:2,e:e,__enum__:"hxsl.ExprDef",toString:$estr}; },$_._hx_name="EParenthesis",$_.__params__ = ["e"],$_)
@@ -78516,7 +71236,7 @@ var hxsl_ExprDef = $hxEnums["hxsl.ExprDef"] = { __ename__:"hxsl.ExprDef",__const
 };
 hxsl_ExprDef.__constructs__ = [hxsl_ExprDef.EConst,hxsl_ExprDef.EIdent,hxsl_ExprDef.EParenthesis,hxsl_ExprDef.EField,hxsl_ExprDef.EBinop,hxsl_ExprDef.EUnop,hxsl_ExprDef.ECall,hxsl_ExprDef.EBlock,hxsl_ExprDef.EVars,hxsl_ExprDef.EFunction,hxsl_ExprDef.EIf,hxsl_ExprDef.EDiscard,hxsl_ExprDef.EFor,hxsl_ExprDef.EReturn,hxsl_ExprDef.EBreak,hxsl_ExprDef.EContinue,hxsl_ExprDef.EArray,hxsl_ExprDef.EArrayDecl,hxsl_ExprDef.ESwitch,hxsl_ExprDef.EWhile,hxsl_ExprDef.EMeta];
 hxsl_ExprDef.__empty_constructs__ = [hxsl_ExprDef.EDiscard,hxsl_ExprDef.EBreak,hxsl_ExprDef.EContinue];
-var hxsl_FunctionKind = $hxEnums["hxsl.FunctionKind"] = { __ename__:"hxsl.FunctionKind",__constructs__:null
+var hxsl_FunctionKind = $hxEnums["hxsl.FunctionKind"] = { __ename__:true,__constructs__:null
 	,Vertex: {_hx_name:"Vertex",_hx_index:0,__enum__:"hxsl.FunctionKind",toString:$estr}
 	,Fragment: {_hx_name:"Fragment",_hx_index:1,__enum__:"hxsl.FunctionKind",toString:$estr}
 	,Init: {_hx_name:"Init",_hx_index:2,__enum__:"hxsl.FunctionKind",toString:$estr}
@@ -78524,7 +71244,7 @@ var hxsl_FunctionKind = $hxEnums["hxsl.FunctionKind"] = { __ename__:"hxsl.Functi
 };
 hxsl_FunctionKind.__constructs__ = [hxsl_FunctionKind.Vertex,hxsl_FunctionKind.Fragment,hxsl_FunctionKind.Init,hxsl_FunctionKind.Helper];
 hxsl_FunctionKind.__empty_constructs__ = [hxsl_FunctionKind.Vertex,hxsl_FunctionKind.Fragment,hxsl_FunctionKind.Init,hxsl_FunctionKind.Helper];
-var hxsl_TGlobal = $hxEnums["hxsl.TGlobal"] = { __ename__:"hxsl.TGlobal",__constructs__:null
+var hxsl_TGlobal = $hxEnums["hxsl.TGlobal"] = { __ename__:true,__constructs__:null
 	,Radians: {_hx_name:"Radians",_hx_index:0,__enum__:"hxsl.TGlobal",toString:$estr}
 	,Degrees: {_hx_name:"Degrees",_hx_index:1,__enum__:"hxsl.TGlobal",toString:$estr}
 	,Sin: {_hx_name:"Sin",_hx_index:2,__enum__:"hxsl.TGlobal",toString:$estr}
@@ -78600,7 +71320,7 @@ var hxsl_TGlobal = $hxEnums["hxsl.TGlobal"] = { __ename__:"hxsl.TGlobal",__const
 };
 hxsl_TGlobal.__constructs__ = [hxsl_TGlobal.Radians,hxsl_TGlobal.Degrees,hxsl_TGlobal.Sin,hxsl_TGlobal.Cos,hxsl_TGlobal.Tan,hxsl_TGlobal.Asin,hxsl_TGlobal.Acos,hxsl_TGlobal.Atan,hxsl_TGlobal.Pow,hxsl_TGlobal.Exp,hxsl_TGlobal.Log,hxsl_TGlobal.Exp2,hxsl_TGlobal.Log2,hxsl_TGlobal.Sqrt,hxsl_TGlobal.Inversesqrt,hxsl_TGlobal.Abs,hxsl_TGlobal.Sign,hxsl_TGlobal.Floor,hxsl_TGlobal.Ceil,hxsl_TGlobal.Fract,hxsl_TGlobal.Mod,hxsl_TGlobal.Min,hxsl_TGlobal.Max,hxsl_TGlobal.Clamp,hxsl_TGlobal.Mix,hxsl_TGlobal.Step,hxsl_TGlobal.Smoothstep,hxsl_TGlobal.Length,hxsl_TGlobal.Distance,hxsl_TGlobal.Dot,hxsl_TGlobal.Cross,hxsl_TGlobal.Normalize,hxsl_TGlobal.LReflect,hxsl_TGlobal.Texture,hxsl_TGlobal.TextureLod,hxsl_TGlobal.Texel,hxsl_TGlobal.TextureSize,hxsl_TGlobal.ToInt,hxsl_TGlobal.ToFloat,hxsl_TGlobal.ToBool,hxsl_TGlobal.Vec2,hxsl_TGlobal.Vec3,hxsl_TGlobal.Vec4,hxsl_TGlobal.IVec2,hxsl_TGlobal.IVec3,hxsl_TGlobal.IVec4,hxsl_TGlobal.BVec2,hxsl_TGlobal.BVec3,hxsl_TGlobal.BVec4,hxsl_TGlobal.Mat2,hxsl_TGlobal.Mat3,hxsl_TGlobal.Mat4,hxsl_TGlobal.Mat3x4,hxsl_TGlobal.Saturate,hxsl_TGlobal.Pack,hxsl_TGlobal.Unpack,hxsl_TGlobal.PackNormal,hxsl_TGlobal.UnpackNormal,hxsl_TGlobal.ScreenToUv,hxsl_TGlobal.UvToScreen,hxsl_TGlobal.DFdx,hxsl_TGlobal.DFdy,hxsl_TGlobal.Fwidth,hxsl_TGlobal.ChannelRead,hxsl_TGlobal.ChannelReadLod,hxsl_TGlobal.ChannelFetch,hxsl_TGlobal.ChannelTextureSize,hxsl_TGlobal.Trace,hxsl_TGlobal.VertexID,hxsl_TGlobal.InstanceID,hxsl_TGlobal.FragCoord,hxsl_TGlobal.FrontFacing];
 hxsl_TGlobal.__empty_constructs__ = [hxsl_TGlobal.Radians,hxsl_TGlobal.Degrees,hxsl_TGlobal.Sin,hxsl_TGlobal.Cos,hxsl_TGlobal.Tan,hxsl_TGlobal.Asin,hxsl_TGlobal.Acos,hxsl_TGlobal.Atan,hxsl_TGlobal.Pow,hxsl_TGlobal.Exp,hxsl_TGlobal.Log,hxsl_TGlobal.Exp2,hxsl_TGlobal.Log2,hxsl_TGlobal.Sqrt,hxsl_TGlobal.Inversesqrt,hxsl_TGlobal.Abs,hxsl_TGlobal.Sign,hxsl_TGlobal.Floor,hxsl_TGlobal.Ceil,hxsl_TGlobal.Fract,hxsl_TGlobal.Mod,hxsl_TGlobal.Min,hxsl_TGlobal.Max,hxsl_TGlobal.Clamp,hxsl_TGlobal.Mix,hxsl_TGlobal.Step,hxsl_TGlobal.Smoothstep,hxsl_TGlobal.Length,hxsl_TGlobal.Distance,hxsl_TGlobal.Dot,hxsl_TGlobal.Cross,hxsl_TGlobal.Normalize,hxsl_TGlobal.LReflect,hxsl_TGlobal.Texture,hxsl_TGlobal.TextureLod,hxsl_TGlobal.Texel,hxsl_TGlobal.TextureSize,hxsl_TGlobal.ToInt,hxsl_TGlobal.ToFloat,hxsl_TGlobal.ToBool,hxsl_TGlobal.Vec2,hxsl_TGlobal.Vec3,hxsl_TGlobal.Vec4,hxsl_TGlobal.IVec2,hxsl_TGlobal.IVec3,hxsl_TGlobal.IVec4,hxsl_TGlobal.BVec2,hxsl_TGlobal.BVec3,hxsl_TGlobal.BVec4,hxsl_TGlobal.Mat2,hxsl_TGlobal.Mat3,hxsl_TGlobal.Mat4,hxsl_TGlobal.Mat3x4,hxsl_TGlobal.Saturate,hxsl_TGlobal.Pack,hxsl_TGlobal.Unpack,hxsl_TGlobal.PackNormal,hxsl_TGlobal.UnpackNormal,hxsl_TGlobal.ScreenToUv,hxsl_TGlobal.UvToScreen,hxsl_TGlobal.DFdx,hxsl_TGlobal.DFdy,hxsl_TGlobal.Fwidth,hxsl_TGlobal.ChannelRead,hxsl_TGlobal.ChannelReadLod,hxsl_TGlobal.ChannelFetch,hxsl_TGlobal.ChannelTextureSize,hxsl_TGlobal.Trace,hxsl_TGlobal.VertexID,hxsl_TGlobal.InstanceID,hxsl_TGlobal.FragCoord,hxsl_TGlobal.FrontFacing];
-var hxsl_Component = $hxEnums["hxsl.Component"] = { __ename__:"hxsl.Component",__constructs__:null
+var hxsl_Component = $hxEnums["hxsl.Component"] = { __ename__:true,__constructs__:null
 	,X: {_hx_name:"X",_hx_index:0,__enum__:"hxsl.Component",toString:$estr}
 	,Y: {_hx_name:"Y",_hx_index:1,__enum__:"hxsl.Component",toString:$estr}
 	,Z: {_hx_name:"Z",_hx_index:2,__enum__:"hxsl.Component",toString:$estr}
@@ -78608,7 +71328,7 @@ var hxsl_Component = $hxEnums["hxsl.Component"] = { __ename__:"hxsl.Component",_
 };
 hxsl_Component.__constructs__ = [hxsl_Component.X,hxsl_Component.Y,hxsl_Component.Z,hxsl_Component.W];
 hxsl_Component.__empty_constructs__ = [hxsl_Component.X,hxsl_Component.Y,hxsl_Component.Z,hxsl_Component.W];
-var hxsl_TExprDef = $hxEnums["hxsl.TExprDef"] = { __ename__:"hxsl.TExprDef",__constructs__:null
+var hxsl_TExprDef = $hxEnums["hxsl.TExprDef"] = { __ename__:true,__constructs__:null
 	,TConst: ($_=function(c) { return {_hx_index:0,c:c,__enum__:"hxsl.TExprDef",toString:$estr}; },$_._hx_name="TConst",$_.__params__ = ["c"],$_)
 	,TVar: ($_=function(v) { return {_hx_index:1,v:v,__enum__:"hxsl.TExprDef",toString:$estr}; },$_._hx_name="TVar",$_.__params__ = ["v"],$_)
 	,TGlobal: ($_=function(g) { return {_hx_index:2,g:g,__enum__:"hxsl.TExprDef",toString:$estr}; },$_._hx_name="TGlobal",$_.__params__ = ["g"],$_)
@@ -80187,7 +72907,7 @@ hxsl_Cache.prototype = {
 	}
 	,__class__: hxsl_Cache
 };
-var hxsl_Channel = $hxEnums["hxsl.Channel"] = { __ename__:"hxsl.Channel",__constructs__:null
+var hxsl_Channel = $hxEnums["hxsl.Channel"] = { __ename__:true,__constructs__:null
 	,Unknown: {_hx_name:"Unknown",_hx_index:0,__enum__:"hxsl.Channel",toString:$estr}
 	,R: {_hx_name:"R",_hx_index:1,__enum__:"hxsl.Channel",toString:$estr}
 	,G: {_hx_name:"G",_hx_index:2,__enum__:"hxsl.Channel",toString:$estr}
@@ -81202,205 +73922,6 @@ hxsl_Dce.prototype = {
 	}
 	,__class__: hxsl_Dce
 };
-var hxsl__$DynamicShader_Access = function(kind,index,fields) {
-	this.kind = kind;
-	this.index = index;
-	this.fields = fields;
-};
-$hxClasses["hxsl._DynamicShader.Access"] = hxsl__$DynamicShader_Access;
-hxsl__$DynamicShader_Access.__name__ = "hxsl._DynamicShader.Access";
-hxsl__$DynamicShader_Access.prototype = {
-	kind: null
-	,index: null
-	,fields: null
-	,__class__: hxsl__$DynamicShader_Access
-};
-var hxsl_DynamicShader = function(s) {
-	this.varNames = new haxe_ds_StringMap();
-	this.varIndexes = new haxe_ds_IntMap();
-	this.accesses = [];
-	this.floats = [];
-	this.values = [];
-	this.shader = s;
-	hxsl_Shader.call(this);
-	var _g = 0;
-	var _g1 = s.data.vars;
-	while(_g < _g1.length) {
-		var v = _g1[_g];
-		++_g;
-		this.addVarIndex(v);
-	}
-};
-$hxClasses["hxsl.DynamicShader"] = hxsl_DynamicShader;
-hxsl_DynamicShader.__name__ = "hxsl.DynamicShader";
-hxsl_DynamicShader.__super__ = hxsl_Shader;
-hxsl_DynamicShader.prototype = $extend(hxsl_Shader.prototype,{
-	values: null
-	,floats: null
-	,accesses: null
-	,varIndexes: null
-	,varNames: null
-	,addVarIndex: function(v,access,defObj) {
-		if(v.kind != hxsl_VarKind.Param) {
-			return;
-		}
-		var isFloat = v.type == hxsl_Type.TFloat && access == null;
-		var vid = isFloat ? this.floats.length : this.values.length;
-		if(access != null) {
-			access = new hxsl__$DynamicShader_Access(2,access.index,access.fields.slice());
-		}
-		var _g = v.type;
-		if(_g._hx_index == 13) {
-			var vl = _g.vl;
-			var vobj = { };
-			if(access == null) {
-				this.values.push(vobj);
-				access = new hxsl__$DynamicShader_Access(2,vid,[]);
-				this.varNames.h[v.name] = vid;
-			} else {
-				defObj[v.name] = vobj;
-			}
-			var _g = 0;
-			while(_g < vl.length) {
-				var v1 = vl[_g];
-				++_g;
-				access.fields.push(v1.name);
-				this.addVarIndex(v1,access,vobj);
-				access.fields.pop();
-			}
-			return;
-		}
-		var value = null;
-		var _g = v.type;
-		switch(_g._hx_index) {
-		case 1:case 3:
-			value = 0;
-			break;
-		case 2:
-			value = false;
-			break;
-		case 5:
-			var _g1 = _g.size;
-			var _g1 = _g.t;
-			value = new h3d_Vector();
-			break;
-		case 6:case 7:case 8:
-			var m = new h3d_Matrix();
-			m.identity();
-			value = m;
-			break;
-		default:
-		}
-		if(access == null) {
-			if(isFloat) {
-				this.varNames.h[v.name] = -vid - 1;
-				this.floats.push(0);
-			} else {
-				this.varNames.h[v.name] = vid;
-				this.values.push(value);
-			}
-		} else {
-			defObj[v.name] = value;
-		}
-		var vidx = this.accesses.length;
-		this.varIndexes.h[v.id] = vidx;
-		this.accesses.push(access == null ? new hxsl__$DynamicShader_Access(isFloat ? 1 : 0,vid,null) : access);
-	}
-	,getParamValue: function(index) {
-		var a = this.accesses[index];
-		switch(a.kind) {
-		case 0:
-			return this.values[a.index];
-		case 1:
-			return this.floats[a.index];
-		case 2:
-			var v = this.values[a.index];
-			var _g = 0;
-			var _g1 = a.fields;
-			while(_g < _g1.length) {
-				var f = _g1[_g];
-				++_g;
-				v = Reflect.field(v,f);
-			}
-			return v;
-		}
-	}
-	,getParamFloatValue: function(index) {
-		var a = this.accesses[index];
-		if(a.kind != 1) {
-			return this.getParamValue(index);
-		}
-		return this.floats[a.index];
-	}
-	,setParamValue: function(p,value) {
-		var vidx = this.varIndexes.h[p.id];
-		var a = this.accesses[vidx];
-		switch(a.kind) {
-		case 0:
-			this.values[a.index] = value;
-			break;
-		case 1:
-			this.floats[a.index] = value;
-			break;
-		case 2:
-			var obj = this.values[a.index];
-			var _g = 0;
-			var _g1 = a.fields.length - 1;
-			while(_g < _g1) {
-				var i = _g++;
-				obj = Reflect.field(obj,a.fields[i]);
-			}
-			obj[a.fields[a.fields.length - 1]] = value;
-			break;
-		}
-	}
-	,setParamFloatValue: function(p,value) {
-		var vidx = this.varIndexes.h[p.id];
-		var a = this.accesses[vidx];
-		if(a.kind != 1) {
-			this.setParamValue(p,value);
-			return;
-		}
-		this.floats[a.index] = value;
-	}
-	,updateConstants: function(globals) {
-		this.constBits = 0;
-		var c = this.shader.consts;
-		while(c != null) {
-			if(c.globalId != 0) {
-				c = c.next;
-				continue;
-			}
-			var v = this.getParamValue(this.varIndexes.h[c.v.id]);
-			var _g = c.v.type;
-			switch(_g._hx_index) {
-			case 1:
-				var v1 = v;
-				if(v1 >>> c.bits != 0) {
-					throw haxe_Exception.thrown("Constant outside range");
-				}
-				this.constBits |= v1 << c.pos;
-				break;
-			case 2:
-				if(v) {
-					this.constBits |= 1 << c.pos;
-				}
-				break;
-			case 17:
-				var n = _g.size;
-				throw haxe_Exception.thrown("TODO:" + Std.string(c.v.type));
-			default:
-				throw haxe_Exception.thrown("assert");
-			}
-			c = c.next;
-		}
-		this.updateConstantsFinal(globals);
-	}
-	,toString: function() {
-		return "DynamicShader<" + this.shader.data.name + ">";
-	}
-	,__class__: hxsl_DynamicShader
-});
 var hxsl_Eval = function() {
 	this.varMap = new haxe_ds_ObjectMap();
 	this.funMap = new haxe_ds_ObjectMap();
@@ -83449,7 +75970,7 @@ hxsl__$Flatten_Alloc.prototype = {
 	,v: null
 	,__class__: hxsl__$Flatten_Alloc
 };
-var hxsl_ARead = $hxEnums["hxsl.ARead"] = { __ename__:"hxsl.ARead",__constructs__:null
+var hxsl_ARead = $hxEnums["hxsl.ARead"] = { __ename__:true,__constructs__:null
 	,AIndex: ($_=function(a) { return {_hx_index:0,a:a,__enum__:"hxsl.ARead",toString:$estr}; },$_._hx_name="AIndex",$_.__params__ = ["a"],$_)
 	,AOffset: ($_=function(a,stride,delta) { return {_hx_index:1,a:a,stride:stride,delta:delta,__enum__:"hxsl.ARead",toString:$estr}; },$_._hx_name="AOffset",$_.__params__ = ["a","stride","delta"],$_)
 };
@@ -84793,9 +77314,6 @@ js_Boot.__downcastCheck = function(o,cl) {
 	} else {
 		return true;
 	}
-};
-js_Boot.__implements = function(o,iface) {
-	return js_Boot.__interfLoop(js_Boot.getClass(o),iface);
 };
 js_Boot.__cast = function(o,t) {
 	if(o == null || js_Boot.__instanceof(o,t)) {
@@ -87120,7 +79638,7 @@ hxsl_Linker.prototype = {
 	}
 	,__class__: hxsl_Linker
 };
-var hxsl_Output = $hxEnums["hxsl.Output"] = { __ename__:"hxsl.Output",__constructs__:null
+var hxsl_Output = $hxEnums["hxsl.Output"] = { __ename__:true,__constructs__:null
 	,Const: ($_=function(v) { return {_hx_index:0,v:v,__enum__:"hxsl.Output",toString:$estr}; },$_._hx_name="Const",$_.__params__ = ["v"],$_)
 	,Value: ($_=function(v,size) { return {_hx_index:1,v:v,size:size,__enum__:"hxsl.Output",toString:$estr}; },$_._hx_name="Value",$_.__params__ = ["v","size"],$_)
 	,PackNormal: ($_=function(v) { return {_hx_index:2,v:v,__enum__:"hxsl.Output",toString:$estr}; },$_._hx_name="PackNormal",$_.__params__ = ["v"],$_)
@@ -89418,15 +81936,6 @@ js_html__$CanvasElement_CanvasUtil.getContextWebGL = function(canvas,attribs) {
 	}
 	return null;
 };
-var js_lib__$ArrayBuffer_ArrayBufferCompat = function() { };
-$hxClasses["js.lib._ArrayBuffer.ArrayBufferCompat"] = js_lib__$ArrayBuffer_ArrayBufferCompat;
-js_lib__$ArrayBuffer_ArrayBufferCompat.__name__ = "js.lib._ArrayBuffer.ArrayBufferCompat";
-js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
-	var u = new Uint8Array(this,begin,end == null ? null : end - begin);
-	var resultArray = new Uint8Array(u.byteLength);
-	resultArray.set(u);
-	return resultArray.buffer;
-};
 Math.__name__ = "Math";
 var ui_Button = function(parent,width,height,shape) {
 	h2d_Interactive.call(this,width,height,parent,shape);
@@ -89596,7 +82105,7 @@ ui_ButtonStateGraph.prototype = {
 	}
 	,__class__: ui_ButtonStateGraph
 };
-var ui_ButtonState = $hxEnums["ui.ButtonState"] = { __ename__:"ui.ButtonState",__constructs__:null
+var ui_ButtonState = $hxEnums["ui.ButtonState"] = { __ename__:true,__constructs__:null
 	,Idle: {_hx_name:"Idle",_hx_index:0,__enum__:"ui.ButtonState",toString:$estr}
 	,Hover: {_hx_name:"Hover",_hx_index:1,__enum__:"ui.ButtonState",toString:$estr}
 	,Press: {_hx_name:"Press",_hx_index:2,__enum__:"ui.ButtonState",toString:$estr}
@@ -89848,9 +82357,6 @@ hx__registerFont = function(name,data) {
 	window.document.body.appendChild(div);
 };
 js_Boot.__toStr = ({ }).toString;
-if(ArrayBuffer.prototype.slice == null) {
-	ArrayBuffer.prototype.slice = js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl;
-}
 h3d_Matrix.tmp = new h3d_Matrix();
 h3d_Matrix.lumR = 0.212671;
 h3d_Matrix.lumG = 0.71516;
@@ -90078,9 +82584,6 @@ haxe_EntryPoint.threadCount = 0;
 haxe_Int32._mul = Math.imul != null ? Math.imul : function(a,b) {
 	return a * (b & 65535) + (a * (b >>> 16) << 16 | 0) | 0;
 };
-haxe_Serializer.USE_CACHE = false;
-haxe_Serializer.USE_ENUM_INDEX = false;
-haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe_Unserializer.DEFAULT_RESOLVER = new haxe__$Unserializer_DefaultResolver();
 haxe_Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe_crypto_Base64.CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -90102,29 +82605,6 @@ haxe_zip_InflateImpl.LEN_BASE_VAL_TBL = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,3
 haxe_zip_InflateImpl.DIST_EXTRA_BITS_TBL = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,-1,-1];
 haxe_zip_InflateImpl.DIST_BASE_VAL_TBL = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
 haxe_zip_InflateImpl.CODE_LENGTHS_POS = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
-hxbit_Convert.convFuns = new haxe_ds_StringMap();
-hxbit_Macros.IN_ENUM_SER = false;
-hxbit_NetworkHost.SYNC = 1;
-hxbit_NetworkHost.REG = 2;
-hxbit_NetworkHost.UNREG = 3;
-hxbit_NetworkHost.FULLSYNC = 4;
-hxbit_NetworkHost.RPC = 5;
-hxbit_NetworkHost.RPC_WITH_RESULT = 6;
-hxbit_NetworkHost.RPC_RESULT = 7;
-hxbit_NetworkHost.MSG = 8;
-hxbit_NetworkHost.BMSG = 9;
-hxbit_NetworkHost.CUSTOM = 10;
-hxbit_NetworkHost.BCUSTOM = 11;
-hxbit_NetworkHost.CANCEL_RPC = 12;
-hxbit_NetworkHost.EOM = 255;
-hxbit_NetworkHost.CLIENT_TIMEOUT = 3600.;
-hxbit_Serializer.UID = 0;
-hxbit_Serializer.SEQ = 0;
-hxbit_Serializer.SEQ_BITS = 8;
-hxbit_Serializer.SEQ_MASK = 16777215;
-hxbit_Serializer.CLASSES = [];
-hxbit_Serializer.ENUM_CLASSES = new haxe_ds_StringMap();
-hxbit_Schema.__clid = hxbit_Serializer.registerClass(hxbit_Schema);
 hxd_Charset.ASCII = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 hxd_Charset.LATIN1 = "¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿœæŒÆ€";
 hxd_Charset.CYRILLIC = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя—";
@@ -90314,8 +82794,6 @@ hxd_impl_BufferFlags.Dynamic = 0;
 hxd_impl_BufferFlags.UniformDynamic = 1;
 hxd_impl_BufferFlags.RawFormat = 2;
 hxd_impl_BufferFlags.RawQuads = 3;
-hxd_net_Socket.openedSocks = [];
-hxd_net_Socket.ALLOW_BIND = false;
 hxd_poly2tri_Point.C_ID = 0;
 hxd_res_Resource.LIVE_UPDATE = true;
 hxd_res_ImageFormat.Jpg = 0;

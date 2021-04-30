@@ -1,5 +1,3 @@
-import hxd.net.Socket;
-import hxd.net.SocketHost.SocketClient;
 import Pathfinder.Coordinate;
 import hxd.Key;
 import hxd.Event;

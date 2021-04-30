@@ -3,6 +3,5 @@ This project is using:
 HaxeLib List:
 - heaps: git commit at 554d378aa247f4cc3fd049df3704b914f8f6a313
 - heeps: https://github.com/Yanrishatum/heeps at 55a9e19e39792f6b89a8e40153ece16c667856d2
-- udprotean haxelib install 0.3.2
 
 Stole UI code from AvenyrhEngine (not actually in my haxelib though)
