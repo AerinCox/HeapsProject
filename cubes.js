@@ -58,6 +58,103 @@ EReg.prototype = {
 	}
 	,__class__: EReg
 };
+var Entity = function(id,mesh) {
+	this.id = id;
+	this.mesh = mesh;
+};
+$hxClasses["Entity"] = Entity;
+Entity.__name__ = "Entity";
+Entity.prototype = {
+	id: null
+	,mesh: null
+	,getId: function() {
+		return this.id;
+	}
+	,setPosition: function(x,y,z) {
+		var _this = this.mesh;
+		_this.x = x;
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+		_this.y = y;
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+		_this.z = z;
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+		var f = 1;
+		var b = true;
+		if(b) {
+			_this.flags |= f;
+		} else {
+			_this.flags &= ~f;
+		}
+	}
+	,__class__: Entity
+};
+var PathedEntity = function(id,mesh,world) {
+	this.time = 0;
+	this.index = 0;
+	Entity.call(this,id,mesh);
+	this.pathFinder = new Pathfinder(world);
+	this.currPath = [];
+};
+$hxClasses["PathedEntity"] = PathedEntity;
+PathedEntity.__name__ = "PathedEntity";
+PathedEntity.__super__ = Entity;
+PathedEntity.prototype = $extend(Entity.prototype,{
+	pathFinder: null
+	,currPath: null
+	,startPosition: null
+	,index: null
+	,time: null
+	,setPath: function(destX,destY) {
+		this.currPath = this.pathFinder.generatePath(Math.round(this.mesh.x),Math.round(this.mesh.y),destX,destY);
+		this.startPosition = new h3d_col_Point(this.mesh.x,this.mesh.y,this.mesh.z);
+		this.index = 0;
+		this.time = 0;
+	}
+	,path: function(dt) {
+		if(this.currPath != null && this.currPath.length != 0) {
+			this.time += dt;
+			if(this.time <= 1) {
+				var lerpX = Utility.lerp(this.startPosition.x,this.currPath[this.index].x,this.time);
+				var lerpY = Utility.lerp(this.startPosition.y,this.currPath[this.index].y,this.time);
+				this.setPosition(lerpX,lerpY,0);
+				return [lerpX,lerpY];
+			} else if(this.index + 1 == this.currPath.length) {
+				this.currPath = null;
+				this.index = 0;
+				this.time = 0;
+			} else {
+				this.time = 0;
+				this.startPosition.x = this.mesh.x;
+				this.startPosition.y = this.mesh.y;
+				this.startPosition.z = this.mesh.z;
+				this.index++;
+			}
+		}
+		return null;
+	}
+	,getCurrPath: function() {
+		return this.currPath;
+	}
+	,__class__: PathedEntity
+});
 var HxOverrides = function() { };
 $hxClasses["HxOverrides"] = HxOverrides;
 HxOverrides.__name__ = "HxOverrides";
@@ -4109,15 +4206,10 @@ hxd_App.prototype = {
 	,__class__: hxd_App
 };
 var Main = function() {
-	this.time = 0;
-	this.index = 0;
 	hxd_App.call(this);
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
-Main.lerp = function(min,max,time) {
-	return min + (max - min) * time;
-};
 Main.main = function() {
 	hxd_Res.set_loader(new hxd_res_Loader(new hxd_fs_EmbedFileSystem(haxe_Unserializer.run("oy8:rock.hmdty10:dedede.pngty9:icons.pngty15:rockTexture.jpgty14:testHeight.pngtg"))));
 	new Main();
@@ -4126,100 +4218,90 @@ Main.__super__ = hxd_App;
 Main.prototype = $extend(hxd_App.prototype,{
 	player: null
 	,world: null
-	,camera: null
 	,cursor: null
 	,interactableRock: null
 	,gameUI: null
-	,pathfinder: null
-	,currPath: null
-	,index: null
-	,time: null
-	,currX: null
-	,currY: null
-	,currZ: null
-	,client: null
 	,init: function() {
 		var _gthis = this;
 		hxd_App.prototype.init.call(this);
 		this.world = new WorldSquare(16,this.s3d);
 		this.world.addWall(2,2);
-		this.camera = new WASDCameraController(50,this.s3d,this.s2d);
-		this.camera.set(500);
+		Main.camera = new WASDCameraController(50,this.s3d,this.s2d);
+		Main.camera.set(500);
 		var cubeShape = new h3d_prim_Cube();
 		cubeShape.unindex();
 		cubeShape.addNormals();
 		cubeShape.addUVs();
-		this.player = new h3d_scene_Mesh(cubeShape,null,this.s3d);
-		var _this = this.player;
-		var v = _this.scaleX * 0.2;
-		_this.scaleX = v;
+		var mesh = new h3d_scene_Mesh(cubeShape,null,this.s3d);
+		var v1 = mesh.scaleX * 0.2;
+		mesh.scaleX = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
-		var v = _this.scaleY * 0.2;
-		_this.scaleY = v;
+		var v1 = mesh.scaleY * 0.2;
+		mesh.scaleY = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
-		var v = _this.scaleZ * 0.2;
-		_this.scaleZ = v;
+		var v1 = mesh.scaleZ * 0.2;
+		mesh.scaleZ = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
-		var _this = this.player.material;
+		var _this = mesh.material;
 		_this.set_castShadows(false);
 		_this.set_receiveShadows(false);
-		var _this = this.player;
-		_this.x = 0;
+		mesh.x = 0;
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
-		_this.y = 0;
+		mesh.y = 0;
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
-		_this.z = 0;
+		mesh.z = 0;
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
 		var f = 1;
 		var b = true;
 		if(b) {
-			_this.flags |= f;
+			mesh.flags |= f;
 		} else {
-			_this.flags &= ~f;
+			mesh.flags &= ~f;
 		}
+		this.player = new Player(0,mesh,this.world);
 		this.gameUI = new ui_GameUI(this.s2d);
 		var cache = new h3d_prim_ModelCache();
 		this.world.addModel(hxd_Res.get_loader().loadCache("rock.hmd",hxd_res_Model),cache,8,1,1,0);
@@ -4248,8 +4330,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 			_this.w = 1.;
 		}
 		var _this = this.interactableRock;
-		var v = _this.scaleX * 5;
-		_this.scaleX = v;
+		var v1 = _this.scaleX * 5;
+		_this.scaleX = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -4257,8 +4339,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var v = _this.scaleY * 5;
-		_this.scaleY = v;
+		var v1 = _this.scaleY * 5;
+		_this.scaleY = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -4266,8 +4348,8 @@ Main.prototype = $extend(hxd_App.prototype,{
 		} else {
 			_this.flags &= ~f;
 		}
-		var v = _this.scaleZ * 5;
-		_this.scaleZ = v;
+		var v1 = _this.scaleZ * 5;
+		_this.scaleZ = v1;
 		var f = 1;
 		var b = true;
 		if(b) {
@@ -4374,18 +4456,13 @@ Main.prototype = $extend(hxd_App.prototype,{
 		b.yMax = 20;
 		b.zMax = 55;
 		parts.set_volumeBounds(b);
-		this.pathfinder = new Pathfinder(this.world);
-		this.currPath = [];
+		var client = new networking_Client();
 		var clickToMove = function(e) {
 			var eventX = Math.floor(e.relX);
 			var eventY = Math.floor(e.relY);
 			if(_gthis.world.checkNavMesh(eventX,eventY)) {
-				_gthis.currPath = _gthis.pathfinder.generatePath(Math.round(_gthis.player.x),Math.round(_gthis.player.y),eventX,eventY);
-				_gthis.index = 0;
-				_gthis.time = 0;
-				_gthis.currX = _gthis.player.x;
-				_gthis.currY = _gthis.player.y;
-				_gthis.currZ = _gthis.player.z;
+				_gthis.player.setPath(eventX,eventY);
+				client.send("Im going to: " + Std.string(_gthis.player.getCurrPath()[0]));
 			}
 		};
 		this.world.interactFunction = clickToMove;
@@ -4393,13 +4470,6 @@ Main.prototype = $extend(hxd_App.prototype,{
 		this.cursor.beginFill(-1);
 		this.cursor.drawRect(0,-0.5,100,1);
 		this.cursor.endFill();
-		this.client = new WebSocket("ws://localhost:8080");
-		this.client.addEventListener("open",function(event) {
-			_gthis.client.send("Hello Server!");
-		});
-		this.client.addEventListener("message",function(event) {
-			haxe_Log.trace("Message from server ",{ fileName : "src/Main.hx", lineNumber : 165, className : "Main", methodName : "init", customParams : [event.data]});
-		});
 	}
 	,onEvent: function(event) {
 	}
@@ -4413,69 +4483,20 @@ Main.prototype = $extend(hxd_App.prototype,{
 		_this.posChanged = true;
 		_this.y = py;
 		if(hxd_Key.isDown(65)) {
-			this.camera.rot(5,0);
+			Main.camera.rot(5,0);
 		}
 		if(hxd_Key.isDown(68)) {
-			this.camera.rot(-5,0);
+			Main.camera.rot(-5,0);
 		}
 		if(hxd_Key.isDown(87)) {
-			this.camera.rot(0,5);
+			Main.camera.rot(0,5);
 		}
 		if(hxd_Key.isDown(83)) {
-			this.camera.rot(0,-5);
+			Main.camera.rot(0,-5);
 		}
-		if(this.currPath != null && this.currPath.length != 0) {
-			this.time += dt;
-			if(this.time <= 1) {
-				var lerpX = Main.lerp(this.currX,this.currPath[this.index].x + 0.5,this.time);
-				var lerpY = Main.lerp(this.currY,this.currPath[this.index].y + 0.5,this.time);
-				var lerpZ = Main.lerp(this.currZ,this.world.getZ(this.currPath[this.index].x,this.currPath[this.index].y),this.time);
-				var _this = this.player;
-				_this.x = lerpX;
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				_this.y = lerpY;
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				_this.z = lerpZ;
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				var f = 1;
-				var b = true;
-				if(b) {
-					_this.flags |= f;
-				} else {
-					_this.flags &= ~f;
-				}
-				this.camera.setPos(lerpX,lerpY,this.s2d.get_mouseX(),this.s2d.get_mouseY());
-			} else {
-				this.currX = this.player.x;
-				this.currY = this.player.y;
-				this.currZ = this.player.z;
-				if(this.index + 1 == this.currPath.length) {
-					this.currPath = null;
-					this.index = 0;
-					this.time = 0;
-				} else {
-					this.time = 0;
-					this.index++;
-				}
-			}
+		var movement = this.player.path(dt);
+		if(movement != null) {
+			Main.camera.setPos(movement[0],movement[1],this.s2d.get_mouseX(),this.s2d.get_mouseY());
 		}
 	}
 	,__class__: Main
@@ -4961,6 +4982,15 @@ AStarPathfinder.prototype = {
 	}
 	,__class__: AStarPathfinder
 };
+var Player = function(id,mesh,world) {
+	PathedEntity.call(this,id,mesh,world);
+};
+$hxClasses["Player"] = Player;
+Player.__name__ = "Player";
+Player.__super__ = PathedEntity;
+Player.prototype = $extend(PathedEntity.prototype,{
+	__class__: Player
+});
 var Reflect = function() { };
 $hxClasses["Reflect"] = Reflect;
 Reflect.__name__ = "Reflect";
@@ -6159,6 +6189,12 @@ Type.enumParameters = function(e) {
 	} else {
 		return [];
 	}
+};
+var Utility = function() { };
+$hxClasses["Utility"] = Utility;
+Utility.__name__ = "Utility";
+Utility.lerp = function(min,max,time) {
+	return min + (max - min) * time;
 };
 var WorldSquare = function(width,s3d) {
 	var _gthis = this;
@@ -32882,6 +32918,20 @@ var h3d_impl_RenderFlag = $hxEnums["h3d.impl.RenderFlag"] = { __ename__:true,__c
 };
 h3d_impl_RenderFlag.__constructs__ = [h3d_impl_RenderFlag.CameraHandness];
 h3d_impl_RenderFlag.__empty_constructs__ = [h3d_impl_RenderFlag.CameraHandness];
+var haxe_IMap = function() { };
+$hxClasses["haxe.IMap"] = haxe_IMap;
+haxe_IMap.__name__ = "haxe.IMap";
+haxe_IMap.__isInterface__ = true;
+var haxe_ds_StringMap = function() {
+	this.h = Object.create(null);
+};
+$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
+haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+haxe_ds_StringMap.prototype = {
+	h: null
+	,__class__: haxe_ds_StringMap
+};
 var h3d_impl_InputNames = function(names) {
 	this.id = h3d_impl_InputNames.UID++;
 	this.names = names;
@@ -36861,6 +36911,36 @@ h3d_mat_Stencil.prototype = {
 		this.set_reference(this.maskBits >> 16 & 255);
 	}
 	,__class__: h3d_mat_Stencil
+};
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
+haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
+haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
+haxe_ds_IntMap.prototype = {
+	h: null
+	,remove: function(key) {
+		if(!this.h.hasOwnProperty(key)) {
+			return false;
+		}
+		delete(this.h[key]);
+		return true;
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) if(this.h.hasOwnProperty(key)) a.push(key | 0);
+		return new haxe_iterators_ArrayIterator(a);
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref[i];
+		}};
+	}
+	,__class__: haxe_ds_IntMap
 };
 var hxd_PixelFormat = $hxEnums["hxd.PixelFormat"] = { __ename__:true,__constructs__:null
 	,ARGB: {_hx_name:"ARGB",_hx_index:0,__enum__:"hxd.PixelFormat",toString:$estr}
@@ -49851,10 +49931,6 @@ h3d_shader_VolumeDecal.prototype = $extend(hxsl_Shader.prototype,{
 	}
 	,__class__: h3d_shader_VolumeDecal
 });
-var haxe_IMap = function() { };
-$hxClasses["haxe.IMap"] = haxe_IMap;
-haxe_IMap.__name__ = "haxe.IMap";
-haxe_IMap.__isInterface__ = true;
 var haxe_EntryPoint = function() { };
 $hxClasses["haxe.EntryPoint"] = haxe_EntryPoint;
 haxe_EntryPoint.__name__ = "haxe.EntryPoint";
@@ -51315,36 +51391,6 @@ haxe_ds_EnumValueMap.prototype = $extend(haxe_ds_BalancedTree.prototype,{
 	}
 	,__class__: haxe_ds_EnumValueMap
 });
-var haxe_ds_IntMap = function() {
-	this.h = { };
-};
-$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
-haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
-haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
-haxe_ds_IntMap.prototype = {
-	h: null
-	,remove: function(key) {
-		if(!this.h.hasOwnProperty(key)) {
-			return false;
-		}
-		delete(this.h[key]);
-		return true;
-	}
-	,keys: function() {
-		var a = [];
-		for( var key in this.h ) if(this.h.hasOwnProperty(key)) a.push(key | 0);
-		return new haxe_iterators_ArrayIterator(a);
-	}
-	,iterator: function() {
-		return { ref : this.h, it : this.keys(), hasNext : function() {
-			return this.it.hasNext();
-		}, next : function() {
-			var i = this.it.next();
-			return this.ref[i];
-		}};
-	}
-	,__class__: haxe_ds_IntMap
-};
 var haxe_ds_List = function() {
 	this.length = 0;
 };
@@ -51441,16 +51487,6 @@ haxe_ds_ObjectMap.prototype = {
 		return new haxe_iterators_ArrayIterator(a);
 	}
 	,__class__: haxe_ds_ObjectMap
-};
-var haxe_ds_StringMap = function() {
-	this.h = Object.create(null);
-};
-$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
-haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
-haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
-haxe_ds_StringMap.prototype = {
-	h: null
-	,__class__: haxe_ds_StringMap
 };
 var haxe_ds__$StringMap_StringMapKeyIterator = function(h) {
 	this.h = h;
@@ -81937,6 +81973,25 @@ js_html__$CanvasElement_CanvasUtil.getContextWebGL = function(canvas,attribs) {
 	return null;
 };
 Math.__name__ = "Math";
+var networking_Client = function() {
+	var _gthis = this;
+	this.client = new WebSocket("ws://localhost:8080");
+	this.client.addEventListener("open",function(event) {
+		_gthis.client.send("Hello Server!");
+	});
+	this.client.addEventListener("message",function(event) {
+		haxe_Log.trace("Message from server: ",{ fileName : "src/networking/Client.hx", lineNumber : 14, className : "networking.Client", methodName : "new", customParams : [event.data]});
+	});
+};
+$hxClasses["networking.Client"] = networking_Client;
+networking_Client.__name__ = "networking.Client";
+networking_Client.prototype = {
+	client: null
+	,send: function(message) {
+		this.client.send(message);
+	}
+	,__class__: networking_Client
+};
 var ui_Button = function(parent,width,height,shape) {
 	h2d_Interactive.call(this,width,height,parent,shape);
 	this.useColor = true;

@@ -7,6 +7,7 @@ import h3d.scene.*;
 // import ch3.scene.S2DPlane;
 import h2d.Graphics;
 import ui.*;
+import networking.*;
 
 class WASDCameraController extends h3d.scene.CameraController {
 	override public function new(?distance, ?s3d, ?s2d) {
@@ -41,25 +42,14 @@ class WASDCameraController extends h3d.scene.CameraController {
 // }
 
 class Main extends hxd.App {
-	var player:Mesh;
+	var player:Player;
 	var world:WorldSquare;
-	var camera:WASDCameraController;
+
+	public static var camera:WASDCameraController;
+
 	var cursor:h2d.Graphics;
 	var interactableRock:h3d.scene.Object;
 	var gameUI:GameUI;
-	// Eventually move this pathfinding stuff to entity classes vvv
-	var pathfinder:Pathfinder;
-	var currPath:Array<Coordinate>;
-
-	// TODO: These are just some temporary variables for pathfinding stuff.
-	var index:Int = 0;
-	var time:Float = 0;
-	var currX:Float;
-	var currY:Float;
-	var currZ:Float;
-
-	// Networking
-	var client : js.html.WebSocket;
 
 	override function init() {
 		super.init();
@@ -77,10 +67,12 @@ class Main extends hxd.App {
 		cubeShape.unindex();
 		cubeShape.addNormals();
 		cubeShape.addUVs();
-		player = new Mesh(cubeShape, s3d);
-		player.scale(0.2);
-		player.material.shadows = false;
-		player.setPosition(0, 0, 0);
+		var mesh = new Mesh(cubeShape, s3d);
+		mesh.scale(0.2);
+		mesh.material.shadows = false;
+		mesh.setPosition(0, 0, 0);
+
+		player = new Player(0, mesh, world);
 
 		// Game UI
 		gameUI = new GameUI(s2d);
@@ -127,22 +119,16 @@ class Main extends hxd.App {
 		g.emitMode = CameraBounds;
 		parts.volumeBounds = h3d.col.Bounds.fromValues(-20, -20, 15, 40, 40, 40);
 
-		// Pathfinding System Init
-		this.pathfinder = new Pathfinder(world);
-		this.currPath = [];
+		// Networking
+		var client = new Client();
 
 		// Click to Move interaction
 		var clickToMove = function(e:hxd.Event) {
 			var eventX = Math.floor(e.relX);
 			var eventY = Math.floor(e.relY);
 			if (world.checkNavMesh(eventX, eventY)) {
-				this.currPath = pathfinder.generatePath(Math.round(player.x), Math.round(player.y), eventX, eventY);
-				// TODO: These are just some temporary variables for pathfinding stuff.
-				this.index = 0;
-				this.time = 0;
-				currX = player.x;
-				currY = player.y;
-				currZ = player.z;
+				player.setPath(eventX, eventY);
+				client.send("Im going to: " + player.getCurrPath()[0]);
 			}
 		};
 		world.interactFunction = clickToMove;
@@ -155,15 +141,6 @@ class Main extends hxd.App {
 
 		// A General World Event
 		// hxd.Window.getInstance().addEventTarget(onEvent);
-
-		// Networking
-		client = new js.html.WebSocket('ws://localhost:8080');
-		client.addEventListener('open', function (event) {
-			client.send('Hello Server!');
-		});
-		client.addEventListener('message', function (event) {
-			trace('Message from server ', event.data);
-		});
 	}
 
 	// Don't forget to remove the event using removeEventTarget when disposing your objects.
@@ -190,33 +167,10 @@ class Main extends hxd.App {
 		if (hxd.Key.isDown(hxd.Key.S)) {
 			camera.rot(0, -5);
 		}
-		// 
-		if (currPath != null && currPath.length != 0) {
-			time = time + dt;
-			if (time <= 1) {
-				var lerpX = lerp(currX, currPath[index].x + 0.5, time);
-				var lerpY = lerp(currY, currPath[index].y + 0.5, time);
-				var lerpZ = lerp(currZ, world.getZ(currPath[index].x, currPath[index].y), time);
-				player.setPosition(lerpX, lerpY, lerpZ);
-				camera.setPos(lerpX, lerpY, s2d.mouseX, s2d.mouseY);
-			} else {
-				this.currX = player.x;
-				this.currY = player.y;
-				this.currZ = player.z;
-				if (index + 1 == currPath.length) {
-					currPath = null;
-					index = 0;
-					time = 0;
-				} else {
-					time = 0;
-					index++;
-				}
-			}
+		var movement = player.path(dt);
+		if (movement != null) {
+			camera.setPos(movement[0], movement[1], s2d.mouseX, s2d.mouseY);
 		}
-	}
-
-	public static function lerp(min:Float, max:Float, time:Float):Float {
-		return min + (max - min) * time;
 	}
 
 	static function main() {
